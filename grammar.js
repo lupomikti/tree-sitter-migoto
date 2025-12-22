@@ -532,7 +532,7 @@ module.exports = grammar({
       share_dupes|symlink|dump_(?:rt|depth|tex)_(?:jps|dds)|dump_[cvi]b_txt)`
     ),
 
-    free_text: _ => /[^\\/=\r\n]+/i,
+    free_text: _ => /[^\\/= \t\r\n]+/i,
 
     comment: $ => token(seq(
       field('start', ';'),

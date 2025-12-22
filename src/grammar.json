@@ -2104,7 +2104,7 @@
     },
     "free_text": {
       "type": "PATTERN",
-      "value": "[^\\\\/=\\r\\n]+",
+      "value": "[^\\\\/= \\t\\r\\n]+",
       "flags": "i"
     },
     "comment": {
