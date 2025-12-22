@@ -9,6 +9,7 @@
       "file-types": [
         "ini"
       ],
+      "highlights": "queries/highlights.scm",
       "injection-regex": "^migoto$",
       "class-name": "TreeSitterMigoto"
     }
@@ -18,6 +19,10 @@
     "license": "MIT",
     "description": "DSL for the INI files used by 3Dmigoto",
     "authors": [
+      {
+        "name": "LupoMikti",
+        "email": "lykare@proton.me"
+      },
       {
         "name": "AGMG",
         "url": "https://discord.gg/AGMG"
