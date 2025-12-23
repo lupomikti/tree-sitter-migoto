@@ -190,7 +190,7 @@ module.exports = grammar({
 
     _special_section: $ => choice(
       $.constants_section,
-      // $.key_section, // TODO
+      $.key_section,
       // $.preset_section, // TODO
       // $._shader_regex_section // TODO
     ),
@@ -204,6 +204,52 @@ module.exports = grammar({
         $.global_declaration,
         $.primary_statement
       ))
+    ),
+
+    key_section_header: _ => _create_section_header(/Key.+/i),
+
+    key_section: $ => seq(
+      field('header', $.key_section_header),
+      newline,
+      repeat(choice(
+        $.key_setting_statement,
+        $.key_run_instruction,
+        $.key_condition_statement,
+        $.key_assignment_statement
+      ))
+    ),
+
+    key_setting_statement: $ => seq(
+      field('key', $.key_section_key),
+      '=',
+      field('value', $.key_section_value),
+      newline
+    ),
+
+    key_section_key: _ => token(
+      /(type|key|back|(?:release_)?delay|wrap|smart|separation|convergence|(?:release_)?transition|(?:release_)?transition_type)/i
+    ),
+
+    key_section_value: $ => repeat1(
+      choice(
+        field('fixed_value', $.key_fixed_key_value),
+        $.boolean_value,
+        $._static_value,
+        $.free_text
+      )
+    ),
+
+    key_fixed_key_value: $ => choice(
+      alias(/(hold|activate|toggle|cycle)/i, $.key_key_value),
+      alias(/(linear|cosine)/i, $.transition_type_key_value),
+      alias(/(?:(?:no_)?(?:ctrl|alt|shift|windows)|no_modifiers)/i, $.key_binding_modifier)
+    ),
+
+    key_condition_statement: $ => seq(
+      alias('condition', $.condition_key),
+      '=',
+      list_seq($.operational_expression, ','),
+      newline
     ),
 
     setting_section_header: _ => _create_section_header(
@@ -386,6 +432,15 @@ module.exports = grammar({
       )
     ),
 
+    key_assignment_statement: $ => seq(
+      field('name', choice(
+        $.ini_parameter,
+        $.named_variable
+      )),
+      "=",
+      field('expression', list_seq($._static_value, ','))
+    ),
+
     // adapted from tree-sitter-lua
     _block: ($) => repeat1($.primary_statement),
 
@@ -440,6 +495,13 @@ module.exports = grammar({
       alias(/run/i, $.instruction),
       '=',
       $._callable_section,
+      newline
+    ),
+
+    key_run_instruction: $ => seq(
+      alias(/run/i, $.instruction),
+      '=',
+      list_seq($.callable_commandlist, ','),
       newline
     ),
 
