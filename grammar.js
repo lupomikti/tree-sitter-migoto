@@ -191,7 +191,7 @@ module.exports = grammar({
     _special_section: $ => choice(
       $.constants_section,
       $.key_section,
-      // $.preset_section, // TODO
+      $.preset_section,
       // $._shader_regex_section // TODO
     ),
 
@@ -249,6 +249,46 @@ module.exports = grammar({
       alias('condition', $.condition_key),
       '=',
       list_seq($.operational_expression, ','),
+      newline
+    ),
+
+    preset_section_header: _ => _create_section_header(/Preset.+/i),
+
+    preset_section: $ => seq(
+      field('header', $.preset_section_header),
+      newline,
+      repeat(choice(
+        $.preset_setting_statement,
+        $.preset_run_instruction,
+        $.preset_condition_statement,
+        $.preset_assignment_statement
+      ))
+    ),
+
+    preset_setting_statement: $ => seq(
+      field('key', $.preset_section_key),
+      '=',
+      field('value', $.preset_section_value),
+      newline
+    ),
+
+    preset_section_key: _ => token(
+      /(separation|convergence|(?:release_)?transition|(?:release_)?transition_type|unique_triggers_required)/i
+    ),
+
+    preset_section_value: $ => repeat1(
+      choice(
+        field('fixed_value', alias(/(linear|cosine)/i, $.transition_type_preset_value),),
+        $.boolean_value,
+        $._static_value,
+        $.free_text
+      )
+    ),
+
+    preset_condition_statement: $ => seq(
+      alias('condition', $.condition_key),
+      '=',
+      $.operational_expression,
       newline
     ),
 
@@ -441,6 +481,15 @@ module.exports = grammar({
       field('expression', list_seq($._static_value, ','))
     ),
 
+    preset_assignment_statement: $ => seq(
+      field('name', choice(
+        $.ini_parameter,
+        $.named_variable
+      )),
+      "=",
+      field('expression', $._static_value)
+    ),
+
     // adapted from tree-sitter-lua
     _block: ($) => repeat1($.primary_statement),
 
@@ -502,6 +551,13 @@ module.exports = grammar({
       alias(/run/i, $.instruction),
       '=',
       list_seq($.callable_commandlist, ','),
+      newline
+    ),
+
+    preset_run_instruction: $ => seq(
+      alias(/run/i, $.instruction),
+      '=',
+      $.callable_commandlist,
       newline
     ),
 

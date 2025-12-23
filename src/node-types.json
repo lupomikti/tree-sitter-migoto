@@ -38,6 +38,10 @@
         "named": true
       },
       {
+        "type": "preset_section",
+        "named": true
+      },
+      {
         "type": "setting_section",
         "named": true
       }
@@ -1238,6 +1242,59 @@
     }
   },
   {
+    "type": "preset_assignment_statement",
+    "named": true,
+    "fields": {
+      "expression": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "language_constant",
+            "named": true
+          },
+          {
+            "type": "numeric_constant",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "ini_parameter",
+            "named": true
+          },
+          {
+            "type": "named_variable",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "preset_condition_statement",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "condition_key",
+          "named": true
+        },
+        {
+          "type": "operational_expression",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "preset_instruction",
     "named": true,
     "fields": {},
@@ -1258,6 +1315,132 @@
           "named": true
         }
       ]
+    }
+  },
+  {
+    "type": "preset_run_instruction",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "callable_commandlist",
+          "named": true
+        },
+        {
+          "type": "instruction",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "preset_section",
+    "named": true,
+    "fields": {
+      "header": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "preset_section_header",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "preset_assignment_statement",
+          "named": true
+        },
+        {
+          "type": "preset_condition_statement",
+          "named": true
+        },
+        {
+          "type": "preset_run_instruction",
+          "named": true
+        },
+        {
+          "type": "preset_setting_statement",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "preset_section_header",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "preset_section_value",
+    "named": true,
+    "fields": {
+      "fixed_value": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "transition_type_preset_value",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "boolean_value",
+          "named": true
+        },
+        {
+          "type": "free_text",
+          "named": true
+        },
+        {
+          "type": "language_constant",
+          "named": true
+        },
+        {
+          "type": "numeric_constant",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "preset_setting_statement",
+    "named": true,
+    "fields": {
+      "key": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "preset_section_key",
+            "named": true
+          }
+        ]
+      },
+      "value": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "preset_section_value",
+            "named": true
+          }
+        ]
+      }
     }
   },
   {
@@ -2068,6 +2251,10 @@
     "named": false
   },
   {
+    "type": "preset_section_key",
+    "named": true
+  },
+  {
     "type": "rendering_key_value",
     "named": true
   },
@@ -2161,6 +2348,10 @@
   },
   {
     "type": "transition_type_key_value",
+    "named": true
+  },
+  {
+    "type": "transition_type_preset_value",
     "named": true
   },
   {
