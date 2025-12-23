@@ -1,6 +1,6 @@
 /**
  * @file tree-sitter grammar for the DSL of the INI files used by 3Dmigoto
- * @author LupoMikti lykare@proton.me
+ * @author LupoMikti <lykare@proton.me>
  * @author AGMG
  * @license MIT
  */
@@ -24,10 +24,16 @@ const PREC = {
 }
 
 const newline = /\r?\n/
-const custom_section_name = /[^\-+*/&% !>|<=$\r\n]+/i
-const namespace_regex = /[^>\\|/<?:*=$\r\n]+(?:[\\/][^>\\|/<?:*=$\r\n]+)*/i
+const custom_section_name = /[^\-+*\/&% !>|<=$\r\n]+/i
+const namespace_regex = /[^>\\|\/<?:*=$\r\n]+(?:[\\\/][^>\\|\/<?:*=$\r\n]+)*/i
 const path_regex = /(?:(?:(?:[a-z]:|\.\.?)[\\\/])?(?:\.\.|[^>\\|\/<?:*=$\r\n]+)(?:(?:\\|\/)(?:\.\.|[^>\\|\/<?:*=$\r\n]+))+)/i
-const file_regex = /[^>\\|/<?:*=$\r\n]+\.[a-z0-9\-]+/i
+const file_regex = /[^>\\|\/<?:*=$\r\n]+\.[a-z0-9\-]+/i
+
+const custom_shader_state_keys = new RustRegex(`(?xi)(
+  blend_factor\[([0-3])\]|(?:blend|alpha|mask)(?:\[[0-7]\])?|alpha_to_coverage|sample_mask|blend_state_merge|
+  depth_(?:enable|write_mask|func|stencil_state_merge)|stencil_(?:enable|(?:read|write)_mask|front|back|ref)|
+  fill|cull|front|depth_(?:bias(?:_clamp)?|clip_enable)|slope_scaled_depth_bias|(?:scissor|multisample|antialiased_line)_enable|rasterizer_state_merge
+)`)
 
 const custom_shader_key_values = new RustRegex(`(?xi)(
   front|back|wireframe|solid|
@@ -35,9 +41,17 @@ const custom_shader_key_values = new RustRegex(`(?xi)(
   debug|skip_(validation|optimization)|pack_matrix_(row_major|column_major)|partial_precision|force_[vp]s_software_no_opt|no_preshader|(avoid|prefer)_flow_control|enable_(strictness|backwards_compatibility|unbounded_descriptor_tables)|ieee_strictness|optimization_level[0123]|warnings_are_errors|resources_may_alias|all_resources_bound
 )`)
 
+const hunting_section_keys = /((?:done_|toggle_)?hunting|(?:next_)?marking_mode|marking_actions|mark_snapshot|(?:previous|next|mark)_(?:pixel|vertex|compute|geometry|domain|hull)shader|(?:previous|next|mark)_(?:index|vertex)buffer|(?:previous|next|mark)_rendertarget|take_screenshot|reload_fixes|(?:reload|wipe_user)_config|show_original|monitor_performance(?:_interval)?|repeat_rate|freeze_performance_monitor|verbose_overlay|tune_(?:enable|step)|tune[123]_(?:up|down)|analyse_frame|analyse_options|kill_deferred)/i
+const system_section_keys = /(proxy_d3d(?:9|11)|load_library_redirect|check_foreground_window|hook|allow_(?:check_interface|create_device|platform_update)|skip_early_includes_load|config_initialization_delay|settings_auto_save_interval|dll_initialization_delay|screen_(?:width|height)|dump_path)/i
+const device_section_keys = /(upscaling|upscale_mode|(?:filter_)?refresh_rate|(?:toggle_)?full_screen|force_full_screen_on_key|force_stereo|allow_windowcommands|get_resolution_from|hide_cursor|cursor_upscaling_bypass)/i
+const rendering_section_keys = /(shader_hash|texture_hash|(?:override|cache|storage)_directory|cache_shaders|rasterizer_disable_scissor|track_texture_updates|(?:stereo|ini)_params|assemble_signature_comments|disassemble_undecipherable_custom_data|patch_assembly_cb_offsets|recursive_include|export_(?:fixed|shaders|hlsl|binary)|dump_usage|fix_(?:sv_position|ZRepair_.+|BackProjectionTransform\d|ObjectPosition\d(?:Multiplier)?|MatrixOperand\d(?:Multiplier)?)|recompile_all_vs)/i
+
+const resource_type_values = new RustRegex(`(?xi)(
+  (?:RW)?(?:Append|Consume)?StructuredBuffer|(?:RW)?(?:ByteAddress)?Buffer|(?:RW)?Texture[123]D|TextureCube
+)`)
+
 const resource_key_values = new RustRegex(`(?xi)(
   auto|stereo|
-  (?:RW)?(?:Append|Consume)?StructuredBuffer|(?:RW)?(?:ByteAddress)?Buffer|(?:RW)?Texture[123]D|TextureCube|
   (?:vertex|index|constant)_buffer|shader_resource|stream_output|render_target|unordered_access|decoder|video_encoder|
   texturecube|generate_mips|shared|drawindirect_args|buffer_(?:allow_raw_views|structured)|resource_clamp|shared_(?:keymutex|nthandle)|gdi_compatible|restricted_content|restrict_shared_resource(?:_driver)?|guarded|tile_pool|tiled|hw_protected
 )`)
@@ -51,29 +65,19 @@ const dxgi_types_regex = new RustRegex(`(?xi)(?:DXGI_FORMAT_)?(UNKNOWN|R32G32B32
 
 /**
  * 
- * @param {string|RegExp} builtin_name 
+ * @param {string|RegExp} section_name 
  * @returns {SeqRule}
  */
-const _create_section_header = (builtin_name) => seq(
+const _create_section_header = (section_name) => seq(
   '[',
-  token.immediate(builtin_name),
+  token.immediate(section_name),
   optional(']')
-)
-
-/**
- * 
- * @param {GrammarSymbols<any>} $ 
- * @returns {SeqRule}
- */
-const useable_section_identifier_rule = $ => seq(
-  optional(token(seq('\\', token.immediate(alias(namespace_regex, $.namespace)), token.immediate('\\')))),
-  alias(custom_section_name, $.section_identifier)
 )
 
 // from tree-sitter-lua
 /**
  * 
- * @param {Rule} rule 
+ * @param {RuleOrLiteral} rule 
  * @param {string} separator 
  * @param {boolean} trailing_separator 
  * @returns {SeqRule}
@@ -83,14 +87,73 @@ const list_seq = (rule, separator, trailing_separator = false) =>
     ? seq(rule, repeat(seq(separator, rule)), optional(separator))
     : seq(rule, repeat(seq(separator, rule)));
 
+/**
+ * Adapted from tree-sitter-lua, this function returns the rule for defining a binary expression
+ * @param {RuleOrLiteral} rule 
+ * @returns {ChoiceRule}
+ */
+const _generate_binary_expr_rule = (rule) => choice(
+  ...[
+      ['||', PREC.OR],
+      ['&&', PREC.AND],
+      ['<', PREC.COMPARE],
+      ['<=', PREC.COMPARE],
+      ['===', PREC.COMPARE],
+      ['==', PREC.COMPARE],
+      ['!==', PREC.COMPARE],
+      ['!=', PREC.COMPARE],
+      ['>=', PREC.COMPARE],
+      ['>', PREC.COMPARE],
+      // ['', PREC.BIT_OR],
+      // ['', PREC.BIT_NOT],
+      // ['', PREC.BIT_AND],
+      // ['', PREC.BIT_SHIFT],
+      // ['', PREC.BIT_SHIFT],
+      ['+', PREC.PLUS],
+      ['-', PREC.PLUS],
+      ['*', PREC.MULTI],
+      ['/', PREC.MULTI],
+      ['//', PREC.MULTI],
+      ['%', PREC.MULTI],
+    ].map(([operator, precedence]) =>
+      prec.left(
+        precedence,
+        seq(
+          field('left', rule),
+          // @ts-ignore
+          operator,
+          field('right', rule)
+        )
+      )
+    ),
+    ...[
+      ['**', PREC.POWER],
+    ].map(([operator, precedence]) =>
+      prec.right(
+        precedence,
+        seq(
+          field('left', rule),
+          // @ts-ignore
+          operator,
+          field('right', rule)
+        )
+      )
+    )
+)
+
 module.exports = grammar({
   name: 'migoto',
 
   extras: $ => [$.comment, $._blank, /[ \t]/],
 
-  supertypes: $ => [$.section, $.primary_statement],
+  externals: $ => [
+    $.namespace_resolution_start,
+    $.namespace_resolution_content,
+    $.namespace_resolution_end,
+    $.error_sentinel
+  ],
 
-  // word: $ => $.identifier,
+  supertypes: $ => [$.section, $.primary_statement],
 
   rules: {
     document: $ => seq(
@@ -109,21 +172,20 @@ module.exports = grammar({
     namespace_declaration: $ => seq(
       alias('namespace', $.namespace_key),
       '=',
-      optional(alias(namespace_regex, $.namespace)),
-      newline
+      optional(alias(namespace_regex, $.namespace))
     ),
 
     conditional_include_statement: $ => seq(
       alias('condition', $.condition_key),
       '=',
-      // $.static_operational_expression, // TODO
+      $.static_operational_expression,
       newline
     ),
 
     section: $ => choice(
       $._special_section,
       $.setting_section,
-      // $._command_list_section // TODO
+      $.commandlist_section
     ),
 
     _special_section: $ => choice(
@@ -161,8 +223,26 @@ module.exports = grammar({
       newline
     ),
 
-    // no, apparently I cannot use \w{2,} it causes an error
-    setting_section_key: _ => /\w\w+/i,
+    setting_section_key: $ => choice(
+      alias(/(hash|filter_index|match_priority|format|(?:width|height)(?:_multiply)?)/i, $.multi_section_key),
+      alias(/(type|filename|data|max_copies_per_frame|mode|(?:bind|misc)_flags|depth|mips|array|msaa(?:_quality)?|byte_width|stride)/i, $.resource_section_key),
+      alias(/(stereomode|expand_region_copy|deny_cpu_read|iteration)/i, $.texov_resouce_match_key),
+      alias(/((?:override_|uav_)?byte_stride|override_vertex_count)/i, $.texov_vertex_limit_key),
+      alias(/(match_(?:first_(?:vertex|index|instance)|(?:vertex_|index_|instance_)count))/i, $.texov_draw_match_key),
+      alias(/(match_(?:type|usage|(?:bind|cpu_access|misc)_flags|(?:byte_)?width|height|stride|mips|format|depth|array|msaa(?:_quality)?))/i, $.texov_fuzzy_match_key),
+      alias(/([vhdgpc]s|flags|max_executions_per_frame|topology|sampler)/i, $.custom_shader_key),
+      alias(custom_shader_state_keys, $.custom_shader_state_key),
+      alias(/(shader_model|temps)/i, $.shader_regex_key),
+      alias(/(allow_duplicate_hash|depth_filter|partner|model|disable_scissor)/i, $.shader_override_key),
+      alias(/((?:in|ex)clude(?:_recursive)?|user_config)/i, $.include_section_key),
+      alias(/(separation|convergence|calls|input|debug(?:_locks)?|unbuffered|force_cpu_affinity|wait_for_debugger|crash|dump_all_profiles|show_warnings)/i, $.logging_section_key),
+      alias(hunting_section_keys, $.hunting_section_key),
+      alias(system_section_keys, $.system_section_key),
+      alias(/(target|module|require_admin|launch|delay|loader|check_version|entry_point|hook_proc|wait_for_target)/i, $.loader_section_key),
+      alias(device_section_keys, $.device_section_key),
+      alias(/(automatic_mode|unlock_(?:separation|convergence)|create_profile|surface(?:_square)?_createmode|force_no_nvapi)/i, $.stereo_section_key),
+      alias(rendering_section_keys, $.rendering_section_key)
+    ),
 
     setting_section_value: $ => repeat1(
       choice(
@@ -183,8 +263,9 @@ module.exports = grammar({
       alias(/(none|overrule|depth_(?:(?:in)?active))/i, $.override_key_value),
       alias(custom_shader_key_values, $.custom_shader_key_value),
       alias(/(default|immutable|dynamic|staging)/i, $.fuzzy_match_key_value),
+      alias(resource_type_values, $.resource_type),
       alias(resource_key_values, $.resource_key_value),
-      alias(dxgi_types_regex, $.resource_type),
+      alias(dxgi_types_regex, $.resource_format),
       alias(/(add|(?:rev_)?subtract|min|max|disable)/i, $.blend_operator),
       alias(/(zero|one|(?:inv_)?(?:src1?|dest)_(?:color|alpha)|src_alpha_sat|(?:inv_)?blend_factor)/i, $.blend_factor),
       alias(/(deferred_contexts|(?:immediate_)?context|device|all|recommended|except_set_(?:shader_resources|sampler|rasterizer_state)|skip_dxgi_(?:factory|device))/i, $.system_key_value),
@@ -215,14 +296,43 @@ module.exports = grammar({
       optional(seq('/', $.integer))
     ),
 
+    commandlist_section_header: _ => _create_section_header(
+      /(Present|Clear(?:RenderTarget|DepthStencil)View|ClearUnorderedAccessView(?:Uint|Float)|(?:ShaderOverride|TextureOverride|(?:BuiltIn)?(?:CommandList|CustomShader)).+)/i
+    ),
+
+    commandlist_section: $ => seq(
+      field('header', $.commandlist_section_header),
+      newline,
+      repeat(choice(
+        $.setting_statement,
+        $.primary_statement
+      ))
+    ),
+
     primary_statement: $ => choice(
       $.local_declaration,
       $._general_statement,
-      // $.conditional_statement // TODO
+      $.conditional_statement
+    ),
+
+    local_declaration: $ => seq(
+      'local',
+      field('variable', $.named_variable),
+      newline
+    ),
+
+    local_initialisation: $ => seq(
+      seq(
+        'local',
+        field('variable', $.named_variable)
+      ),
+      '=',
+      field('expression', $.operational_expression),
+      newline
     ),
 
     _general_statement: $ => choice(
-      // $.assignment_statement, // TODO
+      $.assignment_statement,
       $.instruction_statement
     ),
 
@@ -257,17 +367,51 @@ module.exports = grammar({
       field('value', $._static_value)
     ),
 
-    local_declaration: $ => seq(
-      'local',
-      field('variable', $.named_variable),
-      newline
+    assignment_statement: $ => seq(
+      optional(choice('pre', 'post')),
+      choice(
+        seq(
+          field('name', choice(
+            $.ini_parameter,
+            $.named_variable
+          )),
+          "=",
+          field('expression', $.operational_expression)
+        ),
+        seq(
+          field('name', $.resource_operand),
+          '=',
+          field('expression', $.resource_usage_expression)
+        )
+      )
     ),
 
-    local_initialisation: $ => seq(
-      seq('local', field('variable', $.named_variable)),
-      '=',
-      field('expression', $.string), // TODO: will actually just be $._operational_expression
-      newline
+    // adapted from tree-sitter-lua
+    _block: ($) => repeat1($.primary_statement),
+
+    // adapted from tree-sitter-lua
+    conditional_statement: $ => seq(
+      'if',
+      field('condition', $.operational_expression),
+      newline,
+      field('consequence', alias(optional($._block), $.block)),
+      repeat(field('alternative', $.elseif_statement)),
+      optional(field('alternative', $.else_statement)),
+      'endif'
+    ),
+
+    // adapted from tree-sitter-lua
+    elseif_statement: $ => seq(
+      choice('elif', 'else if'),
+      field('condition', $.operational_expression),
+      newline,
+      field('consequence', alias(optional($._block), $.block))
+    ),
+
+    // adapted from tree-sitter-lua
+    else_statement: $ => seq(
+      'else',
+      field('body', alias(optional($._block), $.block))
     ),
 
     instruction_statement: $ => choice(
@@ -292,41 +436,46 @@ module.exports = grammar({
     ),
 
     run_instruction: $ => seq(
-      field('instruction', /run/i),
+      optional(choice('pre', 'post')),
+      alias(/run/i, $.instruction),
       '=',
       $._callable_section,
       newline
     ),
 
     check_texture_override_instruction: $ => seq(
-      field('instruction', /checktextureoverride/i),
+      optional(choice('pre', 'post')),
+      alias(/checktextureoverride/i, $.instruction),
       '=',
       $.resource_operand,
       newline
     ),
 
     preset_instruction: $ => seq(
-      field('instruction', /(?:exclude_)?preset/i),
+      optional(choice('pre', 'post')),
+      alias(/(?:exclude_)?preset/i, $.instruction),
       '=',
       choice(
         $._useable_section_identifier,
-        // $.preset_section_identifier
+        // $.preset_section_identifier // TODO
       ),
       newline
     ),
 
     handling_instruction: $ => seq(
-      field('instruction', /handling/i),
+      optional(choice('pre', 'post')),
+      alias(/handling/i, $.instruction),
       '=',
-      field('fixed_value', choice(
+      field('fixed_value', alias(choice(
         'skip',
         'abort'
-      )),
+      ), $.handling_key_value)),
       newline
     ),
 
     reset_instruction: $ => seq(
-      field('instruction', /reset_per_frame_limits/i),
+      optional(choice('pre', 'post')),
+      alias(/reset_per_frame_limits/i, $.instruction),
       '=',
       repeat1(choice(
         $.resource_operand,
@@ -336,44 +485,53 @@ module.exports = grammar({
     ),
 
     clear_instruction: $ => seq(
-      field('instruction', /clear/i),
+      optional(choice('pre', 'post')),
+      alias(/clear/i, $.instruction),
       '=',
       repeat1(choice(
         $.resource_operand,
         alias(/0x[a-f0-9]+/i, $.hex_integer),
         $._static_value, // numeric constant + inf and NaN
-        field('fixed_value', choice('int', 'depth', 'stencil'))
+        field('fixed_value', alias(choice(
+          'int',
+          'depth',
+          'stencil'
+        ), $.clear_instruction_key_value))
       )),
       newline
     ),
 
     stereo_instruction: $ => seq(
-      field('instruction', /(?:separation|convergence)/i),
+      optional(choice('pre', 'post')),
+      alias(/(?:separation|convergence)/i, $.instruction),
       '=',
       $._static_value, // numeric constant + inf and NaN
       newline
     ),
 
     dme_instruction: $ => seq(
-      field('instruction', /direct_mode_eye/i),
+      optional(choice('pre', 'post')),
+      alias(/direct_mode_eye/i, $.instruction),
       '=',
-      field('fixed_value', choice(
+      field('fixed_value', alias(choice(
         'mono',
         'left',
         'right'
-      )),
+      ), $.dme_instruction_key_value)),
       newline
     ),
 
     analysis_instruction: $ => seq(
-      field('instruction', /analyse_options/i),
+      optional(choice('pre', 'post')),
+      alias(/analyse_options/i, $.instruction),
       '=',
-      repeat1($.frame_analysis_option),
+      field('fixed_value', repeat1($.frame_analysis_option)),
       newline
     ),
 
     dump_instruction: $ => seq(
-      field('instruction', /dump/i),
+      optional(choice('pre', 'post')),
+      alias(/dump/i, $.instruction),
       '=',
       repeat1(choice(
         $.resource_operand,
@@ -383,17 +541,19 @@ module.exports = grammar({
     ),
 
     special_instruction: $ => seq(
-      field('instruction', /special/i),
+      optional(choice('pre', 'post')),
+      alias(/special/i, $.instruction),
       '=',
-      field('fixed_value', choice(
+      field('fixed_value', alias(choice(
         'upscaling_switch_bb',
         'draw_3dmigoto_overlay'
-      )),
+      ), $.special_instruction_key_value)),
       newline
     ),
 
     store_instruction: $ => seq(
-      field('instruction', /store/i),
+      optional(choice('pre', 'post')),
+      alias(/store/i, $.instruction),
       '=',
       $.named_variable,
       ',',
@@ -404,34 +564,38 @@ module.exports = grammar({
     ),
 
     draw_instruction: $ => seq(
-      field('instruction', /draw/i),
+      optional(choice('pre', 'post')),
+      alias(/draw/i, $.instruction),
       '=',
       choice(
-        field('fixed_value', choice('auto', 'from_caller')),
+        field('fixed_value', alias(choice('auto', 'from_caller'), $.draw_instruction_key_value)),
         list_seq($.integer, ',')
       ),
       newline
     ),
 
     drawindexed_instruction: $ => seq(
-      field('instruction', /drawindexed(?:instanced)?/i),
+      optional(choice('pre', 'post')),
+      alias(/drawindexed(?:instanced)?/i, $.instruction),
       '=',
       choice(
-        field('fixed_value', /auto/i),
+        field('fixed_value', alias(/auto/i, $.draw_instruction_key_value)),
         list_seq($.integer, ',')
       ),
       newline
     ),
 
     drawinstanced_dispatch_instruction: $ => seq(
-      field('instruction', /(?:drawinstanced|dispatch)/i),
+      optional(choice('pre', 'post')),
+      alias(/(?:drawinstanced|dispatch)/i, $.instruction),
       '=',
       list_seq($.integer, ','),
       newline
     ),
 
     drawindirect_instruction: $ => seq(
-      field('instruction', /(?:drawinstanced|drawindexedinstanced|dispatch)indirect/i),
+      optional(choice('pre', 'post')),
+      alias(/(?:drawinstanced|drawindexedinstanced|dispatch)indirect/i, $.instruction),
       '=',
       alias(
         seq($.resource_operand, ',', $.integer),
@@ -450,38 +614,94 @@ module.exports = grammar({
 
     resource_operand: $ => choice(
       $._language_variable,
-      $.ini_parameter,
       $.resource_identifier,
       $.custom_resource
     ),
 
+    static_operational_expression: $ => choice(
+      $._static_value,
+      $.static_parenthesized_expression,
+      $.static_binary_expression,
+      $.static_unary_expression
+    ),
+
+    static_parenthesized_expression: $ => seq(
+      '(',
+      $.static_operational_expression,
+      ')'
+    ),
+
+    static_binary_expression: $ => _generate_binary_expr_rule($.static_operational_expression),
+
+    static_unary_expression: $ => prec.left(
+      PREC.UNARY,
+      seq(choice('-', '+', '!'), field('operand', $.static_operational_expression))
+    ),
+
+    operational_expression: $ => choice(
+      $.numeric_constant,
+      $.identifier,
+      $.parenthesized_expression,
+      $.binary_expression,
+      $.unary_expression
+    ),
+
+    parenthesized_expression: $ => seq(
+      '(',
+      $.operational_expression,
+      ')'
+    ),
+
+    binary_expression: $ => _generate_binary_expr_rule($.operational_expression),
+
+    // adapted from tree-sitter-lua
+    unary_expression: $ => prec.left(
+      PREC.UNARY,
+      seq(choice('-', '+', '!'), field('operand', $.operational_expression))
+    ),
+
     identifier: $ => choice(
-      $.resource_operand,
-      // normal operands
-      $.override_parameter,
       $.named_variable,
-      $._callable_section
+      $.ini_parameter,
+      $.resource_operand,
+      $.shader_identifier,
+      $.scissor_rectangle,
+      $.override_parameter
     ),
 
     _language_variable: $ => choice(
-      alias(/(?:[vhdgpc]s-cb\d{1,2}|vb\d|ib|(?:[rf]_)?bb)/i, $.buffer_variable),
-      alias(/(?:[pc]s-u\d|s?o\d|od|[vhdgpc]s(?:-t\d{1,3})?)/i, $.shader_variable)
+      alias(/(?:[vhdgpc]s-cb\d\d?|vb\d|ib|(?:[rf]_)?bb)/i, $.buffer_variable),
+      alias(/(?:[pc]s-u\d|s?o\d|od|[vhdgpc]s(?:-t\d\d?\d?)?)/i, $.shader_variable)
     ),
+
     resource_identifier: _ => token(/(?:this|(?:ini|stereo)params|cursor_(?:mask|color))/i),
+
     custom_resource: $ => seq(
       alias(/Resource/i, $.resource_prefix),
-      token.immediate(useable_section_identifier_rule($))
+      $._useable_section_identifier
     ),
 
     named_variable: $ => seq(
       '$',
-      token.immediate(seq(
-        optional(token(seq('\\', token.immediate(alias(namespace_regex, $.namespace)), token.immediate('\\')))),
-        /[a-z_]\w+|[a-z]/i
-      ))
+      optional(seq(
+        alias($.namespace_resolution_start, '\\'),
+        alias($.namespace_resolution_content, $.namespace),
+        alias($.namespace_resolution_end, '\\')
+      )),
+      alias(/[a-z_]\w+|[a-z]/i, $.variable_identifier)
     ),
 
-    ini_parameter: _ => token.immediate(/[xyzw]\d{0,3}/i),
+    // Oh the BS I have to do to deal with tree-sitter's regex restrictions
+    ini_parameter: _ => choice(
+      /[xyzw]/i,
+      /[xyzw]\d/i,
+      /[xyzw]\d\d/i,
+      /[xyzw]\d\d\d/i,
+    ),
+
+    shader_identifier: _ => token.immediate(/[vhdgpc]s/i),
+
+    scissor_rectangle: _ => /(scissor\d+_(?:left|top|right|bottom))/i,
 
     override_parameter: _ => new RustRegex(`(?xi)(
       (?:rt|res|window)_(?:width|height) | (?:vertex|index|instance)_count | first_(?:vertex|index|instance) |
@@ -497,16 +717,20 @@ module.exports = grammar({
 
     callable_commandlist: $ => seq(
       alias(/(?:BuiltIn)?CommandList/i, $.callable_prefix),
-      token.immediate(useable_section_identifier_rule($))
+      $._useable_section_identifier
     ),
 
     callable_customshader: $ => seq(
       alias(/(?:BuiltIn)?CustomShader/i, $.callable_prefix),
-      token.immediate(useable_section_identifier_rule($))
+      $._useable_section_identifier
     ),
 
     _useable_section_identifier: $ => seq(
-      optional(token(seq('\\', token.immediate(alias(namespace_regex, $.namespace)), token.immediate('\\')))),
+      optional(seq(
+        alias($.namespace_resolution_start, '\\'),
+        alias($.namespace_resolution_content, $.namespace),
+        alias($.namespace_resolution_end, '\\')
+      )),
       alias(custom_section_name, $.section_identifier)
     ),
 
@@ -532,12 +756,11 @@ module.exports = grammar({
       share_dupes|symlink|dump_(?:rt|depth|tex)_(?:jps|dds)|dump_[cvi]b_txt)`
     ),
 
-    free_text: _ => /[^\\/= \t\r\n]+/i,
+    free_text: _ => /[^\\\/= "\t\r\n]+/i,
 
     comment: $ => token(seq(
       field('start', ';'),
-      field('content', alias(/[^\r\n]*/, $.comment_content)),
-      newline
+      field('content', alias(/[^\r\n]*/, $.comment_content))
     )),
 
     _blank: _ => field('blank', newline)
