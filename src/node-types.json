@@ -1,5 +1,31 @@
 [
   {
+    "type": "operational_expression",
+    "named": true,
+    "subtypes": [
+      {
+        "type": "binary_expression",
+        "named": true
+      },
+      {
+        "type": "identifier",
+        "named": true
+      },
+      {
+        "type": "numeric_constant",
+        "named": true
+      },
+      {
+        "type": "parenthesized_expression",
+        "named": true
+      },
+      {
+        "type": "unary_expression",
+        "named": true
+      }
+    ]
+  },
+  {
     "type": "primary_statement",
     "named": true,
     "subtypes": [
@@ -17,6 +43,10 @@
       },
       {
         "type": "local_declaration",
+        "named": true
+      },
+      {
+        "type": "local_initialisation",
         "named": true
       }
     ]
@@ -43,6 +73,22 @@
       },
       {
         "type": "setting_section",
+        "named": true
+      },
+      {
+        "type": "shader_regex_commandlist_section",
+        "named": true
+      },
+      {
+        "type": "shader_regex_declarations_section",
+        "named": true
+      },
+      {
+        "type": "shader_regex_pattern_section",
+        "named": true
+      },
+      {
+        "type": "shader_regex_replace_section",
         "named": true
       }
     ]
@@ -511,6 +557,10 @@
         {
           "type": "integer",
           "named": true
+        },
+        {
+          "type": "named_variable",
+          "named": true
         }
       ]
     }
@@ -540,6 +590,10 @@
         },
         {
           "type": "integer",
+          "named": true
+        },
+        {
+          "type": "named_variable",
           "named": true
         }
       ]
@@ -578,6 +632,10 @@
         },
         {
           "type": "integer",
+          "named": true
+        },
+        {
+          "type": "named_variable",
           "named": true
         }
       ]
@@ -725,6 +783,21 @@
         },
         {
           "type": "system_key_value",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "free_text",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "free_text",
           "named": true
         }
       ]
@@ -1139,6 +1212,32 @@
     }
   },
   {
+    "type": "local_initialisation",
+    "named": true,
+    "fields": {
+      "expression": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "operational_expression",
+            "named": true
+          }
+        ]
+      },
+      "variable": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "named_variable",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "named_variable",
     "named": true,
     "fields": {},
@@ -1171,37 +1270,6 @@
         },
         {
           "type": "namespace_key",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "operational_expression",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": false,
-      "required": true,
-      "types": [
-        {
-          "type": "binary_expression",
-          "named": true
-        },
-        {
-          "type": "identifier",
-          "named": true
-        },
-        {
-          "type": "numeric_constant",
-          "named": true
-        },
-        {
-          "type": "parenthesized_expression",
-          "named": true
-        },
-        {
-          "type": "unary_expression",
           "named": true
         }
       ]
@@ -1467,6 +1535,21 @@
     }
   },
   {
+    "type": "resource_identifier",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "null",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "resource_offset_expression",
     "named": true,
     "fields": {},
@@ -1646,10 +1729,6 @@
           "named": true
         },
         {
-          "type": "shader_regex_key",
-          "named": true
-        },
-        {
           "type": "stereo_section_key",
           "named": true
         },
@@ -1712,6 +1791,10 @@
           "named": true
         },
         {
+          "type": "null",
+          "named": true
+        },
+        {
           "type": "numeric_constant",
           "named": true
         },
@@ -1746,6 +1829,160 @@
         "types": [
           {
             "type": "setting_section_value",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "shader_regex_commandlist_header",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "shader_regex_commandlist_section",
+    "named": true,
+    "fields": {
+      "header": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "shader_regex_commandlist_header",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "primary_statement",
+          "named": true
+        },
+        {
+          "type": "shader_regex_setting_statement",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "shader_regex_declarations_header",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "shader_regex_declarations_section",
+    "named": true,
+    "fields": {
+      "header": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "shader_regex_declarations_header",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "dxbc_declaration",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "shader_regex_pattern_header",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "shader_regex_pattern_section",
+    "named": true,
+    "fields": {
+      "header": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "shader_regex_pattern_header",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "regex_pattern",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "shader_regex_replace_header",
+    "named": true,
+    "fields": {}
+  },
+  {
+    "type": "shader_regex_replace_section",
+    "named": true,
+    "fields": {
+      "header": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "shader_regex_replace_header",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "regex_replacement",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "shader_regex_setting_statement",
+    "named": true,
+    "fields": {
+      "key": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "shader_regex_key",
+            "named": true
+          }
+        ]
+      },
+      "value": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "free_text",
             "named": true
           }
         ]
@@ -2107,6 +2344,10 @@
     "named": true
   },
   {
+    "type": "dxbc_declaration",
+    "named": true
+  },
+  {
     "type": "elif",
     "named": false
   },
@@ -2128,10 +2369,6 @@
   },
   {
     "type": "frame_analysis_option",
-    "named": true
-  },
-  {
-    "type": "free_text",
     "named": true
   },
   {
@@ -2220,7 +2457,7 @@
   },
   {
     "type": "null",
-    "named": false
+    "named": true
   },
   {
     "type": "numeric_constant",
@@ -2255,6 +2492,14 @@
     "named": true
   },
   {
+    "type": "regex_pattern",
+    "named": true
+  },
+  {
+    "type": "regex_replacement",
+    "named": true
+  },
+  {
     "type": "rendering_key_value",
     "named": true
   },
@@ -2264,10 +2509,6 @@
   },
   {
     "type": "resource_format",
-    "named": true
-  },
-  {
-    "type": "resource_identifier",
     "named": true
   },
   {

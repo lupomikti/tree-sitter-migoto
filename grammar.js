@@ -11,23 +11,25 @@
 const PREC = {
   OR: 1, // ||
   AND: 2, // &&
-  COMPARE: 3, // < > <= >= != == !== ===
-  BIT_OR: 4, // @not-implemented
-  BIT_NOT: 5, // @not-implemented
-  BIT_AND: 6, // @not-implemented
-  BIT_SHIFT: 7, // @not-implemented
-  CONCAT: 8, // @not-implemented
-  PLUS: 9, // + -
-  MULTI: 10, // * / // %
-  UNARY: 11, // ! - +
-  POWER: 12, // **
+  COMPARE: 3, // < > <= >=
+  RELATION: 4, // @not-implemented (e.g. `in` or `instanceof` in javascript)
+  EQUALITY: 5, // == === != !==
+  BIT_OR: 6, // @not-implemented
+  BIT_NOT: 7, // @not-implemented
+  BIT_AND: 8, // @not-implemented
+  BIT_SHIFT: 9, // @not-implemented
+  CONCAT: 10, // @not-implemented
+  PLUS: 11, // + -
+  MULTI: 12, // * / // %
+  UNARY: 13, // ! - +
+  POWER: 14, // **
 }
 
 const newline = /\r?\n/
 const custom_section_name = /[^\-+*\/&% !>|<=$\r\n]+/i
 const namespace_regex = /[^>\\|\/<?:*=$\r\n]+(?:[\\\/][^>\\|\/<?:*=$\r\n]+)*/i
 const path_regex = /(?:(?:(?:[a-z]:|\.\.?)[\\\/])?(?:\.\.|[^>\\|\/<?:*=$\r\n]+)(?:(?:\\|\/)(?:\.\.|[^>\\|\/<?:*=$\r\n]+))+)/i
-const file_regex = /[^>\\|\/<?:*=$\r\n]+\.[a-z0-9\-]+/i
+const file_regex = /[^>\\|\/<?:*="$\r\n]+\.[a-z\-]+/i // intentionally choosing to not support numerals in file extensions
 
 const custom_shader_state_keys = new RustRegex(`(?xi)(
   blend_factor\[([0-3])\]|(?:blend|alpha|mask)(?:\[[0-7]\])?|alpha_to_coverage|sample_mask|blend_state_merge|
@@ -98,10 +100,10 @@ const _generate_binary_expr_rule = (rule) => choice(
       ['&&', PREC.AND],
       ['<', PREC.COMPARE],
       ['<=', PREC.COMPARE],
-      ['===', PREC.COMPARE],
-      ['==', PREC.COMPARE],
-      ['!==', PREC.COMPARE],
-      ['!=', PREC.COMPARE],
+      ['===', PREC.EQUALITY],
+      ['==', PREC.EQUALITY],
+      ['!==', PREC.EQUALITY],
+      ['!=', PREC.EQUALITY],
       ['>=', PREC.COMPARE],
       ['>', PREC.COMPARE],
       // ['', PREC.BIT_OR],
@@ -147,13 +149,19 @@ module.exports = grammar({
   extras: $ => [$.comment, $._blank, /[ \t]/],
 
   externals: $ => [
+    $._external_line,
+    $._section_header_start,
     $.namespace_resolution_start,
     $.namespace_resolution_content,
     $.namespace_resolution_end,
+    $._regex_commandlist_header,
+    $._regex_declarations_header,
+    $._regex_pattern_header,
+    $._regex_replace_header,
     $.error_sentinel
   ],
 
-  supertypes: $ => [$.section, $.primary_statement],
+  supertypes: $ => [$.section, $.primary_statement, $.operational_expression],
 
   rules: {
     document: $ => seq(
@@ -192,7 +200,7 @@ module.exports = grammar({
       $.constants_section,
       $.key_section,
       $.preset_section,
-      // $._shader_regex_section // TODO
+      $._shader_regex_section
     ),
 
     constants_header: _ => _create_section_header('Constants'),
@@ -292,6 +300,83 @@ module.exports = grammar({
       newline
     ),
 
+    _shader_regex_section: $ => choice(
+      $.shader_regex_replace_section,
+      $.shader_regex_pattern_section,
+      $.shader_regex_declarations_section,
+      $.shader_regex_commandlist_section,
+    ),
+
+    shader_regex_pattern_header: $ => seq(
+      '[',
+      token.immediate(/ShaderRegex/i),
+      $._regex_pattern_header,
+      optional(']')
+    ),
+
+    shader_regex_pattern_section: $ => seq(
+      field('header', $.shader_regex_pattern_header),
+      newline,
+      seq(
+        repeat(seq(
+          alias($._external_line, $.regex_pattern),
+          newline
+        )),
+        optional($._section_header_start)
+      )
+    ),
+
+    shader_regex_replace_header: $ => seq(
+      '[',
+      token.immediate(/ShaderRegex/i),
+      $._regex_replace_header,
+      optional(']')
+    ),
+
+    shader_regex_replace_section: $ => seq(
+      field('header', $.shader_regex_replace_header),
+      newline,
+      seq(repeat(seq(alias($._external_line, $.regex_replacement), newline)), optional($._section_header_start))
+    ),
+
+    shader_regex_declarations_header: $ => seq(
+      '[',
+      token.immediate(/ShaderRegex/i),
+      $._regex_declarations_header,
+      optional(']')
+    ),
+
+    shader_regex_declarations_section: $ => seq(
+      field('header', $.shader_regex_declarations_header),
+      newline,
+      seq(repeat(seq(alias($._external_line, $.dxbc_declaration), newline)), optional($._section_header_start))
+    ),
+
+    shader_regex_commandlist_header: $ => seq(
+      '[',
+      token.immediate(/ShaderRegex/i),
+      $._regex_commandlist_header,
+      optional(']')
+    ),
+
+    shader_regex_commandlist_section: $ => seq(
+      field('header', $.shader_regex_commandlist_header),
+      newline,
+      repeat(choice(
+        $.shader_regex_setting_statement,
+        $.primary_statement
+      ))
+    ),
+
+    shader_regex_setting_statement: $ => seq(
+      field('key', alias(/(shader_model|temps|filter_index)/i, $.shader_regex_key)),
+      '=',
+      field('value', alias($._space_sep_free_text, $.free_text)),
+      newline
+    ),
+
+    _space_sep_free_text: $ => repeat1($.free_text),
+
     setting_section_header: _ => _create_section_header(
       /(Logging|System|Device|Stereo|Rendering|Hunting|Profile|ConvergenceMap|Loader|Resource.+|Include.*)/i
     ),
@@ -318,7 +403,6 @@ module.exports = grammar({
       alias(/(match_(?:type|usage|(?:bind|cpu_access|misc)_flags|(?:byte_)?width|height|stride|mips|format|depth|array|msaa(?:_quality)?))/i, $.texov_fuzzy_match_key),
       alias(/([vhdgpc]s|flags|max_executions_per_frame|topology|sampler)/i, $.custom_shader_key),
       alias(custom_shader_state_keys, $.custom_shader_state_key),
-      alias(/(shader_model|temps)/i, $.shader_regex_key),
       alias(/(allow_duplicate_hash|depth_filter|partner|model|disable_scissor)/i, $.shader_override_key),
       alias(/((?:in|ex)clude(?:_recursive)?|user_config)/i, $.include_section_key),
       alias(/(separation|convergence|calls|input|debug(?:_locks)?|unbuffered|force_cpu_affinity|wait_for_debugger|crash|dump_all_profiles|show_warnings)/i, $.logging_section_key),
@@ -335,7 +419,7 @@ module.exports = grammar({
         field('fixed_value', $.fixed_key_value),
         $.frame_analysis_option,
         $.boolean_value,
-        'null',
+        $.null,
         $.string,
         $.path_value,
         $.numeric_constant,
@@ -397,6 +481,7 @@ module.exports = grammar({
 
     primary_statement: $ => choice(
       $.local_declaration,
+      $.local_initialisation,
       $._general_statement,
       $.conditional_statement
     ),
@@ -687,7 +772,7 @@ module.exports = grammar({
       '=',
       choice(
         field('fixed_value', alias(choice('auto', 'from_caller'), $.draw_instruction_key_value)),
-        list_seq($.integer, ',')
+        list_seq(choice($.integer, $.named_variable), ',')
       ),
       newline
     ),
@@ -698,7 +783,7 @@ module.exports = grammar({
       '=',
       choice(
         field('fixed_value', alias(/auto/i, $.draw_instruction_key_value)),
-        list_seq($.integer, ',')
+        list_seq(choice($.integer, $.named_variable), ',')
       ),
       newline
     ),
@@ -707,7 +792,7 @@ module.exports = grammar({
       optional(choice('pre', 'post')),
       alias(/(?:drawinstanced|dispatch)/i, $.instruction),
       '=',
-      list_seq($.integer, ','),
+      list_seq(choice($.integer, $.named_variable), ','),
       newline
     ),
 
@@ -792,7 +877,10 @@ module.exports = grammar({
       alias(/(?:[pc]s-u\d|s?o\d|od|[vhdgpc]s(?:-t\d\d?\d?)?)/i, $.shader_variable)
     ),
 
-    resource_identifier: _ => token(/(?:this|(?:ini|stereo)params|cursor_(?:mask|color))/i),
+    resource_identifier: $ => choice(
+      token(/(?:this|(?:ini|stereo)params|cursor_(?:mask|color))/i),
+      $.null
+    ),
 
     custom_resource: $ => seq(
       alias(/Resource/i, $.resource_prefix),
@@ -874,12 +962,14 @@ module.exports = grammar({
       share_dupes|symlink|dump_(?:rt|depth|tex)_(?:jps|dds)|dump_[cvi]b_txt)`
     ),
 
-    free_text: _ => /[^\\\/= "\t\r\n]+/i,
+    free_text: _ => /[^\\\/= "\r\n]+/i,
 
     comment: $ => token(seq(
       field('start', ';'),
       field('content', alias(/[^\r\n]*/, $.comment_content))
     )),
+
+    null: _ => 'null',
 
     _blank: _ => field('blank', newline)
   }
