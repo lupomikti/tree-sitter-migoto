@@ -395,7 +395,7 @@
           "type": "ALIAS",
           "content": {
             "type": "PATTERN",
-            "value": "(?:(?:no_)?(?:ctrl|alt|shift|windows)|no_modifiers)",
+            "value": "(?:(?:no_)?(?:vk_)?(?:ctrl|alt|shift|windows)|no_modifiers)",
             "flags": "i"
           },
           "named": true,
@@ -1497,7 +1497,7 @@
           "type": "ALIAS",
           "content": {
             "type": "PATTERN",
-            "value": "(?:(?:no_)?(?:ctrl|alt|shift|windows)|no_modifiers)",
+            "value": "(?:(?:no_)?(?:vk_)?(?:ctrl|alt|shift|windows)|no_modifiers)",
             "flags": "i"
           },
           "named": true,
