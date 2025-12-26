@@ -4217,7 +4217,7 @@
       "members": [
         {
           "type": "SYMBOL",
-          "name": "numeric_constant"
+          "name": "_static_value"
         },
         {
           "type": "SYMBOL",

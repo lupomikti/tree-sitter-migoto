@@ -86,6 +86,10 @@
         "named": true
       },
       {
+        "type": "language_constant",
+        "named": true
+      },
+      {
         "type": "numeric_constant",
         "named": true
       },

@@ -854,7 +854,7 @@ module.exports = grammar({
     ),
 
     operational_expression: $ => choice(
-      $.numeric_constant,
+      $._static_value,
       $.identifier,
       $.parenthesized_expression,
       $.binary_expression,
