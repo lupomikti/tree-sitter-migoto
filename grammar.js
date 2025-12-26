@@ -38,7 +38,7 @@ const custom_shader_state_keys = new RustRegex(`(?xi)(
 )`)
 
 const custom_shader_key_values = new RustRegex(`(?xi)(
-  front|back|wireframe|solid|
+  null|front|back|wireframe|solid|
   undefined|(point|line|triangle)_list|(line|triangle)_strip|(line|triangle)_(list|strip)_adj|[123]?\d_control_point_patch_list|
   debug|skip_(validation|optimization)|pack_matrix_(row_major|column_major)|partial_precision|force_[vp]s_software_no_opt|no_preshader|(avoid|prefer)_flow_control|enable_(strictness|backwards_compatibility|unbounded_descriptor_tables)|ieee_strictness|optimization_level[0123]|warnings_are_errors|resources_may_alias|all_resources_bound
 )`)
@@ -123,7 +123,7 @@ const _generate_binary_expr_rule = (rule) => choice(
         seq(
           field('left', rule),
           // @ts-ignore
-          operator,
+          field('operator', operator),
           field('right', rule)
         )
       )
@@ -136,7 +136,7 @@ const _generate_binary_expr_rule = (rule) => choice(
         seq(
           field('left', rule),
           // @ts-ignore
-          operator,
+          field('operator', operator),
           field('right', rule)
         )
       )
@@ -161,7 +161,7 @@ module.exports = grammar({
     $.error_sentinel
   ],
 
-  supertypes: $ => [$.section, $.primary_statement, $.operational_expression],
+  supertypes: $ => [$.section, $.primary_statement, $.instruction_statement, $.operational_expression],
 
   rules: {
     document: $ => seq(
@@ -214,7 +214,7 @@ module.exports = grammar({
       ))
     ),
 
-    key_section_header: _ => _create_section_header(/Key.+/i),
+    key_section_header: _ => _create_section_header(/Key[^\]]+/i),
 
     key_section: $ => seq(
       field('header', $.key_section_header),
@@ -254,13 +254,13 @@ module.exports = grammar({
     ),
 
     key_condition_statement: $ => seq(
-      alias('condition', $.condition_key),
+      field('key', alias('condition', $.condition_key)),
       '=',
       list_seq($.operational_expression, ','),
       newline
     ),
 
-    preset_section_header: _ => _create_section_header(/Preset.+/i),
+    preset_section_header: _ => _create_section_header(/Preset[^\]]+/i),
 
     preset_section: $ => seq(
       field('header', $.preset_section_header),
@@ -286,7 +286,7 @@ module.exports = grammar({
 
     preset_section_value: $ => repeat1(
       choice(
-        field('fixed_value', alias(/(linear|cosine)/i, $.transition_type_preset_value),),
+        field('fixed_value', alias(/(linear|cosine)/i, $.transition_type_key_value)),
         $.boolean_value,
         $._static_value,
         $.free_text
@@ -369,16 +369,25 @@ module.exports = grammar({
     ),
 
     shader_regex_setting_statement: $ => seq(
-      field('key', alias(/(shader_model|temps|filter_index)/i, $.shader_regex_key)),
-      '=',
-      field('value', alias($._space_sep_free_text, $.free_text)),
+      choice(
+        seq(
+          field('key', alias(/(shader_model|temps|filter_index)/i, $.shader_regex_key)),
+          '=',
+          field('value', alias($._space_sep_free_text, $.free_text))
+        ),
+        seq(
+          field('key', alias(/filter_index/i, $.shader_regex_key)),
+          '=',
+          field('value', $.numeric_constant)
+        ),
+      ),
       newline
     ),
 
     _space_sep_free_text: $ => repeat1($.free_text),
 
     setting_section_header: _ => _create_section_header(
-      /(Logging|System|Device|Stereo|Rendering|Hunting|Profile|ConvergenceMap|Loader|Resource.+|Include.*)/i
+      /(Logging|System|Device|Stereo|Rendering|Hunting|Profile|ConvergenceMap|Loader|Resource[^\]]+|Include[^\]]*)/i
     ),
 
     setting_section: $ => seq(
@@ -429,8 +438,8 @@ module.exports = grammar({
     ),
 
     fixed_key_value: $ => choice(
-      alias('mono', $.multi_key_value),
-      alias(/(none|overrule|depth_(?:(?:in)?active))/i, $.override_key_value),
+      alias(/(mono|none)/i, $.multi_key_value),
+      alias(/(overrule|depth_(?:(?:in)?active))/i, $.override_key_value),
       alias(custom_shader_key_values, $.custom_shader_key_value),
       alias(/(default|immutable|dynamic|staging)/i, $.fuzzy_match_key_value),
       alias(resource_type_values, $.resource_type),
@@ -453,7 +462,7 @@ module.exports = grammar({
     ),
 
     fuzzy_match_expression: $ => seq(
-      optional(field('operator', /([><]=?|[!=])/)),
+      optional(field('operator', alias(/([><]=?|[!=])/, $.fuzzy_operator))),
       choice(
         $.integer,
         $.field_expression
@@ -461,13 +470,13 @@ module.exports = grammar({
     ),
 
     field_expression: $ => seq(
-      field('field_name', /((?:res_)?(?:width|height)|depth|array)/i),
+      field('field_name', alias(/((?:res_)?(?:width|height)|depth|array)/i, $.field)),
       optional(seq('*', $.integer)),
       optional(seq('/', $.integer))
     ),
 
     commandlist_section_header: _ => _create_section_header(
-      /(Present|Clear(?:RenderTarget|DepthStencil)View|ClearUnorderedAccessView(?:Uint|Float)|(?:ShaderOverride|TextureOverride|(?:BuiltIn)?(?:CommandList|CustomShader)).+)/i
+      /(Present|Clear(?:RenderTarget|DepthStencil)View|ClearUnorderedAccessView(?:Uint|Float)|(?:ShaderOverride|TextureOverride|(?:BuiltIn)?(?:CommandList|CustomShader))[^\]]+)/i
     ),
 
     commandlist_section: $ => seq(
@@ -487,14 +496,14 @@ module.exports = grammar({
     ),
 
     local_declaration: $ => seq(
-      'local',
+      alias($._local, 'local'),
       field('variable', $.named_variable),
       newline
     ),
 
     local_initialisation: $ => seq(
       seq(
-        'local',
+        alias($._local, 'local'),
         field('variable', $.named_variable)
       ),
       '=',
@@ -515,7 +524,7 @@ module.exports = grammar({
     ),
 
     _global_transient_declaration: $ => seq(
-      'global',
+      alias($._global, 'global'),
       choice(
         field('variable', $.named_variable),
         alias($._global_initialisation, $.assignment_statement)
@@ -524,7 +533,10 @@ module.exports = grammar({
     ),
 
     _global_persist_declaration: $ => seq(
-      choice(seq('global','persist'), seq('persist','global')),
+      choice(
+        seq(alias($._global, 'global'), alias($._persist, 'persist')),
+        seq(alias($._persist, 'persist'),alias($._global, 'global'))
+      ),
       choice(
         field('variable', $.named_variable),
         alias($._global_initialisation, $.assignment_statement)
@@ -539,7 +551,7 @@ module.exports = grammar({
     ),
 
     assignment_statement: $ => seq(
-      optional(choice('pre', 'post')),
+      optional(choice(alias($._pre, 'pre'), alias($._post, 'post'))),
       choice(
         seq(
           field('name', choice(
@@ -580,18 +592,18 @@ module.exports = grammar({
 
     // adapted from tree-sitter-lua
     conditional_statement: $ => seq(
-      'if',
+      alias($._if, 'if'),
       field('condition', $.operational_expression),
       newline,
       field('consequence', alias(optional($._block), $.block)),
       repeat(field('alternative', $.elseif_statement)),
       optional(field('alternative', $.else_statement)),
-      'endif'
+      alias($._endif, 'endif')
     ),
 
     // adapted from tree-sitter-lua
     elseif_statement: $ => seq(
-      choice('elif', 'else if'),
+      choice(alias($._elif, 'elif'), alias($._elseif, 'else if')),
       field('condition', $.operational_expression),
       newline,
       field('consequence', alias(optional($._block), $.block))
@@ -599,7 +611,7 @@ module.exports = grammar({
 
     // adapted from tree-sitter-lua
     else_statement: $ => seq(
-      'else',
+      alias($._else, 'else'),
       field('body', alias(optional($._block), $.block))
     ),
 
@@ -621,11 +633,16 @@ module.exports = grammar({
       $.drawindexed_instruction,
       $.drawinstanced_dispatch_instruction,
       $.drawindirect_instruction,
-      field('instruction', seq(/drawauto/i, newline))
+      $.drawauto_instruction,
+    ),
+
+    _execution_modifier: $ => choice(
+      alias($._pre, 'pre'),
+      alias($._post, 'post')
     ),
 
     run_instruction: $ => seq(
-      optional(choice('pre', 'post')),
+      field('modifier', optional($._execution_modifier)),
       alias(/run/i, $.instruction),
       '=',
       $._callable_section,
@@ -647,7 +664,7 @@ module.exports = grammar({
     ),
 
     check_texture_override_instruction: $ => seq(
-      optional(choice('pre', 'post')),
+      field('modifier', optional($._execution_modifier)),
       alias(/checktextureoverride/i, $.instruction),
       '=',
       $.resource_operand,
@@ -655,29 +672,26 @@ module.exports = grammar({
     ),
 
     preset_instruction: $ => seq(
-      optional(choice('pre', 'post')),
+      field('modifier', optional($._execution_modifier)),
       alias(/(?:exclude_)?preset/i, $.instruction),
       '=',
       choice(
-        $._useable_section_identifier,
-        // $.preset_section_identifier // TODO
+        alias($._useable_section_identifier, $.preset_section_identifier),
+        $.preset_section_identifier
       ),
       newline
     ),
 
     handling_instruction: $ => seq(
-      optional(choice('pre', 'post')),
+      field('modifier', optional($._execution_modifier)),
       alias(/handling/i, $.instruction),
       '=',
-      field('fixed_value', alias(choice(
-        'skip',
-        'abort'
-      ), $.handling_key_value)),
+      field('fixed_value', alias(/(skip|abort)/i, $.handling_key_value)),
       newline
     ),
 
     reset_instruction: $ => seq(
-      optional(choice('pre', 'post')),
+      field('modifier', optional($._execution_modifier)),
       alias(/reset_per_frame_limits/i, $.instruction),
       '=',
       repeat1(choice(
@@ -688,24 +702,20 @@ module.exports = grammar({
     ),
 
     clear_instruction: $ => seq(
-      optional(choice('pre', 'post')),
+      field('modifier', optional($._execution_modifier)),
       alias(/clear/i, $.instruction),
       '=',
       repeat1(choice(
         $.resource_operand,
         alias(/0x[a-f0-9]+/i, $.hex_integer),
         $._static_value, // numeric constant + inf and NaN
-        field('fixed_value', alias(choice(
-          'int',
-          'depth',
-          'stencil'
-        ), $.clear_instruction_key_value))
+        field('fixed_value', alias(/(int|depth|stencil)/i, $.clear_instruction_key_value))
       )),
       newline
     ),
 
     stereo_instruction: $ => seq(
-      optional(choice('pre', 'post')),
+      field('modifier', optional($._execution_modifier)),
       alias(/(?:separation|convergence)/i, $.instruction),
       '=',
       $._static_value, // numeric constant + inf and NaN
@@ -713,19 +723,15 @@ module.exports = grammar({
     ),
 
     dme_instruction: $ => seq(
-      optional(choice('pre', 'post')),
+      field('modifier', optional($._execution_modifier)),
       alias(/direct_mode_eye/i, $.instruction),
       '=',
-      field('fixed_value', alias(choice(
-        'mono',
-        'left',
-        'right'
-      ), $.dme_instruction_key_value)),
+      field('fixed_value', alias(/(mono|left|right)/i, $.dme_instruction_key_value)),
       newline
     ),
 
     analysis_instruction: $ => seq(
-      optional(choice('pre', 'post')),
+      field('modifier', optional($._execution_modifier)),
       alias(/analyse_options/i, $.instruction),
       '=',
       field('fixed_value', repeat1($.frame_analysis_option)),
@@ -733,7 +739,7 @@ module.exports = grammar({
     ),
 
     dump_instruction: $ => seq(
-      optional(choice('pre', 'post')),
+      field('modifier', optional($._execution_modifier)),
       alias(/dump/i, $.instruction),
       '=',
       repeat1(choice(
@@ -744,18 +750,18 @@ module.exports = grammar({
     ),
 
     special_instruction: $ => seq(
-      optional(choice('pre', 'post')),
+      field('modifier', optional($._execution_modifier)),
       alias(/special/i, $.instruction),
       '=',
-      field('fixed_value', alias(choice(
-        'upscaling_switch_bb',
-        'draw_3dmigoto_overlay'
-      ), $.special_instruction_key_value)),
+      field('fixed_value', alias(
+        /(upscaling_switch_bb|draw_3dmigoto_overlay)/i,
+        $.special_instruction_key_value
+      )),
       newline
     ),
 
     store_instruction: $ => seq(
-      optional(choice('pre', 'post')),
+      field('modifier', optional($._execution_modifier)),
       alias(/store/i, $.instruction),
       '=',
       $.named_variable,
@@ -767,18 +773,18 @@ module.exports = grammar({
     ),
 
     draw_instruction: $ => seq(
-      optional(choice('pre', 'post')),
+      field('modifier', optional($._execution_modifier)),
       alias(/draw/i, $.instruction),
       '=',
       choice(
-        field('fixed_value', alias(choice('auto', 'from_caller'), $.draw_instruction_key_value)),
+        field('fixed_value', alias(/(auto|from_caller)/i, $.draw_instruction_key_value)),
         list_seq(choice($.integer, $.named_variable), ',')
       ),
       newline
     ),
 
     drawindexed_instruction: $ => seq(
-      optional(choice('pre', 'post')),
+      field('modifier', optional($._execution_modifier)),
       alias(/drawindexed(?:instanced)?/i, $.instruction),
       '=',
       choice(
@@ -789,7 +795,7 @@ module.exports = grammar({
     ),
 
     drawinstanced_dispatch_instruction: $ => seq(
-      optional(choice('pre', 'post')),
+      field('modifier', optional($._execution_modifier)),
       alias(/(?:drawinstanced|dispatch)/i, $.instruction),
       '=',
       list_seq(choice($.integer, $.named_variable), ','),
@@ -797,13 +803,19 @@ module.exports = grammar({
     ),
 
     drawindirect_instruction: $ => seq(
-      optional(choice('pre', 'post')),
+      field('modifier', optional($._execution_modifier)),
       alias(/(?:drawinstanced|drawindexedinstanced|dispatch)indirect/i, $.instruction),
       '=',
       alias(
         seq($.resource_operand, ',', $.integer),
         $.resource_offset_expression
       ),
+      newline
+    ),
+
+    drawauto_instruction: $ => seq(
+      field('modifier', optional($._execution_modifier)),
+      alias(/drawauto/i, $.instruction),
       newline
     ),
 
@@ -860,7 +872,7 @@ module.exports = grammar({
     // adapted from tree-sitter-lua
     unary_expression: $ => prec.left(
       PREC.UNARY,
-      seq(choice('-', '+', '!'), field('operand', $.operational_expression))
+      seq(field('operator', choice('-', '+', '!')), field('operand', $.operational_expression))
     ),
 
     identifier: $ => choice(
@@ -931,6 +943,11 @@ module.exports = grammar({
       $._useable_section_identifier
     ),
 
+    preset_section_identifier: $ => seq(
+      alias(/Preset/i, $.preset_prefix),
+      $._useable_section_identifier
+    ),
+
     _useable_section_identifier: $ => seq(
       optional(seq(
         alias($.namespace_resolution_start, '\\'),
@@ -969,7 +986,27 @@ module.exports = grammar({
       field('content', alias(/[^\r\n]*/, $.comment_content))
     )),
 
-    null: _ => 'null',
+    null: _ => /null/i,
+
+    _global: _ => /global/i,
+
+    _persist: _ => /persist/i,
+
+    _local: _ => /local/i,
+
+    _if: _ => /if/i,
+
+    _elif: _ => /elif/i,
+
+    _elseif: _ => /else if/i,
+
+    _else: _ => /else/i,
+
+    _endif: _ => /endif/i,
+
+    _pre: _ => /pre/i,
+
+    _post: _ => /post/i,
 
     _blank: _ => field('blank', newline)
   }

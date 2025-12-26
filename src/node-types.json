@@ -1,5 +1,79 @@
 [
   {
+    "type": "instruction_statement",
+    "named": true,
+    "subtypes": [
+      {
+        "type": "analysis_instruction",
+        "named": true
+      },
+      {
+        "type": "check_texture_override_instruction",
+        "named": true
+      },
+      {
+        "type": "clear_instruction",
+        "named": true
+      },
+      {
+        "type": "dme_instruction",
+        "named": true
+      },
+      {
+        "type": "draw_instruction",
+        "named": true
+      },
+      {
+        "type": "drawauto_instruction",
+        "named": true
+      },
+      {
+        "type": "drawindexed_instruction",
+        "named": true
+      },
+      {
+        "type": "drawindirect_instruction",
+        "named": true
+      },
+      {
+        "type": "drawinstanced_dispatch_instruction",
+        "named": true
+      },
+      {
+        "type": "dump_instruction",
+        "named": true
+      },
+      {
+        "type": "handling_instruction",
+        "named": true
+      },
+      {
+        "type": "preset_instruction",
+        "named": true
+      },
+      {
+        "type": "reset_instruction",
+        "named": true
+      },
+      {
+        "type": "run_instruction",
+        "named": true
+      },
+      {
+        "type": "special_instruction",
+        "named": true
+      },
+      {
+        "type": "stereo_instruction",
+        "named": true
+      },
+      {
+        "type": "store_instruction",
+        "named": true
+      }
+    ]
+  },
+  {
     "type": "operational_expression",
     "named": true,
     "subtypes": [
@@ -106,6 +180,20 @@
             "named": true
           }
         ]
+      },
+      "modifier": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "post",
+            "named": false
+          },
+          {
+            "type": "pre",
+            "named": false
+          }
+        ]
       }
     },
     "children": {
@@ -195,6 +283,80 @@
           }
         ]
       },
+      "operator": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "!=",
+            "named": false
+          },
+          {
+            "type": "!==",
+            "named": false
+          },
+          {
+            "type": "%",
+            "named": false
+          },
+          {
+            "type": "&&",
+            "named": false
+          },
+          {
+            "type": "*",
+            "named": false
+          },
+          {
+            "type": "**",
+            "named": false
+          },
+          {
+            "type": "+",
+            "named": false
+          },
+          {
+            "type": "-",
+            "named": false
+          },
+          {
+            "type": "/",
+            "named": false
+          },
+          {
+            "type": "//",
+            "named": false
+          },
+          {
+            "type": "<",
+            "named": false
+          },
+          {
+            "type": "<=",
+            "named": false
+          },
+          {
+            "type": "==",
+            "named": false
+          },
+          {
+            "type": "===",
+            "named": false
+          },
+          {
+            "type": ">",
+            "named": false
+          },
+          {
+            "type": ">=",
+            "named": false
+          },
+          {
+            "type": "||",
+            "named": false
+          }
+        ]
+      },
       "right": {
         "multiple": false,
         "required": true,
@@ -271,7 +433,22 @@
   {
     "type": "check_texture_override_instruction",
     "named": true,
-    "fields": {},
+    "fields": {
+      "modifier": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "post",
+            "named": false
+          },
+          {
+            "type": "pre",
+            "named": false
+          }
+        ]
+      }
+    },
     "children": {
       "multiple": true,
       "required": true,
@@ -298,6 +475,20 @@
           {
             "type": "clear_instruction_key_value",
             "named": true
+          }
+        ]
+      },
+      "modifier": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "post",
+            "named": false
+          },
+          {
+            "type": "pre",
+            "named": false
           }
         ]
       }
@@ -494,6 +685,20 @@
             "named": true
           }
         ]
+      },
+      "modifier": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "post",
+            "named": false
+          },
+          {
+            "type": "pre",
+            "named": false
+          }
+        ]
       }
     },
     "children": {
@@ -544,6 +749,20 @@
             "named": true
           }
         ]
+      },
+      "modifier": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "post",
+            "named": false
+          },
+          {
+            "type": "pre",
+            "named": false
+          }
+        ]
       }
     },
     "children": {
@@ -566,6 +785,36 @@
     }
   },
   {
+    "type": "drawauto_instruction",
+    "named": true,
+    "fields": {
+      "modifier": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "post",
+            "named": false
+          },
+          {
+            "type": "pre",
+            "named": false
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "instruction",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "drawindexed_instruction",
     "named": true,
     "fields": {
@@ -576,6 +825,20 @@
           {
             "type": "draw_instruction_key_value",
             "named": true
+          }
+        ]
+      },
+      "modifier": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "post",
+            "named": false
+          },
+          {
+            "type": "pre",
+            "named": false
           }
         ]
       }
@@ -602,7 +865,22 @@
   {
     "type": "drawindirect_instruction",
     "named": true,
-    "fields": {},
+    "fields": {
+      "modifier": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "post",
+            "named": false
+          },
+          {
+            "type": "pre",
+            "named": false
+          }
+        ]
+      }
+    },
     "children": {
       "multiple": true,
       "required": true,
@@ -621,7 +899,22 @@
   {
     "type": "drawinstanced_dispatch_instruction",
     "named": true,
-    "fields": {},
+    "fields": {
+      "modifier": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "post",
+            "named": false
+          },
+          {
+            "type": "pre",
+            "named": false
+          }
+        ]
+      }
+    },
     "children": {
       "multiple": true,
       "required": true,
@@ -644,7 +937,22 @@
   {
     "type": "dump_instruction",
     "named": true,
-    "fields": {},
+    "fields": {
+      "modifier": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "post",
+            "named": false
+          },
+          {
+            "type": "pre",
+            "named": false
+          }
+        ]
+      }
+    },
     "children": {
       "multiple": true,
       "required": true,
@@ -709,7 +1017,18 @@
   {
     "type": "field_expression",
     "named": true,
-    "fields": {},
+    "fields": {
+      "field_name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "field",
+            "named": true
+          }
+        ]
+      }
+    },
     "children": {
       "multiple": true,
       "required": false,
@@ -806,7 +1125,18 @@
   {
     "type": "fuzzy_match_expression",
     "named": true,
-    "fields": {},
+    "fields": {
+      "operator": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "fuzzy_operator",
+            "named": true
+          }
+        ]
+      }
+    },
     "children": {
       "multiple": false,
       "required": true,
@@ -859,6 +1189,20 @@
           {
             "type": "handling_key_value",
             "named": true
+          }
+        ]
+      },
+      "modifier": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "post",
+            "named": false
+          },
+          {
+            "type": "pre",
+            "named": false
           }
         ]
       }
@@ -915,81 +1259,6 @@
     "fields": {}
   },
   {
-    "type": "instruction_statement",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": false,
-      "required": false,
-      "types": [
-        {
-          "type": "analysis_instruction",
-          "named": true
-        },
-        {
-          "type": "check_texture_override_instruction",
-          "named": true
-        },
-        {
-          "type": "clear_instruction",
-          "named": true
-        },
-        {
-          "type": "dme_instruction",
-          "named": true
-        },
-        {
-          "type": "draw_instruction",
-          "named": true
-        },
-        {
-          "type": "drawindexed_instruction",
-          "named": true
-        },
-        {
-          "type": "drawindirect_instruction",
-          "named": true
-        },
-        {
-          "type": "drawinstanced_dispatch_instruction",
-          "named": true
-        },
-        {
-          "type": "dump_instruction",
-          "named": true
-        },
-        {
-          "type": "handling_instruction",
-          "named": true
-        },
-        {
-          "type": "preset_instruction",
-          "named": true
-        },
-        {
-          "type": "reset_instruction",
-          "named": true
-        },
-        {
-          "type": "run_instruction",
-          "named": true
-        },
-        {
-          "type": "special_instruction",
-          "named": true
-        },
-        {
-          "type": "stereo_instruction",
-          "named": true
-        },
-        {
-          "type": "store_instruction",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
     "type": "key_assignment_statement",
     "named": true,
     "fields": {
@@ -1030,15 +1299,22 @@
   {
     "type": "key_condition_statement",
     "named": true,
-    "fields": {},
+    "fields": {
+      "key": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "condition_key",
+            "named": true
+          }
+        ]
+      }
+    },
     "children": {
       "multiple": true,
       "required": true,
       "types": [
-        {
-          "type": "condition_key",
-          "named": true
-        },
         {
           "type": "operational_expression",
           "named": true
@@ -1365,7 +1641,22 @@
   {
     "type": "preset_instruction",
     "named": true,
-    "fields": {},
+    "fields": {
+      "modifier": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "post",
+            "named": false
+          },
+          {
+            "type": "pre",
+            "named": false
+          }
+        ]
+      }
+    },
     "children": {
       "multiple": true,
       "required": true,
@@ -1375,11 +1666,7 @@
           "named": true
         },
         {
-          "type": "namespace",
-          "named": true
-        },
-        {
-          "type": "section_identifier",
+          "type": "preset_section_identifier",
           "named": true
         }
       ]
@@ -1448,6 +1735,29 @@
     "fields": {}
   },
   {
+    "type": "preset_section_identifier",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "namespace",
+          "named": true
+        },
+        {
+          "type": "preset_prefix",
+          "named": true
+        },
+        {
+          "type": "section_identifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "preset_section_value",
     "named": true,
     "fields": {
@@ -1456,7 +1766,7 @@
         "required": false,
         "types": [
           {
-            "type": "transition_type_preset_value",
+            "type": "transition_type_key_value",
             "named": true
           }
         ]
@@ -1514,7 +1824,22 @@
   {
     "type": "reset_instruction",
     "named": true,
-    "fields": {},
+    "fields": {
+      "modifier": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "post",
+            "named": false
+          },
+          {
+            "type": "pre",
+            "named": false
+          }
+        ]
+      }
+    },
     "children": {
       "multiple": true,
       "required": true,
@@ -1625,7 +1950,22 @@
   {
     "type": "run_instruction",
     "named": true,
-    "fields": {},
+    "fields": {
+      "modifier": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "post",
+            "named": false
+          },
+          {
+            "type": "pre",
+            "named": false
+          }
+        ]
+      }
+    },
     "children": {
       "multiple": true,
       "required": true,
@@ -1984,6 +2324,10 @@
           {
             "type": "free_text",
             "named": true
+          },
+          {
+            "type": "numeric_constant",
+            "named": true
           }
         ]
       }
@@ -2000,6 +2344,20 @@
           {
             "type": "special_instruction_key_value",
             "named": true
+          }
+        ]
+      },
+      "modifier": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "post",
+            "named": false
+          },
+          {
+            "type": "pre",
+            "named": false
           }
         ]
       }
@@ -2026,6 +2384,80 @@
           {
             "type": "static_operational_expression",
             "named": true
+          }
+        ]
+      },
+      "operator": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "!=",
+            "named": false
+          },
+          {
+            "type": "!==",
+            "named": false
+          },
+          {
+            "type": "%",
+            "named": false
+          },
+          {
+            "type": "&&",
+            "named": false
+          },
+          {
+            "type": "*",
+            "named": false
+          },
+          {
+            "type": "**",
+            "named": false
+          },
+          {
+            "type": "+",
+            "named": false
+          },
+          {
+            "type": "-",
+            "named": false
+          },
+          {
+            "type": "/",
+            "named": false
+          },
+          {
+            "type": "//",
+            "named": false
+          },
+          {
+            "type": "<",
+            "named": false
+          },
+          {
+            "type": "<=",
+            "named": false
+          },
+          {
+            "type": "==",
+            "named": false
+          },
+          {
+            "type": "===",
+            "named": false
+          },
+          {
+            "type": ">",
+            "named": false
+          },
+          {
+            "type": ">=",
+            "named": false
+          },
+          {
+            "type": "||",
+            "named": false
           }
         ]
       },
@@ -2106,7 +2538,22 @@
   {
     "type": "stereo_instruction",
     "named": true,
-    "fields": {},
+    "fields": {
+      "modifier": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "post",
+            "named": false
+          },
+          {
+            "type": "pre",
+            "named": false
+          }
+        ]
+      }
+    },
     "children": {
       "multiple": true,
       "required": true,
@@ -2129,7 +2576,22 @@
   {
     "type": "store_instruction",
     "named": true,
-    "fields": {},
+    "fields": {
+      "modifier": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "post",
+            "named": false
+          },
+          {
+            "type": "pre",
+            "named": false
+          }
+        ]
+      }
+    },
     "children": {
       "multiple": true,
       "required": true,
@@ -2169,6 +2631,24 @@
           {
             "type": "operational_expression",
             "named": true
+          }
+        ]
+      },
+      "operator": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "!",
+            "named": false
+          },
+          {
+            "type": "+",
+            "named": false
+          },
+          {
+            "type": "-",
+            "named": false
           }
         ]
       }
@@ -2364,6 +2844,10 @@
     "named": false
   },
   {
+    "type": "field",
+    "named": true
+  },
+  {
     "type": "file_key_value",
     "named": true
   },
@@ -2373,6 +2857,10 @@
   },
   {
     "type": "fuzzy_match_key_value",
+    "named": true
+  },
+  {
+    "type": "fuzzy_operator",
     "named": true
   },
   {
@@ -2488,6 +2976,10 @@
     "named": false
   },
   {
+    "type": "preset_prefix",
+    "named": true
+  },
+  {
     "type": "preset_section_key",
     "named": true
   },
@@ -2589,10 +3081,6 @@
   },
   {
     "type": "transition_type_key_value",
-    "named": true
-  },
-  {
-    "type": "transition_type_preset_value",
     "named": true
   },
   {

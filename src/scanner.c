@@ -261,7 +261,7 @@ static inline bool scan_line(Scanner *scanner, TSLexer *lexer) {
     }
 }
 
-static inline bool scan_for_regex_suffix(Scanner *scanner, TSLexer *lexer) {
+static inline bool scan_for_regex_suffix(Scanner *scanner, TSLexer *lexer, const bool *valid_symbols) {
     SearchState ss = NOTSEARCHING;
     TokenType result;
     char *search_target;
@@ -320,8 +320,9 @@ static inline bool scan_for_regex_suffix(Scanner *scanner, TSLexer *lexer) {
                 tmp = strlwr(scanner->word.contents);
 
                 if (!strcmp(tmp, search_target)) {
-                    lexer->result_symbol = result;
                     reset(scanner);
+                    if (!valid_symbols[result]) return false;
+                    lexer->result_symbol = result;
                     return true;
                 }
 
@@ -351,7 +352,6 @@ static inline bool scan_for_regex_suffix(Scanner *scanner, TSLexer *lexer) {
                 tmp = strlwr(scanner->word.contents);
                 
                 if (!strcmp(tmp, "pattern")) {
-                    lexer->result_symbol = REGEX_PATTERN_HEADER;
                     if (lexer->lookahead == '.') {
                         ss = REPSEARCH;
                         reset(scanner);
@@ -359,6 +359,8 @@ static inline bool scan_for_regex_suffix(Scanner *scanner, TSLexer *lexer) {
                     }
                     else {
                         reset(scanner);
+                        if (!valid_symbols[REGEX_PATTERN_HEADER]) return false;
+                        lexer->result_symbol = REGEX_PATTERN_HEADER;
                         return true;
                     }
                 }
@@ -407,7 +409,7 @@ bool tree_sitter_migoto_external_scanner_scan(void *payload, TSLexer *lexer, con
 
     if (valid_symbols[REGEX_COMMANDLIST_HEADER] || valid_symbols[REGEX_DECLARATIONS_HEADER] ||
         valid_symbols[REGEX_PATTERN_HEADER] || valid_symbols[REGEX_REPLACE_HEADER]) {
-        return scan_for_regex_suffix(scanner, lexer);
+        return scan_for_regex_suffix(scanner, lexer, valid_symbols);
     }
 
     if (valid_symbols[EXTERNAL_LINE] || valid_symbols[SECTION_HEADER_START]) {
