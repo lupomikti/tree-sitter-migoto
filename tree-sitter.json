@@ -10,6 +10,9 @@
         "ini"
       ],
       "highlights": "queries/highlights.scm",
+      "tags": "queries/tags.scm",
+      "injections": "queries/injections.scm",
+      "locals": "queries/locals.scm",
       "injection-regex": "^migoto$",
       "class-name": "TreeSitterMigoto"
     }
