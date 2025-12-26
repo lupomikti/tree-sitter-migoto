@@ -104,16 +104,16 @@
 ])
 
 (_
-  variable: (named_variable) @variable (#is-not? local))
+  variable: (named_variable) @variable)
 
 (_
-  name: (named_variable) @variable (#is-not? local))
+  name: (named_variable) @variable)
 
 (named_variable
 [
   "$" @variable
   (namespace) @namespace
-  (variable_identifier) @variable (#is-not? local)
+  (variable_identifier) @variable
 ])
 
 (named_variable
