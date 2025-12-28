@@ -6294,7 +6294,7 @@
             "type": "REPEAT",
             "content": {
               "type": "PATTERN",
-              "value": "[^\\x00-\\x08\\x0a-\\x1f\\x22\\x5c\\x7f]"
+              "value": "[^\\x00-\\x08\\x0a-\\x1f\\x22\\x7f]"
             }
           }
         },

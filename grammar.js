@@ -1070,7 +1070,7 @@ module.exports = grammar({
 
     string: _ => seq(
       '"',
-      token.immediate(repeat(/[^\x00-\x08\x0a-\x1f\x22\x5c\x7f]/)),
+      token.immediate(repeat(/[^\x00-\x08\x0a-\x1f\x22\x7f]/)), // from null to backspace, from \n to unit separator, ", delete
       token.immediate('"')
     ),
 

@@ -24354,7 +24354,6 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
           lookahead == ' ') ADVANCE(3850);
       if (lookahead > ' ' &&
           lookahead != '"' &&
-          lookahead != '\\' &&
           lookahead != 0x7f) ADVANCE(3851);
       END_STATE();
     case 3851:
@@ -24362,7 +24361,6 @@ static bool ts_lex(TSLexer *lexer, TSStateId state) {
       if (lookahead > 0x08 &&
           (lookahead < '\n' || 0x1f < lookahead) &&
           lookahead != '"' &&
-          lookahead != '\\' &&
           lookahead != 0x7f) ADVANCE(3851);
       END_STATE();
     case 3852:
