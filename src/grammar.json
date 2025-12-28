@@ -391,11 +391,15 @@
           }
         },
         {
+          "type": "PATTERN",
+          "value": "\\r?\\n"
+        },
+        {
           "type": "CHOICE",
           "members": [
             {
               "type": "SYMBOL",
-              "name": "comment"
+              "name": "initial_comment"
             },
             {
               "type": "BLANK"
@@ -1491,15 +1495,6 @@
         {
           "type": "ALIAS",
           "content": {
-            "type": "STRING",
-            "value": ";"
-          },
-          "named": true,
-          "value": "special_semicolon"
-        },
-        {
-          "type": "ALIAS",
-          "content": {
             "type": "PATTERN",
             "value": "(proxy_d3d(?:9|11)|load_library_redirect|check_foreground_window|hook|allow_(?:check_interface|create_device|platform_update)|skip_early_includes_load|config_initialization_delay|settings_auto_save_interval|dll_initialization_delay|screen_(?:width|height)|dump_path)",
             "flags": "i"
@@ -1589,6 +1584,15 @@
           {
             "type": "SYMBOL",
             "name": "fuzzy_match_expression"
+          },
+          {
+            "type": "ALIAS",
+            "content": {
+              "type": "STRING",
+              "value": ";"
+            },
+            "named": true,
+            "value": "special_semicolon"
           },
           {
             "type": "SYMBOL",
@@ -2405,6 +2409,22 @@
               }
             ]
           }
+        },
+        {
+          "type": "PATTERN",
+          "value": "\\r?\\n"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "initial_comment"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
         }
       ]
     },
@@ -2439,6 +2459,22 @@
             "type": "SYMBOL",
             "name": "_static_value"
           }
+        },
+        {
+          "type": "PATTERN",
+          "value": "\\r?\\n"
+        },
+        {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "initial_comment"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
         }
       ]
     },
@@ -6239,12 +6275,9 @@
       "value": "(?xi)(\n      hold|stereo|mono|\n      dump_(?:rt|depth|tex|[cvi]b)|jp(?:s|e?g)|(?:jp(?:s|e?g)_)?dds|buf|txt|desc|clear_rt|persist|\n      filename_(?:reg|handle)|log|dump_on_(?:unmap|update)|deferred_ctx_(?:immediate|accurate)|\n      share_dupes|symlink|dump_(?:rt|depth|tex)_(?:jps|dds)|dump_[cvi]b_txt)"
     },
     "free_text": {
-      "type": "IMMEDIATE_TOKEN",
-      "content": {
-        "type": "PATTERN",
-        "value": "[^\\\\\\/=\"\\s]+",
-        "flags": "i"
-      }
+      "type": "PATTERN",
+      "value": "[^\\\\\\/=\"\\s]+",
+      "flags": "i"
     },
     "comment": {
       "type": "TOKEN",

@@ -244,7 +244,8 @@ module.exports = grammar({
       field('key', $.key_section_key),
       '=',
       field('value', $.key_section_value),
-      optional($.comment)
+      newline,
+      optional($.initial_comment)
     ),
 
     key_section_key: _ => token(
@@ -441,7 +442,6 @@ module.exports = grammar({
       alias(/((?:in|ex)clude(?:_recursive)?|user_config)/i, $.include_section_key),
       alias(/(separation|convergence|calls|input|debug(?:_locks)?|unbuffered|force_cpu_affinity|wait_for_debugger|crash|dump_all_profiles|show_warnings)/i, $.logging_section_key),
       alias(hunting_section_keys, $.hunting_section_key),
-      alias(';', $.special_semicolon),
       alias(system_section_keys, $.system_section_key),
       alias(/(target|module|require_admin|launch|delay|loader|check_version|entry_point|hook_proc|wait_for_target)/i, $.loader_section_key),
       alias(device_section_keys, $.device_section_key),
@@ -459,6 +459,7 @@ module.exports = grammar({
         $.path_value,
         $.numeric_constant,
         $.fuzzy_match_expression,
+        alias(';', $.special_semicolon),
         $.free_text
       )
     ),
@@ -606,7 +607,9 @@ module.exports = grammar({
         $.named_variable
       )),
       "=",
-      field('expression', list_seq($._static_value, ','))
+      field('expression', list_seq($._static_value, ',')),
+      newline,
+      optional($.initial_comment)
     ),
 
     preset_assignment_statement: $ => seq(
@@ -615,7 +618,9 @@ module.exports = grammar({
         $.named_variable
       )),
       "=",
-      field('expression', $._static_value)
+      field('expression', $._static_value),
+      newline,
+      optional($.initial_comment)
     ),
 
     // adapted from tree-sitter-lua
@@ -1071,7 +1076,7 @@ module.exports = grammar({
       share_dupes|symlink|dump_(?:rt|depth|tex)_(?:jps|dds)|dump_[cvi]b_txt)`
     ),
 
-    free_text: _ => token.immediate(/[^\\\/="\s]+/i),
+    free_text: _ => /[^\\\/="\s]+/i,
 
     comment: $ => token(seq(
       field('start', seq(newline, ';')),
