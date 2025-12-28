@@ -143,7 +143,6 @@
     (hunting_key_value)
     (transition_type_key_value)
     (custom_shader_key_value)
-    (draw_instruction_key_value)
   ] @constant.builtin))
 
 (_
@@ -167,6 +166,9 @@
 
 (handling_instruction
   fixed_value: (handling_key_value) @constant.builtin)
+
+(draw_instruction
+  fixed_value: (draw_instruction_key_value) @constant.builtin)
 
 (frame_analysis_option) @constant.builtin
 
@@ -210,11 +212,7 @@
 
 "=" @operator
 
-(binary_expression operator: _ @operator)
-
-(unary_expression operator: _ @operator)
-
-(fuzzy_match_expression operator: _ @operator)
+(_ operator: _ @operator)
 
 (field_expression
 [
@@ -225,5 +223,7 @@
 ;; Extras
 
 (comment) @comment.line
+
+(initial_comment) @comment.line
 
 (ERROR) @error
