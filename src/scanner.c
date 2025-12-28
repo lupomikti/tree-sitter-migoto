@@ -321,7 +321,7 @@ static inline bool scan_for_regex_suffix(Scanner *scanner, TSLexer *lexer, const
 
                 if (!strcmp(tmp, search_target)) {
                     reset(scanner);
-                    if (!valid_symbols[result]) return false;
+                    // if (!valid_symbols[result]) return false;
                     lexer->result_symbol = result;
                     return true;
                 }
@@ -359,7 +359,7 @@ static inline bool scan_for_regex_suffix(Scanner *scanner, TSLexer *lexer, const
                     }
                     else {
                         reset(scanner);
-                        if (!valid_symbols[REGEX_PATTERN_HEADER]) return false;
+                        // if (!valid_symbols[REGEX_PATTERN_HEADER]) return false;
                         lexer->result_symbol = REGEX_PATTERN_HEADER;
                         return true;
                     }

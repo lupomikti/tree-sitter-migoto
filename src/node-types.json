@@ -130,6 +130,20 @@
     ]
   },
   {
+    "type": "resource_operational_expression",
+    "named": true,
+    "subtypes": [
+      {
+        "type": "parenthesized_resource_comparison_expression",
+        "named": true
+      },
+      {
+        "type": "resource_comparison_expression",
+        "named": true
+      }
+    ]
+  },
+  {
     "type": "section",
     "named": true,
     "subtypes": [
@@ -201,9 +215,13 @@
       }
     },
     "children": {
-      "multiple": false,
+      "multiple": true,
       "required": true,
       "types": [
+        {
+          "type": "initial_comment",
+          "named": true
+        },
         {
           "type": "instruction",
           "named": true
@@ -458,6 +476,10 @@
       "required": true,
       "types": [
         {
+          "type": "initial_comment",
+          "named": true
+        },
+        {
           "type": "instruction",
           "named": true
         },
@@ -506,6 +528,10 @@
           "named": true
         },
         {
+          "type": "initial_comment",
+          "named": true
+        },
+        {
           "type": "instruction",
           "named": true
         },
@@ -544,6 +570,10 @@
       "required": false,
       "types": [
         {
+          "type": "initial_comment",
+          "named": true
+        },
+        {
           "type": "primary_statement",
           "named": true
         },
@@ -569,6 +599,10 @@
       "types": [
         {
           "type": "condition_key",
+          "named": true
+        },
+        {
+          "type": "initial_comment",
           "named": true
         },
         {
@@ -603,6 +637,10 @@
           {
             "type": "operational_expression",
             "named": true
+          },
+          {
+            "type": "resource_operational_expression",
+            "named": true
           }
         ]
       },
@@ -616,6 +654,16 @@
           }
         ]
       }
+    },
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "initial_comment",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -644,6 +692,10 @@
       "types": [
         {
           "type": "global_declaration",
+          "named": true
+        },
+        {
+          "type": "initial_comment",
           "named": true
         },
         {
@@ -706,9 +758,13 @@
       }
     },
     "children": {
-      "multiple": false,
+      "multiple": true,
       "required": true,
       "types": [
+        {
+          "type": "initial_comment",
+          "named": true
+        },
         {
           "type": "instruction",
           "named": true
@@ -727,6 +783,10 @@
       "types": [
         {
           "type": "conditional_include_statement",
+          "named": true
+        },
+        {
+          "type": "initial_comment",
           "named": true
         },
         {
@@ -774,15 +834,15 @@
       "required": true,
       "types": [
         {
+          "type": "initial_comment",
+          "named": true
+        },
+        {
           "type": "instruction",
           "named": true
         },
         {
-          "type": "integer",
-          "named": true
-        },
-        {
-          "type": "named_variable",
+          "type": "operational_expression",
           "named": true
         }
       ]
@@ -808,9 +868,13 @@
       }
     },
     "children": {
-      "multiple": false,
+      "multiple": true,
       "required": true,
       "types": [
+        {
+          "type": "initial_comment",
+          "named": true
+        },
         {
           "type": "instruction",
           "named": true
@@ -852,15 +916,15 @@
       "required": true,
       "types": [
         {
+          "type": "initial_comment",
+          "named": true
+        },
+        {
           "type": "instruction",
           "named": true
         },
         {
-          "type": "integer",
-          "named": true
-        },
-        {
-          "type": "named_variable",
+          "type": "operational_expression",
           "named": true
         }
       ]
@@ -889,6 +953,10 @@
       "multiple": true,
       "required": true,
       "types": [
+        {
+          "type": "initial_comment",
+          "named": true
+        },
         {
           "type": "instruction",
           "named": true
@@ -924,15 +992,15 @@
       "required": true,
       "types": [
         {
+          "type": "initial_comment",
+          "named": true
+        },
+        {
           "type": "instruction",
           "named": true
         },
         {
-          "type": "integer",
-          "named": true
-        },
-        {
-          "type": "named_variable",
+          "type": "operational_expression",
           "named": true
         }
       ]
@@ -963,6 +1031,10 @@
       "types": [
         {
           "type": "frame_analysis_option",
+          "named": true
+        },
+        {
+          "type": "initial_comment",
           "named": true
         },
         {
@@ -1003,6 +1075,10 @@
           {
             "type": "operational_expression",
             "named": true
+          },
+          {
+            "type": "resource_operational_expression",
+            "named": true
           }
         ]
       },
@@ -1016,6 +1092,16 @@
           }
         ]
       }
+    },
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "initial_comment",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -1172,11 +1258,15 @@
       }
     },
     "children": {
-      "multiple": false,
+      "multiple": true,
       "required": false,
       "types": [
         {
           "type": "assignment_statement",
+          "named": true
+        },
+        {
+          "type": "initial_comment",
           "named": true
         }
       ]
@@ -1212,9 +1302,13 @@
       }
     },
     "children": {
-      "multiple": false,
+      "multiple": true,
       "required": true,
       "types": [
+        {
+          "type": "initial_comment",
+          "named": true
+        },
         {
           "type": "instruction",
           "named": true
@@ -1240,10 +1334,6 @@
         },
         {
           "type": "override_parameter",
-          "named": true
-        },
-        {
-          "type": "resource_operand",
           "named": true
         },
         {
@@ -1320,6 +1410,10 @@
       "required": true,
       "types": [
         {
+          "type": "initial_comment",
+          "named": true
+        },
+        {
           "type": "operational_expression",
           "named": true
         }
@@ -1362,6 +1456,10 @@
           "named": true
         },
         {
+          "type": "initial_comment",
+          "named": true
+        },
+        {
           "type": "instruction",
           "named": true
         }
@@ -1387,6 +1485,10 @@
       "multiple": true,
       "required": false,
       "types": [
+        {
+          "type": "initial_comment",
+          "named": true
+        },
         {
           "type": "key_assignment_statement",
           "named": true
@@ -1445,6 +1547,10 @@
         {
           "type": "numeric_constant",
           "named": true
+        },
+        {
+          "type": "special_semicolon",
+          "named": true
         }
       ]
     }
@@ -1473,6 +1579,16 @@
           }
         ]
       }
+    },
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -1489,6 +1605,16 @@
           }
         ]
       }
+    },
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "initial_comment",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -1515,6 +1641,16 @@
           }
         ]
       }
+    },
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "initial_comment",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -1545,6 +1681,10 @@
       "required": true,
       "types": [
         {
+          "type": "initial_comment",
+          "named": true
+        },
+        {
           "type": "namespace",
           "named": true
         },
@@ -1565,6 +1705,21 @@
       "types": [
         {
           "type": "operational_expression",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "parenthesized_resource_comparison_expression",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "resource_comparison_expression",
           "named": true
         }
       ]
@@ -1636,6 +1791,10 @@
           "named": true
         },
         {
+          "type": "initial_comment",
+          "named": true
+        },
+        {
           "type": "operational_expression",
           "named": true
         }
@@ -1666,6 +1825,10 @@
       "required": true,
       "types": [
         {
+          "type": "initial_comment",
+          "named": true
+        },
+        {
           "type": "instruction",
           "named": true
         },
@@ -1686,6 +1849,10 @@
       "types": [
         {
           "type": "callable_commandlist",
+          "named": true
+        },
+        {
+          "type": "initial_comment",
           "named": true
         },
         {
@@ -1714,6 +1881,10 @@
       "multiple": true,
       "required": false,
       "types": [
+        {
+          "type": "initial_comment",
+          "named": true
+        },
         {
           "type": "preset_assignment_statement",
           "named": true
@@ -1823,6 +1994,16 @@
           }
         ]
       }
+    },
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "initial_comment",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -1853,6 +2034,10 @@
           "named": true
         },
         {
+          "type": "initial_comment",
+          "named": true
+        },
+        {
           "type": "instruction",
           "named": true
         },
@@ -1861,6 +2046,78 @@
           "named": true
         }
       ]
+    }
+  },
+  {
+    "type": "resource_comparison_expression",
+    "named": true,
+    "fields": {
+      "left": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "numeric_constant",
+            "named": true
+          },
+          {
+            "type": "resource_operand",
+            "named": true
+          }
+        ]
+      },
+      "operator": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "!=",
+            "named": false
+          },
+          {
+            "type": "!==",
+            "named": false
+          },
+          {
+            "type": "<",
+            "named": false
+          },
+          {
+            "type": "<=",
+            "named": false
+          },
+          {
+            "type": "==",
+            "named": false
+          },
+          {
+            "type": "===",
+            "named": false
+          },
+          {
+            "type": ">",
+            "named": false
+          },
+          {
+            "type": ">=",
+            "named": false
+          }
+        ]
+      },
+      "right": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "numeric_constant",
+            "named": true
+          },
+          {
+            "type": "resource_operand",
+            "named": true
+          }
+        ]
+      }
     }
   },
   {
@@ -1983,6 +2240,10 @@
           "named": true
         },
         {
+          "type": "initial_comment",
+          "named": true
+        },
+        {
           "type": "instruction",
           "named": true
         }
@@ -2008,6 +2269,10 @@
       "multiple": true,
       "required": false,
       "types": [
+        {
+          "type": "initial_comment",
+          "named": true
+        },
         {
           "type": "setting_statement",
           "named": true
@@ -2070,6 +2335,10 @@
         },
         {
           "type": "shader_override_key",
+          "named": true
+        },
+        {
+          "type": "special_semicolon",
           "named": true
         },
         {
@@ -2177,6 +2446,16 @@
           }
         ]
       }
+    },
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "initial_comment",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -2203,6 +2482,10 @@
       "multiple": true,
       "required": false,
       "types": [
+        {
+          "type": "initial_comment",
+          "named": true
+        },
         {
           "type": "primary_statement",
           "named": true
@@ -2241,6 +2524,10 @@
         {
           "type": "dxbc_declaration",
           "named": true
+        },
+        {
+          "type": "initial_comment",
+          "named": true
         }
       ]
     }
@@ -2269,6 +2556,10 @@
       "multiple": true,
       "required": false,
       "types": [
+        {
+          "type": "initial_comment",
+          "named": true
+        },
         {
           "type": "regex_pattern",
           "named": true
@@ -2300,6 +2591,10 @@
       "multiple": true,
       "required": false,
       "types": [
+        {
+          "type": "initial_comment",
+          "named": true
+        },
         {
           "type": "regex_replacement",
           "named": true
@@ -2335,6 +2630,16 @@
           }
         ]
       }
+    },
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "comment",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -2367,9 +2672,13 @@
       }
     },
     "children": {
-      "multiple": false,
+      "multiple": true,
       "required": true,
       "types": [
+        {
+          "type": "initial_comment",
+          "named": true
+        },
         {
           "type": "instruction",
           "named": true
@@ -2563,6 +2872,10 @@
       "required": true,
       "types": [
         {
+          "type": "initial_comment",
+          "named": true
+        },
+        {
           "type": "instruction",
           "named": true
         },
@@ -2600,6 +2913,10 @@
       "multiple": true,
       "required": true,
       "types": [
+        {
+          "type": "initial_comment",
+          "named": true
+        },
         {
           "type": "instruction",
           "named": true
@@ -2896,6 +3213,10 @@
     "named": true
   },
   {
+    "type": "initial_comment",
+    "named": true
+  },
+  {
     "type": "instruction",
     "named": true
   },
@@ -3053,6 +3374,10 @@
   },
   {
     "type": "special_instruction_key_value",
+    "named": true
+  },
+  {
+    "type": "special_semicolon",
     "named": true
   },
   {
