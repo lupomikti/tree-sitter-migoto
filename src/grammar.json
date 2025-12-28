@@ -2325,6 +2325,22 @@
                     "type": "SYMBOL",
                     "name": "operational_expression"
                   }
+                },
+                {
+                  "type": "PATTERN",
+                  "value": "\\r?\\n"
+                },
+                {
+                  "type": "CHOICE",
+                  "members": [
+                    {
+                      "type": "SYMBOL",
+                      "name": "initial_comment"
+                    },
+                    {
+                      "type": "BLANK"
+                    }
+                  ]
                 }
               ]
             },
@@ -2350,6 +2366,22 @@
                     "type": "SYMBOL",
                     "name": "resource_usage_expression"
                   }
+                },
+                {
+                  "type": "PATTERN",
+                  "value": "\\r?\\n"
+                },
+                {
+                  "type": "CHOICE",
+                  "members": [
+                    {
+                      "type": "SYMBOL",
+                      "name": "initial_comment"
+                    },
+                    {
+                      "type": "BLANK"
+                    }
+                  ]
                 }
               ]
             }
@@ -5888,11 +5920,19 @@
           "type": "ALIAS",
           "content": {
             "type": "PATTERN",
-            "value": "(?:[pc]s-u\\d|s?o\\d|od|[vhdgpc]s(?:-t\\d\\d?\\d?)?)",
+            "value": "(?:[pc]s-u\\d|s?o\\d|od|[vhdgpc]s(?:-t\\d\\d?\\d?))",
             "flags": "i"
           },
           "named": true,
           "value": "shader_variable"
+        },
+        {
+          "type": "PREC",
+          "value": 1,
+          "content": {
+            "type": "SYMBOL",
+            "name": "shader_identifier"
+          }
         }
       ]
     },
@@ -6068,12 +6108,9 @@
       ]
     },
     "shader_identifier": {
-      "type": "IMMEDIATE_TOKEN",
-      "content": {
-        "type": "PATTERN",
-        "value": "[vhdgpc]s",
-        "flags": "i"
-      }
+      "type": "PATTERN",
+      "value": "[vhdgpc]s",
+      "flags": "i"
     },
     "scissor_rectangle": {
       "type": "PATTERN",

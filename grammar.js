@@ -591,12 +591,16 @@ module.exports = grammar({
             $.named_variable
           )),
           "=",
-          field('expression', $.operational_expression)
+          field('expression', $.operational_expression),
+          newline,
+          optional($.initial_comment)
         ),
         seq(
           field('name', $.resource_operand),
           '=',
-          field('expression', $.resource_usage_expression)
+          field('expression', $.resource_usage_expression),
+          newline,
+          optional($.initial_comment)
         )
       )
     ),
@@ -976,7 +980,8 @@ module.exports = grammar({
 
     _language_variable: $ => choice(
       alias(/(?:[vhdgpc]s-cb\d\d?|vb\d|ib|(?:[rf]_)?bb)/i, $.buffer_variable),
-      alias(/(?:[pc]s-u\d|s?o\d|od|[vhdgpc]s(?:-t\d\d?\d?)?)/i, $.shader_variable)
+      alias(/(?:[pc]s-u\d|s?o\d|od|[vhdgpc]s(?:-t\d\d?\d?))/i, $.shader_variable),
+      prec(1,$.shader_identifier)
     ),
 
     resource_identifier: $ => choice(
@@ -1014,7 +1019,7 @@ module.exports = grammar({
       /[xyzw]\d\d\d/i,
     ),
 
-    shader_identifier: _ => token.immediate(/[vhdgpc]s/i),
+    shader_identifier: _ => /[vhdgpc]s/i,
 
     scissor_rectangle: _ => /(scissor\d+_(?:left|top|right|bottom))/i,
 

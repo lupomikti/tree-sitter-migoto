@@ -289,6 +289,16 @@
           }
         ]
       }
+    },
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "initial_comment",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -2176,6 +2186,10 @@
           "named": true
         },
         {
+          "type": "shader_identifier",
+          "named": true
+        },
+        {
           "type": "shader_variable",
           "named": true
         }
@@ -2200,6 +2214,10 @@
         },
         {
           "type": "resource_identifier",
+          "named": true
+        },
+        {
+          "type": "shader_identifier",
           "named": true
         },
         {
