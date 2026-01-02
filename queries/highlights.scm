@@ -1,5 +1,4 @@
-;; Keywords
-
+; Keywords
 (global_declaration
   [
     "global"
@@ -28,8 +27,7 @@
   "endif"
 ] @keyword.control.conditional
 
-;; Punctuation
-
+; Punctuation
 [
   "["
   "]"
@@ -55,19 +53,17 @@
 (key_assignment_statement
   expression: "," @punctuation.delimiter)
 
-;; Preamble
-
+; Preamble
 (namespace_declaration
-[
-  (namespace_key) @variable.other.member
-  (namespace) @namespace
-])
+  [
+    (namespace_key) @variable.other.member
+    (namespace) @namespace
+  ])
 
 (conditional_include_statement
   (condition_key) @variable.other.member)
 
-;; Header
-
+; Header
 (_
   header: (_) @label)
 
@@ -75,33 +71,30 @@
   header: _ @function
   (#match? @function "^\\[[Cc](ommand[Ll]ist|ustom[Ss]hader).+"))
 
-;; Keys
-
+; Keys
 (_
   key: (_) @variable.other.member)
 
-;; Key Expression Values
-
+; Key Expression Values
 (field_expression
   field_name: (field) @variable.other.member)
 
-;; Variables
-
+; Variables
 (custom_resource
-[
-  (resource_prefix) @label
-  "\\" @punctuation.delimiter
-  (namespace) @namespace
-  (section_identifier) @variable
-])
+  [
+    (resource_prefix) @label
+    "\\" @punctuation.delimiter
+    (namespace) @namespace
+    (section_identifier) @variable
+  ])
 
 (preset_section_identifier
-[
-  (preset_prefix)? @label
-  "\\" @punctuation.delimiter
-  (namespace) @namespace
-  (section_identifier) @variable
-])
+  [
+    (preset_prefix)? @label
+    "\\" @punctuation.delimiter
+    (namespace) @namespace
+    (section_identifier) @variable
+  ])
 
 (_
   variable: (named_variable) @variable)
@@ -110,11 +103,11 @@
   name: (named_variable) @variable)
 
 (named_variable
-[
-  "$" @variable
-  (namespace) @namespace
-  (variable_identifier) @variable
-])
+  [
+    "$" @variable
+    (namespace) @namespace
+    (variable_identifier) @variable
+  ])
 
 (named_variable
   "\\" @punctuation.delimiter)
@@ -129,37 +122,41 @@
 
 (ini_parameter) @variable.parameter.builtin
 
-;; Constants and Terminals
+(regex_replacement) @variable
+
+; Constants and Terminals
+(_
+  fixed_value: (fixed_key_value
+    [
+      (multi_key_value)
+      (override_key_value)
+      (fuzzy_match_key_value)
+      (resource_key_value)
+      (system_key_value)
+      (device_key_value)
+      (rendering_key_value)
+      (hunting_key_value)
+      (transition_type_key_value)
+      (custom_shader_key_value)
+    ] @constant.builtin))
 
 (_
-  fixed_value: (fixed_key_value [
-    (multi_key_value)
-    (override_key_value)
-    (fuzzy_match_key_value)
-    (resource_key_value)
-    (system_key_value)
-    (device_key_value)
-    (rendering_key_value)
-    (hunting_key_value)
-    (transition_type_key_value)
-    (custom_shader_key_value)
-  ] @constant.builtin))
+  fixed_value: (fixed_key_value
+    [
+      (blend_operator) @operator
+      (blend_factor) @keyword
+      (key_binding_modifier) @keyword.control
+      (resource_type) @type.builtin
+      (resource_format) @type.enum.variant
+    ]))
 
 (_
-  fixed_value: (fixed_key_value [
-    (blend_operator) @operator
-    (blend_factor) @keyword
-    (key_binding_modifier) @keyword.control
-    (resource_type) @type.builtin
-    (resource_format) @type.enum.variant
-  ]))
-
-(_
-  fixed_value: (key_fixed_key_value [
-    (key_key_value) @constant.builtin
-    (transition_type_key_value) @constant.builtin
-    (key_binding_modifier) @keyword.control
-  ]))
+  fixed_value: (key_fixed_key_value
+    [
+      (key_key_value) @constant.builtin
+      (transition_type_key_value) @constant.builtin
+      (key_binding_modifier) @keyword.control
+    ]))
 
 (preset_section_value
   fixed_value: (transition_type_key_value) @constant.builtin)
@@ -188,40 +185,40 @@
 
 (integer) @constant.numeric.integer
 
-;; Functions
+(character_escape) @constant.character.escape
 
+; Functions
 (instruction) @function.macro ; just for fun
 
 (callable_commandlist
-[
-  (callable_prefix) @function.call
-  "\\" @punctuation.delimiter
-  (namespace) @namespace
-  (section_identifier) @function.call
-])
+  [
+    (callable_prefix) @function.call
+    "\\" @punctuation.delimiter
+    (namespace) @namespace
+    (section_identifier) @function.call
+  ])
 
 (callable_customshader
-[
-  (callable_prefix) @function.call
-  "\\" @punctuation.delimiter
-  (namespace) @namespace
-  (section_identifier) @function.call
-])
+  [
+    (callable_prefix) @function.call
+    "\\" @punctuation.delimiter
+    (namespace) @namespace
+    (section_identifier) @function.call
+  ])
 
-;; Operators
-
+; Operators
 "=" @operator
 
-(_ operator: _ @operator)
+(_
+  operator: _ @operator)
 
 (field_expression
-[
-  "*"
-  "/"
-] @operator)
+  [
+    "*"
+    "/"
+  ] @operator)
 
-;; Extras
-
+; Extras
 (comment) @comment.line
 
 (initial_comment) @comment.line

@@ -1,4 +1,4 @@
-((block) @indent)
+(block) @indent
 
 [
   "elif"

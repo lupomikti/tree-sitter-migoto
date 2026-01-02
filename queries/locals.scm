@@ -1,4 +1,5 @@
 (section) @local.scope
+
 (block) @local.scope
 
 (local_declaration
