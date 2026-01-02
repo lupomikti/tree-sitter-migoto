@@ -666,7 +666,7 @@
       }
     },
     "children": {
-      "multiple": false,
+      "multiple": true,
       "required": false,
       "types": [
         {
@@ -677,11 +677,6 @@
     }
   },
   {
-    "type": "constants_header",
-    "named": true,
-    "fields": {}
-  },
-  {
     "type": "constants_section",
     "named": true,
     "fields": {
@@ -690,7 +685,7 @@
         "required": true,
         "types": [
           {
-            "type": "constants_header",
+            "type": "constants_section_header",
             "named": true
           }
         ]
@@ -714,6 +709,11 @@
         }
       ]
     }
+  },
+  {
+    "type": "constants_section_header",
+    "named": true,
+    "fields": {}
   },
   {
     "type": "custom_resource",
@@ -789,8 +789,12 @@
     "fields": {},
     "children": {
       "multiple": true,
-      "required": false,
+      "required": true,
       "types": [
+        {
+          "type": "comment",
+          "named": true
+        },
         {
           "type": "conditional_include_statement",
           "named": true
@@ -1202,21 +1206,6 @@
         },
         {
           "type": "system_key_value",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "free_text",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": false,
-      "types": [
-        {
-          "type": "free_text",
           "named": true
         }
       ]
@@ -2037,6 +2026,34 @@
     }
   },
   {
+    "type": "regex_replace_line",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "character_escape",
+          "named": true
+        },
+        {
+          "type": "free_text",
+          "named": true
+        },
+        {
+          "type": "regex_replacement",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "regex_replacement",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "reset_instruction",
     "named": true,
     "fields": {
@@ -2634,7 +2651,7 @@
           "named": true
         },
         {
-          "type": "regex_replacement",
+          "type": "regex_replace_line",
           "named": true
         }
       ]
@@ -2655,7 +2672,7 @@
         ]
       },
       "value": {
-        "multiple": false,
+        "multiple": true,
         "required": true,
         "types": [
           {
@@ -2674,7 +2691,7 @@
       "required": false,
       "types": [
         {
-          "type": "comment",
+          "type": "initial_comment",
           "named": true
         }
       ]
@@ -3034,6 +3051,10 @@
     "named": false
   },
   {
+    "type": "${",
+    "named": false
+  },
+  {
     "type": "%",
     "named": false
   },
@@ -3142,6 +3163,10 @@
     "named": true
   },
   {
+    "type": "character_escape",
+    "named": true
+  },
+  {
     "type": "clear_instruction_key_value",
     "named": true
   },
@@ -3212,6 +3237,10 @@
   },
   {
     "type": "frame_analysis_option",
+    "named": true
+  },
+  {
+    "type": "free_text",
     "named": true
   },
   {
@@ -3351,10 +3380,6 @@
     "named": true
   },
   {
-    "type": "regex_replacement",
-    "named": true
-  },
-  {
     "type": "rendering_key_value",
     "named": true
   },
@@ -3456,6 +3481,10 @@
   },
   {
     "type": "||",
+    "named": false
+  },
+  {
+    "type": "}",
     "named": false
   }
 ]

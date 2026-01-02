@@ -17,6 +17,7 @@ typedef enum {
     REGEX_DECLARATIONS_HEADER,
     REGEX_PATTERN_HEADER,
     REGEX_REPLACE_HEADER,
+    NEWLINE_OR_EOF,
     ERROR_SENTINEL,
 } TokenType;
 
@@ -121,7 +122,7 @@ static inline void skip(TSLexer *lexer) { lexer->advance(lexer, true); }
 static inline char *_tolower_str(char *_Str) {
     size_t i = 0;
 
-    while (_Str[i] != L'\0') {
+    while (_Str[i] != '\0') {
         _Str[i] = tolower(_Str[i]);
         i++;
     }
@@ -129,6 +130,7 @@ static inline char *_tolower_str(char *_Str) {
     return _Str;
 }
 
+/// Determines if an element of search_arr is a substring of search_term
 static inline bool is_terminating_section_name(const char *search_term, const char **search_arr)
 {
     const char *lwr_term = strlwr(search_term);
@@ -137,6 +139,30 @@ static inline bool is_terminating_section_name(const char *search_term, const ch
             return true;
         }
     }
+    return false;
+}
+
+static inline bool scan_end_of_line(TSLexer *lexer) {
+    for (;;) {
+        if (lexer->lookahead == '\n' || lexer->eof(lexer)) {
+            if (lexer->lookahead == '\n') {
+                consume(lexer);
+                if (lexer->lookahead == '\n' || lexer->eof(lexer)) {
+                    lexer->result_symbol = NEWLINE_OR_EOF;
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            }
+            lexer->result_symbol = NEWLINE_OR_EOF;
+            return true;
+        }
+        else {
+            consume(lexer);
+        }
+    }
+
     return false;
 }
 
@@ -190,75 +216,83 @@ static inline bool scan_namespace_res_content(TSLexer *lexer) {
     }
 }
 
-static inline bool scan_line(Scanner *scanner, TSLexer *lexer) {
-    bool search_flag = false;
-    bool is_start = true;
-    char *target;
-    
-    for (;;) {
-        if (lexer->eof(lexer)) {
-            lexer->result_symbol = EXTERNAL_LINE;
-            reset(scanner);
-            return true;
-        }
+static inline bool scan_maybe_section_header(Scanner *scanner, TSLexer *lexer, const bool *valid_symbols) {
+    consume(lexer); // skip the '[' that starts
 
-        if (lexer->lookahead == '\n' && !search_flag) {
-            is_start = false;
-            lexer->mark_end(lexer);
-            consume(lexer);
-            if (lexer->lookahead == '[') {
-                consume(lexer);
-                if (!iswalpha(lexer->lookahead)) {
-                    lexer->result_symbol = EXTERNAL_LINE;
-                    reset(scanner);
-                    return true;
-                } else {
-                    search_flag = true;
-                }
-            } else {
-                lexer->result_symbol = EXTERNAL_LINE;
-                reset(scanner);
-                return true;
-            }
-        } else if (lexer->lookahead == '\n' && search_flag) {
-            is_start = false;
-            search_flag = false;
-            lexer->result_symbol = EXTERNAL_LINE;
-            reset(scanner);
-            return true;
-        } else if (search_flag) {
-            if (lexer->lookahead != ']') {
-                is_start = false;
-                array_push(&scanner->word, lexer->lookahead);
-                consume(lexer);
-            } else {
-                is_start = false;
-                search_flag = false;
-                target = scanner->word.contents;
-                if (is_terminating_section_name(target, SECTION_NAMES)) {
-                    lexer->result_symbol = SECTION_HEADER_START;
-                    reset(scanner);
-                    return true;
-                }
-            }
-        } else {
-            if (lexer->lookahead == '[' && is_start) {
-                is_start = false;
-                lexer->mark_end(lexer);
-                consume(lexer);
-                if (iswalpha(lexer->lookahead)) {
-                    search_flag = true;
-                }
-            } else if (lexer->lookahead == ';' && is_start) {
-                lexer->result_symbol = EXTERNAL_LINE;
-                return false;
-            }
-            else {
-                is_start = false;
-                consume(lexer);
-            }
+    bool searching = false;
+
+    if (!iswalpha(lexer->lookahead)) {
+        return false;
+    }
+    else {
+        searching = true;
+    }
+
+    while(searching) {
+        array_push(&scanner->word, lexer->lookahead);
+        consume(lexer);
+        if (lexer->lookahead == ']' || lexer->lookahead == '\n') {
+            searching = false;
         }
     }
+
+    if (is_terminating_section_name(scanner->word.contents, SECTION_NAMES)) {
+        reset(scanner);
+        return true;
+    }
+
+    return false;
+}
+
+static inline bool scan_line(Scanner *scanner, TSLexer *lexer, const bool *valid_symbols) {    
+    bool saw_text = false;
+    TokenType result = ERROR_SENTINEL;
+
+    // IF we see any non-whitespace text before a newline
+    // OR we see only non-newline whitespace text before a newline
+    // THEN we will return true for EXTERNAL_LINE,
+    //      with a zero-width token for the 2nd case
+    // IF we see a '[' and saw_text is false
+    // THEN we need to check if the line contains a valid section header
+    // IF the line contains a valid section header
+    // THEN we will return true for SECTION_HEADER_START with a zero-width token
+
+    while (!lexer->eof(lexer)) {
+        bool is_wspace = iswspace(lexer->lookahead);
+        if (lexer->lookahead == '\n') {
+            result = EXTERNAL_LINE;
+            if (saw_text) {
+                lexer->mark_end(lexer);
+            }
+            break;
+        }
+        else if (!saw_text && lexer->lookahead == ';') {
+            return false;
+        }
+        else if (!saw_text && lexer->lookahead == '[') {
+            // fprintf(stderr, "Lykare[LINE]: about to scan for a section header\n");
+            lexer->mark_end(lexer); // stop adding characters to the token at this point
+            if (scan_maybe_section_header(scanner, lexer, valid_symbols)) {
+                // fprintf(stderr, "Lykare[LINE]: found a section header next\n");
+                result = SECTION_HEADER_START;
+                break;
+            }
+
+            // fprintf(stderr, "Lykare[LINE]: was not a section header, resuming line consumption\n");
+            lexer->mark_end(lexer); // resume adding characters, adding in the ones consumed while scanning
+            saw_text = true;
+            consume(lexer);
+        }
+        else {
+            if (!is_wspace && !saw_text) {
+                saw_text = true;
+            }
+
+            consume(lexer);
+        }
+    }
+
+    return valid_symbols[result];
 }
 
 static inline bool scan_for_regex_suffix(Scanner *scanner, TSLexer *lexer, const bool *valid_symbols) {
@@ -278,10 +312,12 @@ static inline bool scan_for_regex_suffix(Scanner *scanner, TSLexer *lexer, const
         switch (ss)
         {
         case GENSEARCH:
+            // fprintf(stderr, "Lykare[GEN]: entered general search branch\n");
             switch (lexer->lookahead)
             {
             case 'I':
             case 'i':
+                // fprintf(stderr, "Lykare[GEN]: found an 'I' character, setting new search state\n");
                 ss = INSSEARCH;
                 c = lexer->lookahead;
                 array_push(&scanner->word, c);
@@ -289,12 +325,14 @@ static inline bool scan_for_regex_suffix(Scanner *scanner, TSLexer *lexer, const
                 break;
             case 'P':
             case 'p':
+                // fprintf(stderr, "Lykare[GEN]: found a 'P' character, setting new search state\n");
                 ss = PATSEARCH;
                 c = lexer->lookahead;
                 array_push(&scanner->word, c);
                 consume(lexer);
                 break;
             default:
+                // fprintf(stderr, "Lykare:[GEN] defaulting inside general search, returning to not searching state\n");
                 ss = NOTSEARCHING;
                 consume(lexer);
                 break;
@@ -311,17 +349,23 @@ static inline bool scan_for_regex_suffix(Scanner *scanner, TSLexer *lexer, const
                 result = REGEX_DECLARATIONS_HEADER;
             }
 
+            // fprintf(stderr, "Lykare[INS/REP]: entered INS/REP search branch\n");
+
             switch (lexer->lookahead)
             {
             case ']':
             case '\n':
+                // fprintf(stderr, "Lykare[INS/REP]: found terminal character\n");
                 lexer->mark_end(lexer);
 
-                tmp = strlwr(scanner->word.contents);
+                array_push(&scanner->word, '\0'); // terminate the acumalted word
 
-                if (!strcmp(tmp, search_target)) {
+                strlwr(scanner->word.contents);
+                // fprintf(stderr, "Lykare[INS/REP]: word is currently '%s' and search target is %s\n", scanner->word.contents, search_target);
+
+                if (!strcmp(scanner->word.contents, search_target)) {
                     reset(scanner);
-                    // if (!valid_symbols[result]) return false;
+                    if (!valid_symbols[result]) return false;
                     lexer->result_symbol = result;
                     return true;
                 }
@@ -347,24 +391,37 @@ static inline bool scan_for_regex_suffix(Scanner *scanner, TSLexer *lexer, const
             case '.':
             case ']':
             case '\n':
+                // fprintf(stderr, "Lykare[PAT]: found terminal character or period\n");
                 lexer->mark_end(lexer);
 
-                tmp = strlwr(scanner->word.contents);
+                array_push(&scanner->word, '\0'); // terminate the acummulated word
+
+                strlwr(scanner->word.contents);
+                // fprintf(stderr, "Lykare[PAT]: word is currently '%s'\n", scanner->word.contents);
+                // fprintf(stderr, "Lykare[PAT]: word after lowercasing is '%s'\n", tmp);
                 
-                if (!strcmp(tmp, "pattern")) {
+                if (!strcmp(scanner->word.contents, "pattern")) {
+                    // fprintf(stderr, "Lykare[PAT]: word matched 'pattern', determining if replace search needed...\n");
                     if (lexer->lookahead == '.') {
+                        // fprintf(stderr, "Lykare[PAT]: replace search needed, entering replace search state\n");
                         ss = REPSEARCH;
                         reset(scanner);
                         consume(lexer);
                     }
                     else {
+                        // fprintf(stderr, "Lykare[PAT]: no replace search needed, checking that valid symbol is PATTERN...\n");
                         reset(scanner);
-                        // if (!valid_symbols[REGEX_PATTERN_HEADER]) return false;
+                        if (!valid_symbols[REGEX_PATTERN_HEADER]) {
+                            // fprintf(stderr, "Lykare[PAT]: valid symbol was not PATTERN, returning false\n");
+                            return false;
+                        }
+                        // fprintf(stderr, "Lykare[PAT]: setting result to pattern and returning true\n");
                         lexer->result_symbol = REGEX_PATTERN_HEADER;
                         return true;
                     }
                 }
                 else {
+                    // fprintf(stderr, "Lykare[PAT]: word did not match 'pattern', returning to not searching state and setting result to commandlist\n");
                     lexer->result_symbol = REGEX_COMMANDLIST_HEADER;
                     ss = NOTSEARCHING;
                     reset(scanner);
@@ -383,15 +440,18 @@ static inline bool scan_for_regex_suffix(Scanner *scanner, TSLexer *lexer, const
             {
             case ']':
             case '\n':
+                // fprintf(stderr, "Lykare[NOT]: found a terminal character, returning commandlist true\n");
                 lexer->mark_end(lexer);
                 lexer->result_symbol = REGEX_COMMANDLIST_HEADER;
                 return true;
             case '.':
+                // fprintf(stderr, "Lykare[NOT]: found a period, entering general search state\n");
                 lexer->mark_end(lexer);
                 ss = GENSEARCH;
                 consume(lexer);
                 break;
             default:
+                // fprintf(stderr, "Lykare[NOT]: default consumption, continue\n");
                 consume(lexer);
                 break;
             }
@@ -402,18 +462,28 @@ static inline bool scan_for_regex_suffix(Scanner *scanner, TSLexer *lexer, const
 
 bool tree_sitter_migoto_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
     if (valid_symbols[ERROR_SENTINEL]) {
+        // fprintf(stderr, "Lykare[ERR]: tree-sitter decided to enter an error state\n");
         return false;
     }
 
     Scanner *scanner = (Scanner*) payload;
 
     if (valid_symbols[REGEX_COMMANDLIST_HEADER] || valid_symbols[REGEX_DECLARATIONS_HEADER] ||
-        valid_symbols[REGEX_PATTERN_HEADER] || valid_symbols[REGEX_REPLACE_HEADER]) {
+        valid_symbols[REGEX_PATTERN_HEADER] || valid_symbols[REGEX_REPLACE_HEADER])
+    {
+        // if (getenv("TREE_SITTER_DEBUG")) {
+            // fprintf(stderr, "Lykare[START]: scanning for a valid regex header\n");
+        // }
         return scan_for_regex_suffix(scanner, lexer, valid_symbols);
     }
 
     if (valid_symbols[EXTERNAL_LINE] || valid_symbols[SECTION_HEADER_START]) {
-        return scan_line(scanner, lexer);
+        // fprintf(stderr, "Lykare[START]: scanning an external line or checking for section header start\n");
+        return scan_line(scanner, lexer, valid_symbols);
+    }
+
+    if (valid_symbols[NEWLINE_OR_EOF]) {
+        return scan_end_of_line(lexer);
     }
 
     if (valid_symbols[NAMESPACE_RESOLUTION_START]) {

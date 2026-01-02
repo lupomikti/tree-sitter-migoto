@@ -159,6 +159,7 @@ module.exports = grammar({
     $._regex_declarations_header,
     $._regex_pattern_header,
     $._regex_replace_header,
+    $._newline_or_eof,
     $.error_sentinel
   ],
 
@@ -175,7 +176,9 @@ module.exports = grammar({
       repeat(newline), // consume blank lines at the start of the document
       optional($.initial_comment), // potential comment with no newline before it
       optional($._preamble),
-      repeat($.section)
+      repeat1($.section),
+      optional($.comment),
+      optional($._newline_or_eof)
     ),
 
     _preamble: $ => choice(
@@ -214,10 +217,10 @@ module.exports = grammar({
       $._shader_regex_section
     ),
 
-    constants_header: _ => _create_section_header('Constants'),
+    constants_section_header: _ => _create_section_header('Constants'),
 
     constants_section: $ => seq(
-      field('header', $.constants_header),
+      field('header', $.constants_section_header),
       newline,
       optional($.initial_comment),
       repeat(choice(
@@ -336,15 +339,12 @@ module.exports = grammar({
     shader_regex_pattern_section: $ => seq(
       field('header', $.shader_regex_pattern_header),
       newline,
-      optional($.initial_comment),
-      seq(
-        repeat(seq(
-          alias($._external_line, $.regex_pattern),
-          newline,
-          optional($.initial_comment)
-        )),
-        optional($._section_header_start)
-      )
+      repeat(seq(
+        choice(
+          seq($.initial_comment, newline),
+          seq(alias($._external_line, $.regex_pattern), choice(newline, $._section_header_start))
+        )
+      ))
     ),
 
     shader_regex_replace_header: $ => seq(
@@ -357,8 +357,13 @@ module.exports = grammar({
     shader_regex_replace_section: $ => seq(
       field('header', $.shader_regex_replace_header),
       newline,
-      optional($.initial_comment),
-      seq(repeat(seq(alias($._external_line, $.regex_replacement), newline)), optional($._section_header_start))
+      repeat(seq(
+        choice(
+          seq($.initial_comment, newline),
+          // seq(alias($._external_line, $.regex_replacement), choice(newline, $._section_header_start))
+          seq(alias(repeat(choice($.regex_replacement, $.character_escape, $.free_text)), $.regex_replace_line), choice(newline, $._section_header_start))
+        )
+      ))
     ),
 
     shader_regex_declarations_header: $ => seq(
@@ -371,8 +376,12 @@ module.exports = grammar({
     shader_regex_declarations_section: $ => seq(
       field('header', $.shader_regex_declarations_header),
       newline,
-      optional($.initial_comment),
-      seq(repeat(seq(alias($._external_line, $.dxbc_declaration), newline)), optional($._section_header_start))
+      repeat(seq(
+        choice(
+          seq($.initial_comment, newline),
+          seq(alias($._external_line, $.dxbc_declaration), choice(newline, $._section_header_start))
+        )
+      ))
     ),
 
     shader_regex_commandlist_header: $ => seq(
@@ -397,7 +406,7 @@ module.exports = grammar({
         seq(
           field('key', alias(/(shader_model|temps|filter_index)/i, $.shader_regex_key)),
           '=',
-          field('value', alias($._space_sep_free_text, $.free_text))
+          field('value', repeat1($.free_text))
         ),
         seq(
           field('key', alias(/filter_index/i, $.shader_regex_key)),
@@ -405,10 +414,11 @@ module.exports = grammar({
           field('value', $.numeric_constant)
         ),
       ),
-      optional($.comment)
+      newline,
+      optional($.initial_comment)
     ),
 
-    _space_sep_free_text: $ => repeat1($.free_text),
+    // _space_sep_free_text: $ => repeat1($.free_text),
 
     setting_section_header: _ => _create_section_header(
       /(Logging|System|Device|Stereo|Rendering|Hunting|Profile|ConvergenceMap|Loader|Resource[^\]]+|Include[^\]]*)/i
@@ -639,7 +649,9 @@ module.exports = grammar({
       field('consequence', alias(optional($._block), $.block)),
       repeat(field('alternative', $.elseif_statement)),
       optional(field('alternative', $.else_statement)),
-      alias($._endif, 'endif')
+      alias($._endif, 'endif'),
+      newline,
+      optional($.initial_comment),
     ),
 
     // adapted from tree-sitter-lua
@@ -1081,16 +1093,24 @@ module.exports = grammar({
       share_dupes|symlink|dump_(?:rt|depth|tex)_(?:jps|dds)|dump_[cvi]b_txt)`
     ),
 
-    free_text: _ => /[^\\\/="\s]+/i,
+    regex_replacement: _ => seq(
+      '${',
+      /\w+/i,
+      '}'
+    ),
+
+    character_escape: _ => token.immediate(/\\[a-z]/i),
+
+    free_text: _ => /[^\\\/="${}\s]+/i,
 
     comment: $ => token(seq(
       field('start', seq(newline, ';')),
-      optional(field('content', alias(/[^\r\n]+/, $.comment_content)))
+      field('content', alias(/[^\r\n]*/, $.comment_content))
     )),
 
     initial_comment: $ => token(seq(
       field('start', ';'),
-      optional(field('content', alias(/[^\r\n]+/, $.comment_content)))
+      field('content', alias(/[^\r\n]*/, $.comment_content))
     )),
 
     null: _ => /null/i,
@@ -1114,5 +1134,7 @@ module.exports = grammar({
     _pre: _ => /pre/i,
 
     _post: _ => /post/i,
+
+    // _blank: _ => newline
   }
 });
