@@ -88,7 +88,7 @@
               "type": "ALIAS",
               "content": {
                 "type": "PATTERN",
-                "value": "[^>\\\\|\\/<?:*=$\\r\\n]+(?:[\\\\\\/][^>\\\\|\\/<?:*=$\\r\\n]+)*",
+                "value": "[^\\s>\\\\|\\/<?:*=\"$][^>\\\\|\\/<?:*=$\\r\\n]+(?:[\\\\\\/][^>\\\\|\\/<?:*=$\\r\\n]+)*",
                 "flags": "i"
               },
               "named": true,
@@ -1016,7 +1016,7 @@
                     "type": "ALIAS",
                     "content": {
                       "type": "PATTERN",
-                      "value": "(shader_model|temps|filter_index)",
+                      "value": "(shader_model|temps)",
                       "flags": "i"
                     },
                     "named": true,
@@ -1380,13 +1380,20 @@
                 "name": "numeric_constant"
               },
               {
-                "type": "ALIAS",
+                "type": "TOKEN",
                 "content": {
-                  "type": "STRING",
-                  "value": ";"
-                },
-                "named": true,
-                "value": "special_semicolon"
+                  "type": "PREC",
+                  "value": 1,
+                  "content": {
+                    "type": "ALIAS",
+                    "content": {
+                      "type": "STRING",
+                      "value": ";"
+                    },
+                    "named": true,
+                    "value": "semicolon_character"
+                  }
+                }
               },
               {
                 "type": "SYMBOL",
@@ -1550,7 +1557,7 @@
           "type": "ALIAS",
           "content": {
             "type": "PATTERN",
-            "value": "(?:(?:(?:[a-z]:|\\.[\\.]?)[\\\\\\/])?(?:\\.\\.|[^>\\\\|\\/<?:*=\"$\\r\\n]+)(?:[\\\\\\/](?:\\.\\.|[^>\\\\|\\/<?:*=\"$\\r\\n]+))+)",
+            "value": "(?:(?:(?:[a-z]:|\\.[\\.]?)[\\\\\\/])?(?:\\.\\.|[^\\s>\\\\|\\/<?:*=\"$][^>\\\\|\\/<?:*=\"$\\r\\n]+)(?:[\\\\\\/](?:\\.\\.|[^\\s>\\\\|\\/<?:*=\"$][^>\\\\|\\/<?:*=\"$\\r\\n]+))+)",
             "flags": "i"
           },
           "named": true,
@@ -1560,7 +1567,7 @@
           "type": "ALIAS",
           "content": {
             "type": "PATTERN",
-            "value": "[^>\\\\|\\/<?:*=\"$\\r\\n]+\\.[a-z\\-]+",
+            "value": "[^\\s>\\\\|\\/<?:*=\"$][^>\\\\|\\/<?:*=\"$\\r\\n]+\\.[a-z\\-]+",
             "flags": "i"
           },
           "named": true,

@@ -28,9 +28,9 @@ const PREC = {
 // const newline = /\r?\n/
 const custom_section_name = /[^\-+*\/&% !>|<=$\r\n]+/i
 const custom_resource_section_name = /[^\/& !>|<=$\r\n]+/i
-const namespace_regex = /[^>\\|\/<?:*=$\r\n]+(?:[\\\/][^>\\|\/<?:*=$\r\n]+)*/i
-const path_regex = /(?:(?:(?:[a-z]:|\.[\.]?)[\\\/])?(?:\.\.|[^>\\|\/<?:*="$\r\n]+)(?:[\\\/](?:\.\.|[^>\\|\/<?:*="$\r\n]+))+)/i
-const file_regex = /[^>\\|\/<?:*="$\r\n]+\.[a-z\-]+/i // intentionally choosing to not support numerals in file extensions
+const namespace_regex = /[^\s>\\|\/<?:*="$][^>\\|\/<?:*=$\r\n]+(?:[\\\/][^>\\|\/<?:*=$\r\n]+)*/i
+const path_regex = /(?:(?:(?:[a-z]:|\.[\.]?)[\\\/])?(?:\.\.|[^\s>\\|\/<?:*="$][^>\\|\/<?:*="$\r\n]+)(?:[\\\/](?:\.\.|[^\s>\\|\/<?:*="$][^>\\|\/<?:*="$\r\n]+))+)/i
+const file_regex = /[^\s>\\|\/<?:*="$][^>\\|\/<?:*="$\r\n]+\.[a-z\-]+/i // intentionally choosing to not support numerals in file extensions
 
 const custom_shader_state_keys = new RustRegex(`(?xi)(
   blend_factor\\[[0-3]\\]|(?:blend|alpha|mask)(?:\\[[0-7]\\])?|alpha_to_coverage|sample_mask|blend_state_merge|
@@ -181,8 +181,8 @@ module.exports = grammar({
     _preamble: $ => choice(
       $.namespace_declaration,
       $.conditional_include_statement,
-      seq($.namespace_declaration,$.conditional_include_statement),
-      seq($.conditional_include_statement,$.namespace_declaration)
+      seq($.namespace_declaration, $.conditional_include_statement),
+      seq($.conditional_include_statement, $.namespace_declaration)
     ),
 
     namespace_declaration: $ => seq(
@@ -384,7 +384,7 @@ module.exports = grammar({
     shader_regex_setting_statement: $ => seq(
       choice(
         seq(
-          field('key', alias(/(shader_model|temps|filter_index)/i, $.shader_regex_key)),
+          field('key', alias(/(shader_model|temps)/i, $.shader_regex_key)),
           '=',
           field('value', repeat1($.free_text))
         ),
@@ -444,7 +444,7 @@ module.exports = grammar({
           $.frame_analysis_option,
           $.boolean_value,
           $.numeric_constant,
-          alias(';', $.special_semicolon),
+          token(prec(1, alias(';', $.semicolon_character))),
           $.free_text
         )
       )

@@ -2287,10 +2287,6 @@
           "named": true
         },
         {
-          "type": "special_semicolon",
-          "named": true
-        },
-        {
           "type": "string",
           "named": true
         }
@@ -3183,10 +3179,6 @@
   },
   {
     "type": "special_instruction_key_value",
-    "named": true
-  },
-  {
-    "type": "special_semicolon",
     "named": true
   },
   {

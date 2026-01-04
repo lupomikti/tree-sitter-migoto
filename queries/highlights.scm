@@ -150,13 +150,15 @@
       (resource_format) @type.enum.variant
     ]))
 
-(_
+(key_section_value
   fixed_value: (key_fixed_key_value
     [
       (key_key_value) @constant.builtin
       (transition_type_key_value) @constant.builtin
-      (key_binding_modifier) @keyword.control
     ]))
+
+(key_section_value
+  fixed_value: (key_binding_modifier) @keyword.control)
 
 (preset_section_value
   fixed_value: (transition_type_key_value) @constant.builtin)
