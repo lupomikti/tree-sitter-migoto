@@ -422,7 +422,7 @@ module.exports = grammar({
       alias(/(match_(?:first_(?:vertex|index|instance)|(?:vertex_|index_|instance_)count))/i, $.texov_draw_match_key),
       alias(/(match_(?:type|usage|(?:bind|cpu_access|misc)_flags|(?:byte_)?width|height|stride|mips|format|depth|array|msaa(?:_quality)?))/i, $.texov_fuzzy_match_key),
       alias(/([vhdgpc]s|flags|max_executions_per_frame|topology|sampler)/i, $.custom_shader_key),
-      alias(token.immediate(custom_shader_state_keys), $.custom_shader_state_key),
+      alias(custom_shader_state_keys, $.custom_shader_state_key),
       alias(/(allow_duplicate_hash|depth_filter|partner|model|disable_scissor)/i, $.shader_override_key),
       alias(/((?:in|ex)clude(?:_recursive)?|user_config)/i, $.include_section_key),
       alias(/(separation|convergence|calls|input|debug(?:_locks)?|unbuffered|force_cpu_affinity|wait_for_debugger|crash|dump_all_profiles|show_warnings)/i, $.logging_section_key),
