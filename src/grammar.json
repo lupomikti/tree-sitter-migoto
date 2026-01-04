@@ -354,6 +354,20 @@
             "type": "CHOICE",
             "members": [
               {
+                "type": "FIELD",
+                "name": "fixed_value",
+                "content": {
+                  "type": "ALIAS",
+                  "content": {
+                    "type": "PATTERN",
+                    "value": "(?:(?:no_)?(?:vk_)?(?:ctrl|alt|shift|windows)|no_modifiers)",
+                    "flags": "i"
+                  },
+                  "named": true,
+                  "value": "key_binding_modifier"
+                }
+              },
+              {
                 "type": "SYMBOL",
                 "name": "boolean_value"
               },
@@ -401,19 +415,6 @@
           },
           "named": true,
           "value": "transition_type_key_value"
-        },
-        {
-          "type": "REPEAT1",
-          "content": {
-            "type": "ALIAS",
-            "content": {
-              "type": "PATTERN",
-              "value": "(?:(?:no_)?(?:vk_)?(?:ctrl|alt|shift|windows)|no_modifiers)",
-              "flags": "i"
-            },
-            "named": true,
-            "value": "key_binding_modifier"
-          }
         }
       ]
     },

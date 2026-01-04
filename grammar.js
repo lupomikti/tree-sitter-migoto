@@ -250,6 +250,7 @@ module.exports = grammar({
       field('fixed_value', $.key_fixed_key_value),
       repeat1(
         choice(
+          field('fixed_value', alias(/(?:(?:no_)?(?:vk_)?(?:ctrl|alt|shift|windows)|no_modifiers)/i, $.key_binding_modifier)),
           $.boolean_value,
           $._static_value,
           alias(';', $.special_semicolon),
@@ -261,7 +262,6 @@ module.exports = grammar({
     key_fixed_key_value: $ => choice(
       alias(/(hold|activate|toggle|cycle)/i, $.key_key_value),
       alias(/(linear|cosine)/i, $.transition_type_key_value),
-      repeat1(alias(/(?:(?:no_)?(?:vk_)?(?:ctrl|alt|shift|windows)|no_modifiers)/i, $.key_binding_modifier))
     ),
 
     key_condition_statement: $ => seq(

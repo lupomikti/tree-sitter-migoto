@@ -1322,13 +1322,9 @@
     "named": true,
     "fields": {},
     "children": {
-      "multiple": true,
+      "multiple": false,
       "required": true,
       "types": [
-        {
-          "type": "key_binding_modifier",
-          "named": true
-        },
         {
           "type": "key_key_value",
           "named": true
@@ -1407,9 +1403,13 @@
     "named": true,
     "fields": {
       "fixed_value": {
-        "multiple": false,
+        "multiple": true,
         "required": false,
         "types": [
+          {
+            "type": "key_binding_modifier",
+            "named": true
+          },
           {
             "type": "key_fixed_key_value",
             "named": true
