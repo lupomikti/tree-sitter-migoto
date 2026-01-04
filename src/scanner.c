@@ -150,6 +150,9 @@ static inline bool scan_end_of_line(TSLexer *lexer) {
             found_end_of_line = true;
             skip(lexer);
         }
+        else if (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
+            skip(lexer);
+        }
         else if (lexer->eof(lexer)) {
             found_end_of_line = true;
             break;
@@ -260,19 +263,25 @@ static inline bool scan_line(Scanner *scanner, TSLexer *lexer, const bool *valid
 
     while (!lexer->eof(lexer)) {
         bool is_wspace = iswspace(lexer->lookahead);
-        if (lexer->lookahead == '\n') {
-            // if we see a newline ahead, we need to mark what we have an external line
-            // by default this will be a zero-width token if we have not seen any text yet
+        if (lexer->lookahead == '\r' || lexer->lookahead == '\n') {
+            // fprintf(stderr, "Lykare[LINE]: Next is the end of a line\n");
             result = EXTERNAL_LINE;
             if (saw_text) {
                 lexer->mark_end(lexer);
+                break;
             }
-            break;
+            else {
+                lexer->result_symbol = result;
+                return false;
+            }
         }
         else if (!saw_text && lexer->lookahead == ';') {
             // if we haven't seen any text yet, the first we see is a semicolon
             // this is not an external line, it's a comment
-            return false;
+            // fprintf(stderr, "Lykare[LINE]: we have not seen text yet, but a comment start is next\n");
+            // return zero-width true if this was looking for an external line
+            // so the comment doesn't escape the whole section
+            return valid_symbols[EXTERNAL_LINE];
         }
         else if (!saw_text && lexer->lookahead == '[') {
             // fprintf(stderr, "Lykare[LINE]: about to scan for a section header\n");
@@ -289,6 +298,7 @@ static inline bool scan_line(Scanner *scanner, TSLexer *lexer, const bool *valid
             consume(lexer);
         }
         else {
+            // fprintf(stderr, "Lykare[LINE]: we have not seen a terminal, so check if we've seen text, then consume or skip\n");
             if (!is_wspace && !saw_text) {
                 saw_text = true;
             }
@@ -298,6 +308,7 @@ static inline bool scan_line(Scanner *scanner, TSLexer *lexer, const bool *valid
         }
     }
 
+    lexer->result_symbol = result;
     return valid_symbols[result];
 }
 

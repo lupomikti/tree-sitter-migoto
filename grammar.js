@@ -67,14 +67,15 @@ const dxgi_types_regex = new RustRegex(`(?xi)(?:DXGI_FORMAT_)?(UNKNOWN|R32G32B32
 |B8G8R8X8_TYPELESS|B8G8R8X8_UNORM_SRGB|BC6H_TYPELESS|BC6H_UF16|BC6H_SF16|BC7_TYPELESS|BC7_UNORM|BC7_UNORM_SRGB|AYUV|Y410|Y416|NV12|P010|P016|420_OPAQUE|YUY2|Y210|Y216|NV11|AI44|IA44|P8|A8P8|B4G4R4A4_UNORM)`)
 
 /**
- * 
+ * @param {GrammarSymbols<any>} $
  * @param {string|RegExp} section_name 
  * @returns {SeqRule}
  */
-const _create_section_header = (section_name) => seq(
+const _create_section_header = ($, section_name) => seq(
   '[',
   token.immediate(section_name),
-  optional(']')
+  optional(']'),
+  $._newline
 )
 
 // from tree-sitter-lua
@@ -211,22 +212,20 @@ module.exports = grammar({
       $._shader_regex_section
     ),
 
-    constants_section_header: _ => _create_section_header('Constants'),
+    constants_section_header: $ => _create_section_header($, 'Constants'),
 
     constants_section: $ => seq(
       field('header', $.constants_section_header),
-      $._newline,
       repeat(choice(
         $.global_declaration,
         $.primary_statement
       ))
     ),
 
-    key_section_header: _ => _create_section_header(/Key[^\]]+/i),
+    key_section_header: $ => _create_section_header($, /Key[^\]]+/i),
 
     key_section: $ => seq(
       field('header', $.key_section_header),
-      $._newline,
       repeat(choice(
         $.key_setting_statement,
         $.key_run_instruction,
@@ -253,7 +252,7 @@ module.exports = grammar({
           field('fixed_value', alias(/(?:(?:no_)?(?:vk_)?(?:ctrl|alt|shift|windows)|no_modifiers)/i, $.key_binding_modifier)),
           $.boolean_value,
           $._static_value,
-          alias(';', $.special_semicolon),
+          token(prec(1, alias(';', $.semicolon_character))),
           $.free_text
         )
       )
@@ -271,11 +270,10 @@ module.exports = grammar({
       $._newline
     ),
 
-    preset_section_header: _ => _create_section_header(/Preset[^\]]+/i),
+    preset_section_header: $ => _create_section_header($, /Preset[^\]]+/i),
 
     preset_section: $ => seq(
       field('header', $.preset_section_header),
-      $._newline,
       repeat(choice(
         $.preset_setting_statement,
         $.preset_run_instruction,
@@ -331,9 +329,8 @@ module.exports = grammar({
       field('header', $.shader_regex_pattern_header),
       $._newline,
       repeat(
-          // seq($.initial_comment, newline),
-          seq(alias($._external_line, $.regex_pattern), choice($._newline, $._section_header_start))
-        )
+        seq(alias($._external_line, $.regex_pattern), $._newline, optional($._section_header_start))
+      )
     ),
 
     shader_regex_replace_header: $ => seq(
@@ -347,8 +344,11 @@ module.exports = grammar({
       field('header', $.shader_regex_replace_header),
       $._newline,
       repeat(
-          // seq(alias($._external_line, $.regex_replacement), choice($._newline, $._section_header_start))
-          seq(alias(repeat1(choice($.regex_replacement, $.character_escape, $.free_text)), $.regex_replace_line), choice($._newline, $._section_header_start))
+        seq(
+          alias(repeat1(choice($.regex_replacement, $.character_escape, $.free_text)), $.regex_replace_line),
+          $._newline,
+          optional($._section_header_start)
+        )
       )
     ),
 
@@ -362,7 +362,7 @@ module.exports = grammar({
     shader_regex_declarations_section: $ => seq(
       field('header', $.shader_regex_declarations_header),
       $._newline,
-      repeat(seq(alias($._external_line, $.dxbc_declaration), choice($._newline, $._section_header_start)))
+      repeat(seq(alias($._external_line, $.dxbc_declaration), $._newline, optional($._section_header_start)))
     ),
 
     shader_regex_commandlist_header: $ => seq(
@@ -397,13 +397,12 @@ module.exports = grammar({
       $._newline
     ),
 
-    setting_section_header: _ => _create_section_header(
+    setting_section_header: $ => _create_section_header($,
       /(Logging|System|Device|Stereo|Rendering|Hunting|Profile|ConvergenceMap|Loader|Resource[^\]]+|Include[^\]]*)/i
     ),
 
     setting_section: $ => seq(
       field('header', $.setting_section_header),
-      $._newline,
       repeat($.setting_statement)
     ),
 
@@ -489,13 +488,12 @@ module.exports = grammar({
       optional(seq('/', $.integer))
     ),
 
-    commandlist_section_header: _ => _create_section_header(
+    commandlist_section_header: $ => _create_section_header($,
       /(Present|Clear(?:RenderTarget|DepthStencil)View|ClearUnorderedAccessView(?:Uint|Float)|(?:ShaderOverride|TextureOverride|(?:BuiltIn)?(?:CommandList|CustomShader))[^\]]+)/i
     ),
 
     commandlist_section: $ => seq(
       field('header', $.commandlist_section_header),
-      $._newline,
       repeat(choice(
         $.setting_statement,
         $.primary_statement
@@ -549,7 +547,7 @@ module.exports = grammar({
     _global_persist_declaration: $ => seq(
       choice(
         seq(alias($._global, 'global'), alias($._persist, 'persist')),
-        seq(alias($._persist, 'persist'),alias($._global, 'global'))
+        seq(alias($._persist, 'persist'), alias($._global, 'global'))
       ),
       choice(
         field('variable', $.named_variable),
@@ -939,7 +937,7 @@ module.exports = grammar({
     _language_variable: $ => choice(
       alias(/(?:[vhdgpc]s-cb\d\d?|vb\d|ib|(?:[rf]_)?bb)/i, $.buffer_variable),
       alias(/(?:[pc]s-u\d|s?o\d|od|[vhdgpc]s(?:-t\d\d?\d?))/i, $.shader_variable),
-      prec(1,$.shader_identifier)
+      prec(1, $.shader_identifier)
     ),
 
     resource_identifier: $ => choice(
@@ -1039,15 +1037,14 @@ module.exports = grammar({
       share_dupes|symlink|dump_(?:rt|depth|tex)_(?:jps|dds)|dump_[cvi]b_txt)`
     ),
 
-    regex_replacement: _ => seq(
-      '${',
-      /\w+/i,
-      '}'
+    regex_replacement: _ => choice(
+      seq('${', /\w+/i, '}'), // ${identifier}
+      seq('$', token.immediate(/\d+/)) // $1, $2, ...
     ),
 
-    character_escape: _ => token.immediate(/\\[a-z]/i),
+    character_escape: _ => /\\[a-z\(\)\[\]${}]/i,
 
-    free_text: _ => /[^\\\/="${}\s]+/i,
+    free_text: _ => /[^\\\/="${}\[\]\s]+/i,
 
     comment: $ => token(seq(
       field('start', ';'),

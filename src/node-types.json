@@ -1436,10 +1436,6 @@
         {
           "type": "numeric_constant",
           "named": true
-        },
-        {
-          "type": "special_semicolon",
-          "named": true
         }
       ]
     }
@@ -2846,6 +2842,10 @@
   },
   {
     "type": "//",
+    "named": false
+  },
+  {
+    "type": ";",
     "named": false
   },
   {
