@@ -406,12 +406,22 @@ module.exports = grammar({
       repeat($.setting_statement)
     ),
 
-    setting_statement: $ => seq(
-      field('key', $.setting_statement_key),
-      '=',
-      field('value', $.setting_statement_value),
-      $._newline
+    setting_statement: $ => choice(
+      seq(
+        field('key', $.setting_statement_key),
+        '=',
+        field('value', $.setting_statement_value),
+        $._newline
+      ),
+      seq(
+        field('key', alias(/[vhdgpc]s/i, $.custom_shader_key)),
+        '=',
+        field('value', alias($._specific_custom_shader_value, $.setting_statement_value)),
+        $._newline
+      )
     ),
+
+    _specific_custom_shader_value: $ => choice($.null, $.path_value),
 
     setting_statement_key: $ => choice(
       alias(/(hash|filter_index|match_priority|format|(?:width|height)(?:_multiply)?)/i, $.multi_section_key),
@@ -420,7 +430,7 @@ module.exports = grammar({
       alias(/((?:override_|uav_)?byte_stride|override_vertex_count)/i, $.texov_vertex_limit_key),
       alias(/(match_(?:first_(?:vertex|index|instance)|(?:vertex_|index_|instance_)count))/i, $.texov_draw_match_key),
       alias(/(match_(?:type|usage|(?:bind|cpu_access|misc)_flags|(?:byte_)?width|height|stride|mips|format|depth|array|msaa(?:_quality)?))/i, $.texov_fuzzy_match_key),
-      alias(/([vhdgpc]s|flags|max_executions_per_frame|topology|sampler)/i, $.custom_shader_key),
+      alias(/(flags|max_executions_per_frame|topology|sampler)/i, $.custom_shader_key),
       alias(custom_shader_state_keys, $.custom_shader_state_key),
       alias(/(allow_duplicate_hash|depth_filter|partner|model|disable_scissor)/i, $.shader_override_key),
       alias(/((?:in|ex)clude(?:_recursive)?|user_config)/i, $.include_section_key),
@@ -435,7 +445,6 @@ module.exports = grammar({
 
     setting_statement_value: $ => choice(
       $.string,
-      $.null,
       $.path_value,
       $.fuzzy_match_expression,
       repeat1(
@@ -575,7 +584,7 @@ module.exports = grammar({
           $._newline
         ),
         seq(
-          field('name', $.resource_operand),
+          field('name', alias($.limited_resource_operand, $.resource_operand)),
           '=',
           field('expression', $.resource_usage_expression),
           $._newline
@@ -884,6 +893,12 @@ module.exports = grammar({
       $.custom_resource
     ),
 
+    limited_resource_operand: $ => choice(
+      $._limited_language_variable,
+      $.resource_identifier,
+      $.custom_resource
+    ),
+
     static_operational_expression: $ => choice(
       $._static_value,
       $.static_parenthesized_expression,
@@ -938,6 +953,11 @@ module.exports = grammar({
       alias(/(?:[vhdgpc]s-cb\d\d?|vb\d|ib|(?:[rf]_)?bb)/i, $.buffer_variable),
       alias(/(?:[pc]s-u\d|s?o\d|od|[vhdgpc]s(?:-t\d\d?\d?))/i, $.shader_variable),
       prec(1, $.shader_identifier)
+    ),
+
+    _limited_language_variable: $ => choice(
+      alias(/(?:[vhdgpc]s-cb\d\d?|vb\d|ib|(?:[rf]_)?bb)/i, $.buffer_variable),
+      alias(/(?:[pc]s-u\d|s?o\d|od|[vhdgpc]s(?:-t\d\d?\d?))/i, $.shader_variable)
     ),
 
     resource_identifier: $ => choice(

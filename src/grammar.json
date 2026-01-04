@@ -1133,31 +1133,89 @@
       ]
     },
     "setting_statement": {
-      "type": "SEQ",
+      "type": "CHOICE",
       "members": [
         {
-          "type": "FIELD",
-          "name": "key",
-          "content": {
-            "type": "SYMBOL",
-            "name": "setting_statement_key"
-          }
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "FIELD",
+              "name": "key",
+              "content": {
+                "type": "SYMBOL",
+                "name": "setting_statement_key"
+              }
+            },
+            {
+              "type": "STRING",
+              "value": "="
+            },
+            {
+              "type": "FIELD",
+              "name": "value",
+              "content": {
+                "type": "SYMBOL",
+                "name": "setting_statement_value"
+              }
+            },
+            {
+              "type": "SYMBOL",
+              "name": "_newline"
+            }
+          ]
         },
         {
-          "type": "STRING",
-          "value": "="
-        },
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "FIELD",
+              "name": "key",
+              "content": {
+                "type": "ALIAS",
+                "content": {
+                  "type": "PATTERN",
+                  "value": "[vhdgpc]s",
+                  "flags": "i"
+                },
+                "named": true,
+                "value": "custom_shader_key"
+              }
+            },
+            {
+              "type": "STRING",
+              "value": "="
+            },
+            {
+              "type": "FIELD",
+              "name": "value",
+              "content": {
+                "type": "ALIAS",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "_specific_custom_shader_value"
+                },
+                "named": true,
+                "value": "setting_statement_value"
+              }
+            },
+            {
+              "type": "SYMBOL",
+              "name": "_newline"
+            }
+          ]
+        }
+      ]
+    },
+    "_specific_custom_shader_value": {
+      "type": "CHOICE",
+      "members": [
         {
-          "type": "FIELD",
-          "name": "value",
-          "content": {
-            "type": "SYMBOL",
-            "name": "setting_statement_value"
-          }
+          "type": "SYMBOL",
+          "name": "null"
         },
         {
           "type": "SYMBOL",
-          "name": "_newline"
+          "name": "path_value"
         }
       ]
     },
@@ -1228,7 +1286,7 @@
           "type": "ALIAS",
           "content": {
             "type": "PATTERN",
-            "value": "([vhdgpc]s|flags|max_executions_per_frame|topology|sampler)",
+            "value": "(flags|max_executions_per_frame|topology|sampler)",
             "flags": "i"
           },
           "named": true,
@@ -1341,10 +1399,6 @@
         {
           "type": "SYMBOL",
           "name": "string"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "null"
         },
         {
           "type": "SYMBOL",
@@ -2082,8 +2136,13 @@
                   "type": "FIELD",
                   "name": "name",
                   "content": {
-                    "type": "SYMBOL",
-                    "name": "resource_operand"
+                    "type": "ALIAS",
+                    "content": {
+                      "type": "SYMBOL",
+                      "name": "limited_resource_operand"
+                    },
+                    "named": true,
+                    "value": "resource_operand"
                   }
                 },
                 {
@@ -4041,6 +4100,23 @@
         }
       ]
     },
+    "limited_resource_operand": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "_limited_language_variable"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "resource_identifier"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "custom_resource"
+        }
+      ]
+    },
     "static_operational_expression": {
       "type": "CHOICE",
       "members": [
@@ -5380,6 +5456,31 @@
             "type": "SYMBOL",
             "name": "shader_identifier"
           }
+        }
+      ]
+    },
+    "_limited_language_variable": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "PATTERN",
+            "value": "(?:[vhdgpc]s-cb\\d\\d?|vb\\d|ib|(?:[rf]_)?bb)",
+            "flags": "i"
+          },
+          "named": true,
+          "value": "buffer_variable"
+        },
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "PATTERN",
+            "value": "(?:[pc]s-u\\d|s?o\\d|od|[vhdgpc]s(?:-t\\d\\d?\\d?))",
+            "flags": "i"
+          },
+          "named": true,
+          "value": "shader_variable"
         }
       ]
     },

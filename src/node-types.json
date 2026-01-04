@@ -2143,6 +2143,10 @@
         "required": true,
         "types": [
           {
+            "type": "custom_shader_key",
+            "named": true
+          },
+          {
             "type": "setting_statement_key",
             "named": true
           }
@@ -2292,6 +2296,11 @@
         }
       ]
     }
+  },
+  {
+    "type": "shader_identifier",
+    "named": true,
+    "fields": {}
   },
   {
     "type": "shader_regex_commandlist_header",
@@ -3159,10 +3168,6 @@
   },
   {
     "type": "section_identifier",
-    "named": true
-  },
-  {
-    "type": "shader_identifier",
     "named": true
   },
   {
