@@ -17,7 +17,7 @@ typedef enum {
     REGEX_DECLARATIONS_HEADER,
     REGEX_PATTERN_HEADER,
     REGEX_REPLACE_HEADER,
-    NEWLINE_OR_EOF,
+    NEWLINE,
     ERROR_SENTINEL,
 } TokenType;
 
@@ -143,24 +143,25 @@ static inline bool is_terminating_section_name(const char *search_term, const ch
 }
 
 static inline bool scan_end_of_line(TSLexer *lexer) {
+    bool found_end_of_line = false;
+
     for (;;) {
-        if (lexer->lookahead == '\n' || lexer->eof(lexer)) {
-            if (lexer->lookahead == '\n') {
-                consume(lexer);
-                if (lexer->lookahead == '\n' || lexer->eof(lexer)) {
-                    lexer->result_symbol = NEWLINE_OR_EOF;
-                    return true;
-                }
-                else {
-                    return false;
-                }
-            }
-            lexer->result_symbol = NEWLINE_OR_EOF;
-            return true;
+        if (lexer->lookahead == '\n') {
+            found_end_of_line = true;
+            skip(lexer);
+        }
+        else if (lexer->eof(lexer)) {
+            found_end_of_line = true;
+            break;
         }
         else {
-            consume(lexer);
+            break;
         }
+    }
+
+    if (found_end_of_line) {
+        lexer->result_symbol = NEWLINE;
+        return true;
     }
 
     return false;
@@ -217,7 +218,7 @@ static inline bool scan_namespace_res_content(TSLexer *lexer) {
 }
 
 static inline bool scan_maybe_section_header(Scanner *scanner, TSLexer *lexer, const bool *valid_symbols) {
-    consume(lexer); // skip the '[' that starts
+    consume(lexer); // consume the '[' that starts
 
     bool searching = false;
 
@@ -260,6 +261,8 @@ static inline bool scan_line(Scanner *scanner, TSLexer *lexer, const bool *valid
     while (!lexer->eof(lexer)) {
         bool is_wspace = iswspace(lexer->lookahead);
         if (lexer->lookahead == '\n') {
+            // if we see a newline ahead, we need to mark what we have an external line
+            // by default this will be a zero-width token if we have not seen any text yet
             result = EXTERNAL_LINE;
             if (saw_text) {
                 lexer->mark_end(lexer);
@@ -267,11 +270,13 @@ static inline bool scan_line(Scanner *scanner, TSLexer *lexer, const bool *valid
             break;
         }
         else if (!saw_text && lexer->lookahead == ';') {
+            // if we haven't seen any text yet, the first we see is a semicolon
+            // this is not an external line, it's a comment
             return false;
         }
         else if (!saw_text && lexer->lookahead == '[') {
             // fprintf(stderr, "Lykare[LINE]: about to scan for a section header\n");
-            lexer->mark_end(lexer); // stop adding characters to the token at this point
+            lexer->mark_end(lexer); // tell the lexer to not add the next characters to the token
             if (scan_maybe_section_header(scanner, lexer, valid_symbols)) {
                 // fprintf(stderr, "Lykare[LINE]: found a section header next\n");
                 result = SECTION_HEADER_START;
@@ -288,7 +293,8 @@ static inline bool scan_line(Scanner *scanner, TSLexer *lexer, const bool *valid
                 saw_text = true;
             }
 
-            consume(lexer);
+            if (saw_text) consume(lexer);
+            else { skip(lexer); }
         }
     }
 
@@ -299,8 +305,6 @@ static inline bool scan_for_regex_suffix(Scanner *scanner, TSLexer *lexer, const
     SearchState ss = NOTSEARCHING;
     TokenType result;
     char *search_target;
-    char *tmp;
-    char c;
 
     for (;;) {
         if (lexer->eof(lexer)) {
@@ -319,16 +323,14 @@ static inline bool scan_for_regex_suffix(Scanner *scanner, TSLexer *lexer, const
             case 'i':
                 // fprintf(stderr, "Lykare[GEN]: found an 'I' character, setting new search state\n");
                 ss = INSSEARCH;
-                c = lexer->lookahead;
-                array_push(&scanner->word, c);
+                array_push(&scanner->word, lexer->lookahead);
                 consume(lexer);
                 break;
             case 'P':
             case 'p':
                 // fprintf(stderr, "Lykare[GEN]: found a 'P' character, setting new search state\n");
                 ss = PATSEARCH;
-                c = lexer->lookahead;
-                array_push(&scanner->word, c);
+                array_push(&scanner->word, lexer->lookahead);
                 consume(lexer);
                 break;
             default:
@@ -358,7 +360,7 @@ static inline bool scan_for_regex_suffix(Scanner *scanner, TSLexer *lexer, const
                 // fprintf(stderr, "Lykare[INS/REP]: found terminal character\n");
                 lexer->mark_end(lexer);
 
-                array_push(&scanner->word, '\0'); // terminate the acumalted word
+                array_push(&scanner->word, '\0'); // terminate the accumulated word
 
                 strlwr(scanner->word.contents);
                 // fprintf(stderr, "Lykare[INS/REP]: word is currently '%s' and search target is %s\n", scanner->word.contents, search_target);
@@ -379,8 +381,7 @@ static inline bool scan_for_regex_suffix(Scanner *scanner, TSLexer *lexer, const
                 reset(scanner);
                 break;
             default:
-                c = lexer->lookahead;
-                array_push(&scanner->word, c);
+                array_push(&scanner->word, lexer->lookahead);
                 consume(lexer);
                 break;
             }
@@ -394,7 +395,7 @@ static inline bool scan_for_regex_suffix(Scanner *scanner, TSLexer *lexer, const
                 // fprintf(stderr, "Lykare[PAT]: found terminal character or period\n");
                 lexer->mark_end(lexer);
 
-                array_push(&scanner->word, '\0'); // terminate the acummulated word
+                array_push(&scanner->word, '\0'); // terminate the accumulated word
 
                 strlwr(scanner->word.contents);
                 // fprintf(stderr, "Lykare[PAT]: word is currently '%s'\n", scanner->word.contents);
@@ -428,8 +429,7 @@ static inline bool scan_for_regex_suffix(Scanner *scanner, TSLexer *lexer, const
                 }
                 break;
             default:
-                c = lexer->lookahead;
-                array_push(&scanner->word, c);
+                array_push(&scanner->word, lexer->lookahead);
                 consume(lexer);
                 break;
             }
@@ -482,7 +482,7 @@ bool tree_sitter_migoto_external_scanner_scan(void *payload, TSLexer *lexer, con
         return scan_line(scanner, lexer, valid_symbols);
     }
 
-    if (valid_symbols[NEWLINE_OR_EOF]) {
+    if (valid_symbols[NEWLINE]) {
         return scan_end_of_line(lexer);
     }
 

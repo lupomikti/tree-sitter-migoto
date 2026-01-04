@@ -221,6 +221,4 @@
 ; Extras
 (comment) @comment.line
 
-(initial_comment) @comment.line
-
 (ERROR) @error
