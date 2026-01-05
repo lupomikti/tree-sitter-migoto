@@ -73,7 +73,7 @@ const dxgi_types_regex = new RustRegex(`(?xi)(?:DXGI_FORMAT_)?(UNKNOWN|R32G32B32
  */
 const _create_section_header = ($, section_name) => seq(
   '[',
-  token.immediate(section_name),
+  section_name,
   optional(']'),
   $._newline
 )
@@ -169,7 +169,8 @@ module.exports = grammar({
     $.primary_statement,
     $.instruction_statement,
     $.resource_operational_expression,
-    $.operational_expression
+    $.operational_expression,
+    $.static_operational_expression
   ],
 
   rules: {
@@ -320,7 +321,7 @@ module.exports = grammar({
 
     shader_regex_pattern_header: $ => seq(
       '[',
-      token.immediate(/ShaderRegex/i),
+      /ShaderRegex/i,
       $._regex_pattern_header,
       optional(']')
     ),
@@ -335,7 +336,7 @@ module.exports = grammar({
 
     shader_regex_replace_header: $ => seq(
       '[',
-      token.immediate(/ShaderRegex/i),
+      /ShaderRegex/i,
       $._regex_replace_header,
       optional(']')
     ),
@@ -354,7 +355,7 @@ module.exports = grammar({
 
     shader_regex_declarations_header: $ => seq(
       '[',
-      token.immediate(/ShaderRegex/i),
+      /ShaderRegex/i,
       $._regex_declarations_header,
       optional(']')
     ),
@@ -367,7 +368,7 @@ module.exports = grammar({
 
     shader_regex_commandlist_header: $ => seq(
       '[',
-      token.immediate(/ShaderRegex/i),
+      /ShaderRegex/i,
       $._regex_commandlist_header,
       optional(']')
     ),
@@ -1005,6 +1006,8 @@ module.exports = grammar({
       time | hunting | sli | frame_analysis | effective_dpi | (?:raw_|eye_)?separation | convergence |
       stereo_(?:active|available) | scissor_(?:left|top|right|bottom) )`
     ),
+
+    static_override_parameter: _ => /(sli|hunting|frame_analysis|stereo_(?:active|available))/i,
     
     _callable_section: $ => choice(
       $.callable_commandlist,
@@ -1036,6 +1039,7 @@ module.exports = grammar({
     ),
 
     _static_value: $ => choice(
+      alias($.static_override_parameter, $.override_parameter),
       alias(/[+-]?(inf|NaN)/i, $.language_constant),
       $.numeric_constant
     ),

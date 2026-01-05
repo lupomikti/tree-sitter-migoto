@@ -177,11 +177,8 @@
           "value": "["
         },
         {
-          "type": "IMMEDIATE_TOKEN",
-          "content": {
-            "type": "STRING",
-            "value": "Constants"
-          }
+          "type": "STRING",
+          "value": "Constants"
         },
         {
           "type": "CHOICE",
@@ -238,12 +235,9 @@
           "value": "["
         },
         {
-          "type": "IMMEDIATE_TOKEN",
-          "content": {
-            "type": "PATTERN",
-            "value": "Key[^\\]]+",
-            "flags": "i"
-          }
+          "type": "PATTERN",
+          "value": "Key[^\\]]+",
+          "flags": "i"
         },
         {
           "type": "CHOICE",
@@ -484,12 +478,9 @@
           "value": "["
         },
         {
-          "type": "IMMEDIATE_TOKEN",
-          "content": {
-            "type": "PATTERN",
-            "value": "Preset[^\\]]+",
-            "flags": "i"
-          }
+          "type": "PATTERN",
+          "value": "Preset[^\\]]+",
+          "flags": "i"
         },
         {
           "type": "CHOICE",
@@ -677,12 +668,9 @@
           "value": "["
         },
         {
-          "type": "IMMEDIATE_TOKEN",
-          "content": {
-            "type": "PATTERN",
-            "value": "ShaderRegex",
-            "flags": "i"
-          }
+          "type": "PATTERN",
+          "value": "ShaderRegex",
+          "flags": "i"
         },
         {
           "type": "SYMBOL",
@@ -760,12 +748,9 @@
           "value": "["
         },
         {
-          "type": "IMMEDIATE_TOKEN",
-          "content": {
-            "type": "PATTERN",
-            "value": "ShaderRegex",
-            "flags": "i"
-          }
+          "type": "PATTERN",
+          "value": "ShaderRegex",
+          "flags": "i"
         },
         {
           "type": "SYMBOL",
@@ -859,12 +844,9 @@
           "value": "["
         },
         {
-          "type": "IMMEDIATE_TOKEN",
-          "content": {
-            "type": "PATTERN",
-            "value": "ShaderRegex",
-            "flags": "i"
-          }
+          "type": "PATTERN",
+          "value": "ShaderRegex",
+          "flags": "i"
         },
         {
           "type": "SYMBOL",
@@ -942,12 +924,9 @@
           "value": "["
         },
         {
-          "type": "IMMEDIATE_TOKEN",
-          "content": {
-            "type": "PATTERN",
-            "value": "ShaderRegex",
-            "flags": "i"
-          }
+          "type": "PATTERN",
+          "value": "ShaderRegex",
+          "flags": "i"
         },
         {
           "type": "SYMBOL",
@@ -1087,12 +1066,9 @@
           "value": "["
         },
         {
-          "type": "IMMEDIATE_TOKEN",
-          "content": {
-            "type": "PATTERN",
-            "value": "(Logging|System|Device|Stereo|Rendering|Hunting|Profile|ConvergenceMap|Loader|Resource[^\\]]+|Include[^\\]]*)",
-            "flags": "i"
-          }
+          "type": "PATTERN",
+          "value": "(Logging|System|Device|Stereo|Rendering|Hunting|Profile|ConvergenceMap|Loader|Resource[^\\]]+|Include[^\\]]*)",
+          "flags": "i"
         },
         {
           "type": "CHOICE",
@@ -1737,12 +1713,9 @@
           "value": "["
         },
         {
-          "type": "IMMEDIATE_TOKEN",
-          "content": {
-            "type": "PATTERN",
-            "value": "(Present|Clear(?:RenderTarget|DepthStencil)View|ClearUnorderedAccessView(?:Uint|Float)|(?:ShaderOverride|TextureOverride|(?:BuiltIn)?(?:CommandList|CustomShader))[^\\]]+)",
-            "flags": "i"
-          }
+          "type": "PATTERN",
+          "value": "(Present|Clear(?:RenderTarget|DepthStencil)View|ClearUnorderedAccessView(?:Uint|Float)|(?:ShaderOverride|TextureOverride|(?:BuiltIn)?(?:CommandList|CustomShader))[^\\]]+)",
+          "flags": "i"
         },
         {
           "type": "CHOICE",
@@ -5669,6 +5642,11 @@
       "type": "PATTERN",
       "value": "(?xi)(\n      (?:rt|res|window)_(?:width|height) | (?:vertex|index|instance)_count | first_(?:vertex|index|instance) |\n      thread_group_count_[xyz] | indirect_offset | draw_type | cursor_(?: showing | (?:screen_|window_|hotspot_)?[xy] ) |\n      time | hunting | sli | frame_analysis | effective_dpi | (?:raw_|eye_)?separation | convergence |\n      stereo_(?:active|available) | scissor_(?:left|top|right|bottom) )"
     },
+    "static_override_parameter": {
+      "type": "PATTERN",
+      "value": "(sli|hunting|frame_analysis|stereo_(?:active|available))",
+      "flags": "i"
+    },
     "_callable_section": {
       "type": "CHOICE",
       "members": [
@@ -5797,6 +5775,15 @@
     "_static_value": {
       "type": "CHOICE",
       "members": [
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "static_override_parameter"
+          },
+          "named": true,
+          "value": "override_parameter"
+        },
         {
           "type": "ALIAS",
           "content": {
@@ -6057,7 +6044,8 @@
     "primary_statement",
     "instruction_statement",
     "resource_operational_expression",
-    "operational_expression"
+    "operational_expression",
+    "static_operational_expression"
   ],
   "reserved": {}
 }

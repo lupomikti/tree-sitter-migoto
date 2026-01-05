@@ -94,6 +94,10 @@
         "named": true
       },
       {
+        "type": "override_parameter",
+        "named": true
+      },
+      {
         "type": "parenthesized_expression",
         "named": true
       },
@@ -186,6 +190,36 @@
     ]
   },
   {
+    "type": "static_operational_expression",
+    "named": true,
+    "subtypes": [
+      {
+        "type": "language_constant",
+        "named": true
+      },
+      {
+        "type": "numeric_constant",
+        "named": true
+      },
+      {
+        "type": "override_parameter",
+        "named": true
+      },
+      {
+        "type": "static_binary_expression",
+        "named": true
+      },
+      {
+        "type": "static_parenthesized_expression",
+        "named": true
+      },
+      {
+        "type": "static_unary_expression",
+        "named": true
+      }
+    ]
+  },
+  {
     "type": "analysis_instruction",
     "named": true,
     "fields": {
@@ -271,6 +305,10 @@
           },
           {
             "type": "numeric_constant",
+            "named": true
+          },
+          {
+            "type": "override_parameter",
             "named": true
           }
         ]
@@ -529,6 +567,10 @@
         },
         {
           "type": "numeric_constant",
+          "named": true
+        },
+        {
+          "type": "override_parameter",
           "named": true
         },
         {
@@ -1272,6 +1314,10 @@
           {
             "type": "numeric_constant",
             "named": true
+          },
+          {
+            "type": "override_parameter",
+            "named": true
           }
         ]
       },
@@ -1435,6 +1481,10 @@
         },
         {
           "type": "numeric_constant",
+          "named": true
+        },
+        {
+          "type": "override_parameter",
           "named": true
         }
       ]
@@ -1609,6 +1659,10 @@
           },
           {
             "type": "numeric_constant",
+            "named": true
+          },
+          {
+            "type": "override_parameter",
             "named": true
           }
         ]
@@ -1800,6 +1854,10 @@
         },
         {
           "type": "numeric_constant",
+          "named": true
+        },
+        {
+          "type": "override_parameter",
           "named": true
         }
       ]
@@ -2601,37 +2659,6 @@
     }
   },
   {
-    "type": "static_operational_expression",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": false,
-      "required": true,
-      "types": [
-        {
-          "type": "language_constant",
-          "named": true
-        },
-        {
-          "type": "numeric_constant",
-          "named": true
-        },
-        {
-          "type": "static_binary_expression",
-          "named": true
-        },
-        {
-          "type": "static_parenthesized_expression",
-          "named": true
-        },
-        {
-          "type": "static_unary_expression",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
     "type": "static_parenthesized_expression",
     "named": true,
     "fields": {},
@@ -2695,6 +2722,10 @@
         },
         {
           "type": "numeric_constant",
+          "named": true
+        },
+        {
+          "type": "override_parameter",
           "named": true
         }
       ]
