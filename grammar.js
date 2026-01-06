@@ -26,8 +26,8 @@ const PREC = {
 }
 
 // const newline = /\r?\n/
-const custom_section_name = /[^\-+*\/&% !>|<=$\r\n]+/i
-const custom_resource_section_name = /[^\/& !>|<=$\r\n]+/i
+const custom_section_name = /[^\-+*\/&% !>|<=$,\r\n]+/i
+const custom_resource_section_name = /[^\/& !>|<=$,\r\n]+/i
 const namespace_regex = /[^\s>\\|\/<?:*="$][^>\\|\/<?:*=$\r\n]+(?:[\\\/][^>\\|\/<?:*=$\r\n]+)*/i
 const path_regex = /(?:(?:(?:[a-z]:|\.[\.]?)[\\\/])?(?:\.\.|[^\s>\\|\/<?:*="$][^>\\|\/<?:*="$\r\n]+)(?:[\\\/](?:\.\.|[^\s>\\|\/<?:*="$][^>\\|\/<?:*="$\r\n]+))+)/i
 const file_regex = /[^\s>\\|\/<?:*="$][^>\\|\/<?:*="$\r\n]+\.[a-z\-]+/i // intentionally choosing to not support numerals in file extensions
@@ -170,7 +170,8 @@ module.exports = grammar({
     $.instruction_statement,
     $.resource_operational_expression,
     $.operational_expression,
-    $.static_operational_expression
+    $.static_operational_expression,
+    $.identifier,
   ],
 
   rules: {
@@ -599,9 +600,11 @@ module.exports = grammar({
         $.named_variable
       )),
       "=",
-      field('expression', list_seq($._static_value, ',')),
+      field('expression', $.static_list_expression),
       $._newline
     ),
+
+    static_list_expression: $ => list_seq($._static_value, ','),
 
     preset_assignment_statement: $ => seq(
       field('name', choice(
@@ -1068,7 +1071,7 @@ module.exports = grammar({
 
     character_escape: _ => /\\[a-z\(\)\[\]${}]/i,
 
-    free_text: _ => /[^\\\/="${}\[\]\s]+/i,
+    free_text: _ => /[^\\\/="${}\s]+/i,
 
     comment: $ => token(seq(
       field('start', ';'),

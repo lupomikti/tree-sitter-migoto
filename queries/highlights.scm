@@ -51,7 +51,7 @@
   "," @punctuation.delimiter)
 
 (key_assignment_statement
-  expression: "," @punctuation.delimiter)
+  expression: (_ "," @punctuation.delimiter))
 
 ; Preamble
 (namespace_declaration

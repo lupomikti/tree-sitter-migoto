@@ -2168,34 +2168,38 @@
           "type": "FIELD",
           "name": "expression",
           "content": {
-            "type": "SEQ",
-            "members": [
-              {
-                "type": "SYMBOL",
-                "name": "_static_value"
-              },
-              {
-                "type": "REPEAT",
-                "content": {
-                  "type": "SEQ",
-                  "members": [
-                    {
-                      "type": "STRING",
-                      "value": ","
-                    },
-                    {
-                      "type": "SYMBOL",
-                      "name": "_static_value"
-                    }
-                  ]
-                }
-              }
-            ]
+            "type": "SYMBOL",
+            "name": "static_list_expression"
           }
         },
         {
           "type": "SYMBOL",
           "name": "_newline"
+        }
+      ]
+    },
+    "static_list_expression": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "_static_value"
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "STRING",
+                "value": ","
+              },
+              {
+                "type": "SYMBOL",
+                "name": "_static_value"
+              }
+            ]
+          }
         }
       ]
     },
@@ -5534,7 +5538,7 @@
               "type": "ALIAS",
               "content": {
                 "type": "PATTERN",
-                "value": "[^\\/& !>|<=$\\r\\n]+",
+                "value": "[^\\/& !>|<=$,\\r\\n]+",
                 "flags": "i"
               },
               "named": true,
@@ -5764,7 +5768,7 @@
           "type": "ALIAS",
           "content": {
             "type": "PATTERN",
-            "value": "[^\\-+*\\/&% !>|<=$\\r\\n]+",
+            "value": "[^\\-+*\\/&% !>|<=$,\\r\\n]+",
             "flags": "i"
           },
           "named": true,
@@ -5892,7 +5896,7 @@
     },
     "free_text": {
       "type": "PATTERN",
-      "value": "[^\\\\\\/=\"${}\\[\\]\\s]+",
+      "value": "[^\\\\\\/=\"${}\\s]+",
       "flags": "i"
     },
     "comment": {
@@ -6045,7 +6049,8 @@
     "instruction_statement",
     "resource_operational_expression",
     "operational_expression",
-    "static_operational_expression"
+    "static_operational_expression",
+    "identifier"
   ],
   "reserved": {}
 }

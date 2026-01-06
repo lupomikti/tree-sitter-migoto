@@ -1,5 +1,31 @@
 [
   {
+    "type": "identifier",
+    "named": true,
+    "subtypes": [
+      {
+        "type": "ini_parameter",
+        "named": true
+      },
+      {
+        "type": "named_variable",
+        "named": true
+      },
+      {
+        "type": "override_parameter",
+        "named": true
+      },
+      {
+        "type": "scissor_rectangle",
+        "named": true
+      },
+      {
+        "type": "shader_identifier",
+        "named": true
+      }
+    ]
+  },
+  {
     "type": "instruction_statement",
     "named": true,
     "subtypes": [
@@ -1260,37 +1286,6 @@
     }
   },
   {
-    "type": "identifier",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": false,
-      "required": true,
-      "types": [
-        {
-          "type": "ini_parameter",
-          "named": true
-        },
-        {
-          "type": "named_variable",
-          "named": true
-        },
-        {
-          "type": "override_parameter",
-          "named": true
-        },
-        {
-          "type": "scissor_rectangle",
-          "named": true
-        },
-        {
-          "type": "shader_identifier",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
     "type": "ini_parameter",
     "named": true,
     "fields": {}
@@ -1300,23 +1295,11 @@
     "named": true,
     "fields": {
       "expression": {
-        "multiple": true,
+        "multiple": false,
         "required": true,
         "types": [
           {
-            "type": ",",
-            "named": false
-          },
-          {
-            "type": "language_constant",
-            "named": true
-          },
-          {
-            "type": "numeric_constant",
-            "named": true
-          },
-          {
-            "type": "override_parameter",
+            "type": "static_list_expression",
             "named": true
           }
         ]
@@ -2656,6 +2639,29 @@
           }
         ]
       }
+    }
+  },
+  {
+    "type": "static_list_expression",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "language_constant",
+          "named": true
+        },
+        {
+          "type": "numeric_constant",
+          "named": true
+        },
+        {
+          "type": "override_parameter",
+          "named": true
+        }
+      ]
     }
   },
   {
