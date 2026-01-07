@@ -574,8 +574,6 @@ module.exports = grammar({
       $.instruction_statement
     ),
 
-    // global [persist] NamedVar ['=' StaticValue]
-    // [presist] global NamedVar ['=' StaticValue]
     global_declaration: $ => choice(
       $._global_transient_declaration,
       $._global_persist_declaration
@@ -1121,7 +1119,5 @@ module.exports = grammar({
     _pre: _ => /pre/i,
 
     _post: _ => /post/i,
-
-    // _blank: _ => newline
   }
 });
