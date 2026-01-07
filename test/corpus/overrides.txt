@@ -1,0 +1,300 @@
+=====
+Shader Override
+=====
+
+[ShaderOverrideShapeKeyLoaderCS]
+hash = 743108cc03f39cbf
+allow_duplicate_hash = true
+filter_index = 037730.3333
+if $costume_mods
+	checktextureoverride = cs-t0
+endif
+$count2 = $count2 + 1
+
+---
+
+(document
+  (commandlist_section
+    (commandlist_section_header
+      (header_prefix)
+      (header_identifier))
+    (setting_statement
+      (setting_statement_key
+        (multi_section_key))
+      (setting_statement_value
+        (free_text)))
+    (setting_statement
+      (setting_statement_key
+        (shader_override_key))
+      (setting_statement_value
+        (boolean_value)))
+    (setting_statement
+      (setting_statement_key
+        (multi_section_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (conditional_statement
+      (named_variable
+        (variable_identifier))
+      (block
+        (check_texture_override_instruction
+          (instruction)
+          (resource_operand
+            (shader_variable)))))
+    (assignment_statement
+      (named_variable
+        (variable_identifier))
+      (binary_expression
+        (named_variable
+          (variable_identifier))
+        (numeric_constant)))))
+
+=====
+Texture Overrides
+=====
+
+[TextureOverrideCharacterLegsTexcoord]
+hash = fb94d66c
+vb1 = ResourceCharacterLegsTexcoord
+
+[TextureOverrideCharacterLegsVertexLimitRaise]
+hash = 8336ded4
+override_vertex_count = 32281
+override_byte_stride = 40
+
+[TextureOverrideCharacterHairIB]
+hash = 4faabaac
+handling = skip
+
+[TextureOverrideCharacterHairA]
+hash = 4faabaac
+match_first_index = 0
+
+ib = ResourceCharacterHairAIB
+Resource\LUPOMI\Lightmap = ref ResourceCharacterALightMap
+Resource\LUPOMI\Normalmap = ref ResourceCharacterANormalMap
+Resource\LUPOMI\Materialmap = ref ResourceCharacterAMaterialMap
+
+if $haircolor == 0
+	Resource\LUPOMI\Diffuse = ref ResourceCharacterBlackRedADiffuse
+endif
+
+if $haircolor == 1
+	if $haira == 0
+		Resource\LUPOMI\Diffuse = ref ResourceCharacterBlondeRedADiffuse
+	else if $haira == 1
+		Resource\LUPOMI\Diffuse = ref ResourceCharacterBlackRedADiffuse
+	endif
+endif
+
+run = CommandList\LUPOMI\SetTextures
+
+; CharacterHairA
+if $haira == 1
+	; Original Hair A (4307)
+	drawindexed = 15132, 15132, 0
+else if $haira == 0
+	; Sweetie Hair A (4521)
+	drawindexed = 12618, 30264, 0
+endif
+
+---
+
+(document
+  (commandlist_section
+    (commandlist_section_header
+      (header_prefix)
+      (header_identifier))
+    (setting_statement
+      (setting_statement_key
+        (multi_section_key))
+      (setting_statement_value
+        (free_text)))
+    (assignment_statement
+      (resource_operand
+        (buffer_variable))
+      (resource_usage_expression
+        (resource_operand
+          (custom_resource
+            (resource_prefix)
+            (section_identifier))))))
+  (commandlist_section
+    (commandlist_section_header
+      (header_prefix)
+      (header_identifier))
+    (setting_statement
+      (setting_statement_key
+        (multi_section_key))
+      (setting_statement_value
+        (free_text)))
+    (setting_statement
+      (setting_statement_key
+        (texov_vertex_limit_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (setting_statement
+      (setting_statement_key
+        (texov_vertex_limit_key))
+      (setting_statement_value
+        (numeric_constant))))
+  (commandlist_section
+    (commandlist_section_header
+      (header_prefix)
+      (header_identifier))
+    (setting_statement
+      (setting_statement_key
+        (multi_section_key))
+      (setting_statement_value
+        (free_text)))
+    (handling_instruction
+      (instruction)
+      (handling_key_value)))
+  (commandlist_section
+    (commandlist_section_header
+      (header_prefix)
+      (header_identifier))
+    (setting_statement
+      (setting_statement_key
+        (multi_section_key))
+      (setting_statement_value
+        (free_text)))
+    (setting_statement
+      (setting_statement_key
+        (texov_draw_match_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (assignment_statement
+      (resource_operand
+        (buffer_variable))
+      (resource_usage_expression
+        (resource_operand
+          (custom_resource
+            (resource_prefix)
+            (section_identifier)))))
+    (assignment_statement
+      (resource_operand
+        (custom_resource
+          (resource_prefix)
+          (namespace)
+          (section_identifier)))
+      (resource_usage_expression
+        (resource_modifier)
+        (resource_operand
+          (custom_resource
+            (resource_prefix)
+            (section_identifier)))))
+    (assignment_statement
+      (resource_operand
+        (custom_resource
+          (resource_prefix)
+          (namespace)
+          (section_identifier)))
+      (resource_usage_expression
+        (resource_modifier)
+        (resource_operand
+          (custom_resource
+            (resource_prefix)
+            (section_identifier)))))
+    (assignment_statement
+      (resource_operand
+        (custom_resource
+          (resource_prefix)
+          (namespace)
+          (section_identifier)))
+      (resource_usage_expression
+        (resource_modifier)
+        (resource_operand
+          (custom_resource
+            (resource_prefix)
+            (section_identifier)))))
+    (conditional_statement
+      (binary_expression
+        (named_variable
+          (variable_identifier))
+        (numeric_constant))
+      (block
+        (assignment_statement
+          (resource_operand
+            (custom_resource
+              (resource_prefix)
+              (namespace)
+              (section_identifier)))
+          (resource_usage_expression
+            (resource_modifier)
+            (resource_operand
+              (custom_resource
+                (resource_prefix)
+                (section_identifier)))))))
+    (conditional_statement
+      (binary_expression
+        (named_variable
+          (variable_identifier))
+        (numeric_constant))
+      (block
+        (conditional_statement
+          (binary_expression
+            (named_variable
+              (variable_identifier))
+            (numeric_constant))
+          (block
+            (assignment_statement
+              (resource_operand
+                (custom_resource
+                  (resource_prefix)
+                  (namespace)
+                  (section_identifier)))
+              (resource_usage_expression
+                (resource_modifier)
+                (resource_operand
+                  (custom_resource
+                    (resource_prefix)
+                    (section_identifier))))))
+          (elseif_statement
+            (binary_expression
+              (named_variable
+                (variable_identifier))
+              (numeric_constant))
+            (block
+              (assignment_statement
+                (resource_operand
+                  (custom_resource
+                    (resource_prefix)
+                    (namespace)
+                    (section_identifier)))
+                (resource_usage_expression
+                  (resource_modifier)
+                  (resource_operand
+                    (custom_resource
+                      (resource_prefix)
+                      (section_identifier))))))))))
+    (run_instruction
+      (instruction)
+      (callable_commandlist
+        (callable_prefix)
+        (namespace)
+        (section_identifier)))
+    (comment)
+    (conditional_statement
+      (binary_expression
+        (named_variable
+          (variable_identifier))
+        (numeric_constant))
+      (comment)
+      (block
+        (drawindexed_instruction
+          (instruction)
+          (numeric_constant)
+          (numeric_constant)
+          (numeric_constant)))
+      (elseif_statement
+        (binary_expression
+          (named_variable
+            (variable_identifier))
+          (numeric_constant))
+        (comment)
+        (block
+          (drawindexed_instruction
+            (instruction)
+            (numeric_constant)
+            (numeric_constant)
+            (numeric_constant)))))))

@@ -1,0 +1,80 @@
+====
+Constants Section
+====
+
+[Constants]
+global $var1
+global persist $var2
+global $var3 = 1
+global persist $var4 = 0
+persist global $var5 = 2
+
+---
+
+(document
+  (constants_section
+    header: (constants_section_header
+      (header_identifier))
+    (global_declaration
+      variable: (named_variable
+        (variable_identifier)))
+    (global_declaration
+      variable: (named_variable
+        (variable_identifier)))
+    (global_declaration
+      (assignment_statement
+        variable: (named_variable
+          (variable_identifier))
+        value: (numeric_constant)))
+    (global_declaration
+      (assignment_statement
+        variable: (named_variable
+          (variable_identifier))
+        value: (numeric_constant)))
+    (global_declaration
+      (assignment_statement
+        variable: (named_variable
+          (variable_identifier))
+        value: (numeric_constant)))))
+
+=====
+Constants With Statements
+=====
+
+[Constants]
+global persist $swapvar = 0
+global $active = 0
+
+; I guess this is useful for running something once before Present
+if $swapvar == 3
+    run = CommandListSomething
+endif
+
+---
+
+(document
+  (constants_section
+    header: (constants_section_header
+      (header_identifier))
+    (global_declaration
+      (assignment_statement
+        variable: (named_variable
+          (variable_identifier))
+        value: (numeric_constant)))
+    (global_declaration
+      (assignment_statement
+        variable: (named_variable
+          (variable_identifier))
+        value: (numeric_constant)))
+    (comment)
+    (conditional_statement
+      condition: (binary_expression
+        left: (named_variable
+          (variable_identifier))
+        right: (numeric_constant))
+      consequence: (block
+        (run_instruction
+          (instruction)
+          (callable_commandlist
+            (callable_prefix)
+            (section_identifier)))))))

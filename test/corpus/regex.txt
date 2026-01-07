@@ -1,0 +1,163 @@
+=====
+Shader Regex Command List
+=====
+
+[ShaderRegexTesting]
+shader_model = ps_4_0 ps_5_0
+filter_index = 4243.05
+temps = ini tex69 dim storage color o1 o2 texcoord
+if ps-t69 === 0
+    run = CommandListClearInstanceValues
+    ps-t69 = null
+endif
+if ps-t70 === 0
+    ps-t70 = null
+endif
+
+---
+
+(document
+  (shader_regex_commandlist_section
+    (shader_regex_commandlist_header
+      (header_prefix)
+      (header_identifier))
+    (shader_regex_setting_statement
+      (shader_regex_key)
+      (free_text)
+      (free_text))
+    (shader_regex_setting_statement
+      (shader_regex_key)
+      (numeric_constant))
+    (shader_regex_setting_statement
+      (shader_regex_key)
+      (free_text)
+      (free_text)
+      (free_text)
+      (free_text)
+      (free_text)
+      (free_text)
+      (free_text)
+      (free_text))
+    (conditional_statement
+      (resource_comparison_expression
+        (resource_operand
+          (shader_variable))
+        (numeric_constant))
+      (block
+        (run_instruction
+          (instruction)
+          (callable_commandlist
+            (callable_prefix)
+            (section_identifier)))
+        (assignment_statement
+          (resource_operand
+            (shader_variable))
+          (resource_usage_expression
+            (resource_operand
+              (resource_identifier
+                (null)))))))
+    (conditional_statement
+      (resource_comparison_expression
+        (resource_operand
+          (shader_variable))
+        (numeric_constant))
+      (block
+        (assignment_statement
+          (resource_operand
+            (shader_variable))
+          (resource_usage_expression
+            (resource_operand
+              (resource_identifier
+                (null)))))))))
+
+=====
+Shader Regex Pattern
+=====
+
+[ShaderRegexTesting.Pattern]
+(?P<TillTexcord>sample_[b_]{0,2}indexable\(texture2d\)\(float,float,float,float\) r\d\d?\.[xyzw]{3,4}, (?P<TexcoordX>v(2|1[01])\.(xyxx|yzyy|zwzz)), t[01]\.[xyzw]+, s\d(, \w\d+(\.[xyzw]+)?)?$)
+;(?<Tillo2CBPick>.*cb0\[(?<cb0o2pick>\d+)\].[xyzw]+, l\(0.00392156886\))
+(?<Tillo2Pick>.*movc o2\.z, (?<o2Pick>r\d\.[xyzw]+, r\d\.[xyzw]+, r\d\.[xyzw]+))
+ret
+
+---
+
+(document
+  (shader_regex_pattern_section
+    (shader_regex_pattern_header
+      (header_prefix)
+      (header_identifier))
+    (regex_pattern)
+    (regex_pattern)
+    (comment)
+    (regex_pattern)
+    (regex_pattern)))
+
+=====
+Shader Regex Declarations
+=====
+
+[ShaderRegexTesting.InsertDeclarations]
+dcl_resource_texture1d (float,float,float,float) t120
+dcl_resource_texture2d (float,float,float,float) t69
+dcl_sampler s15, mode_default
+
+---
+
+(document
+  (shader_regex_declarations_section
+    (shader_regex_declarations_header
+      (header_prefix)
+      (header_identifier))
+    (dxbc_declaration)
+    (dxbc_declaration)
+    (dxbc_declaration)))
+
+=====
+Shader Regex Replacement
+=====
+
+[ShaderRegexTesting.Pattern.Replace]
+${TillRet}
+ld_indexable(texture1d)(float,float,float,float) ${ini}.xyzw, l(69,0), t120.xyzw\n
+if_z ${ini}.y\n
+\t	resinfo_indexable(texture2d)(float,float,float,float) ${dim}.xyyy, l(0), t69.xyzw\n
+;\t  max ${dim}.xy, ${ini}.xx, ${dim}.xy\n
+\t	if_nz ${dim}.xy\n
+
+---
+
+(document
+  (shader_regex_replace_section
+    (shader_regex_replace_header
+      (header_prefix)
+      (header_identifier))
+    (regex_replace_line
+      (regex_replacement))
+    (regex_replace_line
+      (free_text)
+      (regex_replacement)
+      (free_text)
+      (free_text)
+      (free_text)
+      (character_escape))
+    (regex_replace_line
+      (free_text)
+      (regex_replacement)
+      (free_text)
+      (character_escape))
+    (regex_replace_line
+      (character_escape)
+      (free_text)
+      (regex_replacement)
+      (free_text)
+      (free_text)
+      (free_text)
+      (character_escape))
+    (comment)
+    (regex_replace_line
+      (character_escape)
+      (free_text)
+      (regex_replacement)
+      (free_text)
+      (character_escape))))

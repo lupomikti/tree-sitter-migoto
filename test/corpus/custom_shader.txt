@@ -1,0 +1,427 @@
+=====
+Custom Shader Basic
+=====
+
+[CustomShaderTesting]
+blend = add blend_factor inv_blend_factor
+blend_factor[0] = 1.0
+blend_factor[1] = 1.0
+blend_factor[2] = 1.0
+blend_factor[3] = 0.0
+dispatch = $somevar + 3, ($anothervar % 2) // 1, 1
+
+---
+
+(document
+  (commandlist_section
+    (commandlist_section_header
+      (header_prefix)
+      (header_identifier))
+    (setting_statement
+      (setting_statement_key
+        (custom_shader_state_key))
+      (setting_statement_value
+        (fixed_key_value
+          (blend_operator))
+        (fixed_key_value
+          (blend_factor))
+        (fixed_key_value
+          (blend_factor))))
+    (setting_statement
+      (setting_statement_key
+        (custom_shader_state_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (setting_statement
+      (setting_statement_key
+        (custom_shader_state_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (setting_statement
+      (setting_statement_key
+        (custom_shader_state_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (setting_statement
+      (setting_statement_key
+        (custom_shader_state_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (drawinstanced_dispatch_instruction
+      (instruction)
+      (binary_expression
+        (named_variable
+          (variable_identifier))
+        (numeric_constant))
+      (binary_expression
+        (parenthesized_expression
+          (binary_expression
+            (named_variable
+              (variable_identifier))
+            (numeric_constant)))
+        (numeric_constant))
+      (numeric_constant))))
+
+=====
+Custom Shader 1
+=====
+
+[CustomShaderShapeKeyApply]
+local $THREAD_GROUP_COUNT_X = THREAD_GROUP_COUNT_X
+; Replace CB with new pair of offset, count (Keeps multiplier)
+run = CommandList\LUPOMIv1\ShapeKeyCBOverride
+; Loads shader and unbind unused slots
+cs = Shaders/ShapeKeyApply.hlsl
+vs = null
+ps = null
+hs = null
+ds = null
+gs = null
+; Dispatch enough threads for the mesh, at least 1
+local $dispatch_x = $mesh_vert_count/64 + 1
+if $dispatch_x < $THREAD_GROUP_COUNT_X
+	$dispatch_x = $THREAD_GROUP_COUNT_X
+endif
+dispatch = $dispatch_x, 1, 1
+; Clean up
+$mesh_vert_count = -1
+$count = $count + 1
+
+---
+
+(document
+  (commandlist_section
+    (commandlist_section_header
+      (header_prefix)
+      (header_identifier))
+    (local_initialisation
+      (named_variable
+        (variable_identifier))
+      (override_parameter))
+    (comment)
+    (run_instruction
+      (instruction)
+      (callable_commandlist
+        (callable_prefix)
+        (namespace)
+        (section_identifier)))
+    (comment)
+    (setting_statement
+      (custom_shader_key)
+      (setting_statement_value
+        (path_value
+          (path_key_value))))
+    (setting_statement
+      (custom_shader_key)
+      (setting_statement_value
+        (null)))
+    (setting_statement
+      (custom_shader_key)
+      (setting_statement_value
+        (null)))
+    (setting_statement
+      (custom_shader_key)
+      (setting_statement_value
+        (null)))
+    (setting_statement
+      (custom_shader_key)
+      (setting_statement_value
+        (null)))
+    (setting_statement
+      (custom_shader_key)
+      (setting_statement_value
+        (null)))
+    (comment)
+    (local_initialisation
+      (named_variable
+        (variable_identifier))
+      (binary_expression
+        (binary_expression
+          (named_variable
+            (variable_identifier))
+          (numeric_constant))
+        (numeric_constant)))
+    (conditional_statement
+      (binary_expression
+        (named_variable
+          (variable_identifier))
+        (named_variable
+          (variable_identifier)))
+      (block
+        (assignment_statement
+          (named_variable
+            (variable_identifier))
+          (named_variable
+            (variable_identifier)))))
+    (drawinstanced_dispatch_instruction
+      (instruction)
+      (named_variable
+        (variable_identifier))
+      (numeric_constant)
+      (numeric_constant))
+    (comment)
+    (assignment_statement
+      (named_variable
+        (variable_identifier))
+      (numeric_constant))
+    (assignment_statement
+      (named_variable
+        (variable_identifier))
+      (binary_expression
+        (named_variable
+          (variable_identifier))
+        (numeric_constant)))))
+
+=====
+Custom Shader 2
+=====
+
+[CustomShaderRenderText]
+; The vertex shader passes draw indexes to the geometry shader:
+vs = Shaders/TextPrinter.hlsl
+; The geometry shader generates the text for a given draw index:
+gs = Shaders/TextPrinter.hlsl
+; The pixel shader draws the font:
+ps = Shaders/TextPrinter.hlsl
+hs = null
+ds = null
+cs = null
+; Allows us to use SV_Position.z to pack a texcoord, increasing the character
+; limit per geometry shader invocation:
+depth_clip_enable = false
+; Disable front/back face culling so the vertices can be in any rotation
+cull = none
+; Enable alpha blending. To change the text colour, edit the pixel shader:
+blend = add one inv_src_alpha
+; Use points as the primitive from the vertex shader to the geometry shader:
+topology = point_list
+; Clear all render + depth targets to avoid compatibility issues
+run = BuiltInCommandListUnbindAllRenderTargets
+; Bind the back buffer as a render target. set_viewport ensures that the view
+; port is the size of the buffer so the draw call will work
+o0 = set_viewport no_view_cache bb
+; Font is passed into the pixel shader (to draw it) *and* the geometry shader
+; (as the character sizes are encoded in the final character of the font):
+gs-t100 = ResourceFont
+ps-t100 = ResourceFont
+post gs-t100 = null
+post ps-t100 = null
+; Pass resources to the shader
+gs-t112 = ResourceTextPosition
+gs-t113 = ResourceText
+gs-t114 = ResourceTextParams
+ps-t114 = ResourceTextParams
+; Draw vertices
+; Change this number to limit how much text may be drawn:
+draw = 4096, 0
+; Unbind resources
+gs-t112 = null
+gs-t113 = null
+gs-t114 = null
+ps-t114 = null
+ResourceText = null
+ResourceTextParams = null
+
+---
+
+(document
+  (commandlist_section
+    (commandlist_section_header
+      (header_prefix)
+      (header_identifier))
+    (comment)
+    (setting_statement
+      (custom_shader_key)
+      (setting_statement_value
+        (path_value
+          (path_key_value))))
+    (comment)
+    (setting_statement
+      (custom_shader_key)
+      (setting_statement_value
+        (path_value
+          (path_key_value))))
+    (comment)
+    (setting_statement
+      (custom_shader_key)
+      (setting_statement_value
+        (path_value
+          (path_key_value))))
+    (setting_statement
+      (custom_shader_key)
+      (setting_statement_value
+        (null)))
+    (setting_statement
+      (custom_shader_key)
+      (setting_statement_value
+        (null)))
+    (setting_statement
+      (custom_shader_key)
+      (setting_statement_value
+        (null)))
+    (comment)
+    (comment)
+    (setting_statement
+      (setting_statement_key
+        (custom_shader_state_key))
+      (setting_statement_value
+        (boolean_value)))
+    (comment)
+    (setting_statement
+      (setting_statement_key
+        (custom_shader_state_key))
+      (setting_statement_value
+        (fixed_key_value
+          (multi_key_value))))
+    (comment)
+    (setting_statement
+      (setting_statement_key
+        (custom_shader_state_key))
+      (setting_statement_value
+        (fixed_key_value
+          (blend_operator))
+        (fixed_key_value
+          (blend_factor))
+        (fixed_key_value
+          (blend_factor))))
+    (comment)
+    (setting_statement
+      (setting_statement_key
+        (custom_shader_key))
+      (setting_statement_value
+        (fixed_key_value
+          (custom_shader_key_value))))
+    (comment)
+    (run_instruction
+      (instruction)
+      (callable_commandlist
+        (callable_prefix)
+        (section_identifier)))
+    (comment)
+    (comment)
+    (assignment_statement
+      (resource_operand
+        (shader_variable))
+      (resource_usage_expression
+        (resource_modifier)
+        (resource_modifier)
+        (resource_operand
+          (buffer_variable))))
+    (comment)
+    (comment)
+    (assignment_statement
+      (resource_operand
+        (shader_variable))
+      (resource_usage_expression
+        (resource_operand
+          (custom_resource
+            (resource_prefix)
+            (section_identifier)))))
+    (assignment_statement
+      (resource_operand
+        (shader_variable))
+      (resource_usage_expression
+        (resource_operand
+          (custom_resource
+            (resource_prefix)
+            (section_identifier)))))
+    (assignment_statement
+      (resource_operand
+        (shader_variable))
+      (resource_usage_expression
+        (resource_operand
+          (resource_identifier
+            (null)))))
+    (assignment_statement
+      (resource_operand
+        (shader_variable))
+      (resource_usage_expression
+        (resource_operand
+          (resource_identifier
+            (null)))))
+    (comment)
+    (assignment_statement
+      (resource_operand
+        (shader_variable))
+      (resource_usage_expression
+        (resource_operand
+          (custom_resource
+            (resource_prefix)
+            (section_identifier)))))
+    (assignment_statement
+      (resource_operand
+        (shader_variable))
+      (resource_usage_expression
+        (resource_operand
+          (custom_resource
+            (resource_prefix)
+            (section_identifier)))))
+    (assignment_statement
+      (resource_operand
+        (shader_variable))
+      (resource_usage_expression
+        (resource_operand
+          (custom_resource
+            (resource_prefix)
+            (section_identifier)))))
+    (assignment_statement
+      (resource_operand
+        (shader_variable))
+      (resource_usage_expression
+        (resource_operand
+          (custom_resource
+            (resource_prefix)
+            (section_identifier)))))
+    (comment)
+    (comment)
+    (draw_instruction
+      (instruction)
+      (numeric_constant)
+      (numeric_constant))
+    (comment)
+    (assignment_statement
+      (resource_operand
+        (shader_variable))
+      (resource_usage_expression
+        (resource_operand
+          (resource_identifier
+            (null)))))
+    (assignment_statement
+      (resource_operand
+        (shader_variable))
+      (resource_usage_expression
+        (resource_operand
+          (resource_identifier
+            (null)))))
+    (assignment_statement
+      (resource_operand
+        (shader_variable))
+      (resource_usage_expression
+        (resource_operand
+          (resource_identifier
+            (null)))))
+    (assignment_statement
+      (resource_operand
+        (shader_variable))
+      (resource_usage_expression
+        (resource_operand
+          (resource_identifier
+            (null)))))
+    (assignment_statement
+      (resource_operand
+        (custom_resource
+          (resource_prefix)
+          (section_identifier)))
+      (resource_usage_expression
+        (resource_operand
+          (resource_identifier
+            (null)))))
+    (assignment_statement
+      (resource_operand
+        (custom_resource
+          (resource_prefix)
+          (section_identifier)))
+      (resource_usage_expression
+        (resource_operand
+          (resource_identifier
+            (null)))))))

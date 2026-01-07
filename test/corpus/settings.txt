@@ -1,0 +1,859 @@
+=====
+Loader Section
+=====
+
+; Taken from d3dx.ini
+[Loader]
+target = Game.exe
+loader = Some Launcher.exe
+launch = C:\Games\Some Game\Game.exe
+module = d3d11.dll
+require_admin = true
+
+---
+
+(document
+  (comment)
+  (setting_section
+    (setting_section_header
+      (header_identifier))
+    (setting_statement
+      (setting_statement_key
+        (loader_section_key))
+      (setting_statement_value
+        (path_value
+          (file_key_value))))
+    (setting_statement
+      (setting_statement_key
+        (loader_section_key))
+      (setting_statement_value
+        (path_value
+          (file_key_value))))
+    (setting_statement
+      (setting_statement_key
+        (loader_section_key))
+      (setting_statement_value
+        (path_value
+          (path_key_value))))
+    (setting_statement
+      (setting_statement_key
+        (loader_section_key))
+      (setting_statement_value
+        (path_value
+          (file_key_value))))
+    (setting_statement
+      (setting_statement_key
+        (loader_section_key))
+      (setting_statement_value
+        (boolean_value)))))
+
+=====
+Include Section
+=====
+
+; Taken from d3dx.ini
+[Include]
+include = Core\MI\main.ini
+include_recursive = Mods
+exclude_recursive = DISABLED*
+exclude_recursive = desktop.ini
+
+; Include with Suffix
+[IncludeUserLibraries]
+include = Libraries/User/user_include.ini
+
+---
+
+(document
+  (comment)
+  (setting_section
+    (setting_section_header
+      (header_prefix)
+      (header_identifier))
+    (setting_statement
+      (setting_statement_key
+        (include_section_key))
+      (setting_statement_value
+        (path_value
+          (path_key_value))))
+    (setting_statement
+      (setting_statement_key
+        (include_section_key))
+      (setting_statement_value
+        (free_text)))
+    (setting_statement
+      (setting_statement_key
+        (include_section_key))
+      (setting_statement_value
+        (free_text)))
+    (setting_statement
+      (setting_statement_key
+        (include_section_key))
+      (setting_statement_value
+        (path_value
+          (file_key_value)))))
+  (comment)
+  (setting_section
+    (setting_section_header
+      (header_prefix)
+      (header_identifier))
+    (setting_statement
+      (setting_statement_key
+        (include_section_key))
+      (setting_statement_value
+        (path_value
+          (path_key_value))))))
+
+=====
+System Section
+=====
+
+[System]
+load_library_redirect = 2
+check_foreground_window = 1
+allow_check_interface = 1
+allow_create_device = 1
+allow_platform_update = 1
+skip_early_includes_load = 1
+config_initialization_delay = 0
+settings_auto_save_interval = 60
+
+---
+
+(document
+  (setting_section
+    (setting_section_header
+      (header_identifier))
+    (setting_statement
+      (setting_statement_key
+        (system_section_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (setting_statement
+      (setting_statement_key
+        (system_section_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (setting_statement
+      (setting_statement_key
+        (system_section_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (setting_statement
+      (setting_statement_key
+        (system_section_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (setting_statement
+      (setting_statement_key
+        (system_section_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (setting_statement
+      (setting_statement_key
+        (system_section_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (setting_statement
+      (setting_statement_key
+        (system_section_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (setting_statement
+      (setting_statement_key
+        (system_section_key))
+      (setting_statement_value
+        (numeric_constant)))))
+
+=====
+Device Section
+=====
+
+[Device]
+upscaling = 0
+full_screen = 0
+force_stereo = 0
+get_resolution_from = swap_chain
+hide_cursor = 0
+
+---
+
+(document
+  (setting_section
+    (setting_section_header
+      (header_identifier))
+    (setting_statement
+      (setting_statement_key
+        (device_section_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (setting_statement
+      (setting_statement_key
+        (device_section_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (setting_statement
+      (setting_statement_key
+        (device_section_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (setting_statement
+      (setting_statement_key
+        (device_section_key))
+      (setting_statement_value
+        (fixed_key_value
+          (device_key_value))))
+    (setting_statement
+      (setting_statement_key
+        (device_section_key))
+      (setting_statement_value
+        (numeric_constant)))))
+
+=====
+Stereo Section
+=====
+
+[Stereo]
+automatic_mode = 0
+unlock_separation = 0
+unlock_convergence = 0
+create_profile = 0
+force_no_nvapi = 0
+
+---
+
+(document
+  (setting_section
+    (setting_section_header
+      (header_identifier))
+    (setting_statement
+      (setting_statement_key
+        (stereo_section_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (setting_statement
+      (setting_statement_key
+        (stereo_section_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (setting_statement
+      (setting_statement_key
+        (stereo_section_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (setting_statement
+      (setting_statement_key
+        (stereo_section_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (setting_statement
+      (setting_statement_key
+        (stereo_section_key))
+      (setting_statement_value
+        (numeric_constant)))))
+
+=====
+Rendering Section
+=====
+
+[Rendering]
+shader_hash = 3dmigoto
+override_directory = ShaderFixes
+cache_directory = ShaderCache
+storage_directory = ShaderFromGame
+cache_shaders = 0
+rasterizer_disable_scissor = 0
+stereo_params = -1
+ini_params = 120
+assemble_signature_comments = 1
+disassemble_undecipherable_custom_data = 1
+patch_assembly_cb_offsets = 1
+recursive_include = 1
+export_fixed = 0
+export_shaders = 0
+export_hlsl = 0
+dump_usage = 0
+fix_sv_position = 0
+
+---
+
+(document
+  (setting_section
+    (setting_section_header
+      (header_identifier))
+    (setting_statement
+      (setting_statement_key
+        (rendering_section_key))
+      (setting_statement_value
+        (fixed_key_value
+          (rendering_key_value))))
+    (setting_statement
+      (setting_statement_key
+        (rendering_section_key))
+      (setting_statement_value
+        (free_text)))
+    (setting_statement
+      (setting_statement_key
+        (rendering_section_key))
+      (setting_statement_value
+        (free_text)))
+    (setting_statement
+      (setting_statement_key
+        (rendering_section_key))
+      (setting_statement_value
+        (free_text)))
+    (setting_statement
+      (setting_statement_key
+        (rendering_section_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (setting_statement
+      (setting_statement_key
+        (rendering_section_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (setting_statement
+      (setting_statement_key
+        (rendering_section_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (setting_statement
+      (setting_statement_key
+        (rendering_section_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (setting_statement
+      (setting_statement_key
+        (rendering_section_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (setting_statement
+      (setting_statement_key
+        (rendering_section_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (setting_statement
+      (setting_statement_key
+        (rendering_section_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (setting_statement
+      (setting_statement_key
+        (rendering_section_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (setting_statement
+      (setting_statement_key
+        (rendering_section_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (setting_statement
+      (setting_statement_key
+        (rendering_section_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (setting_statement
+      (setting_statement_key
+        (rendering_section_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (setting_statement
+      (setting_statement_key
+        (rendering_section_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (setting_statement
+      (setting_statement_key
+        (rendering_section_key))
+      (setting_statement_value
+        (numeric_constant)))))
+
+=====
+Logging Section
+=====
+
+[Logging]
+calls = 0
+input = 0
+debug = 0
+unbuffered = 0
+force_cpu_affinity = 0
+convergence = 0
+separation = 0
+debug_locks = 0
+crash = 0
+show_warnings = 1
+
+---
+
+(document
+  (setting_section
+    (setting_section_header
+      (header_identifier))
+    (setting_statement
+      (setting_statement_key
+        (logging_section_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (setting_statement
+      (setting_statement_key
+        (logging_section_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (setting_statement
+      (setting_statement_key
+        (logging_section_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (setting_statement
+      (setting_statement_key
+        (logging_section_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (setting_statement
+      (setting_statement_key
+        (logging_section_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (setting_statement
+      (setting_statement_key
+        (logging_section_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (setting_statement
+      (setting_statement_key
+        (logging_section_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (setting_statement
+      (setting_statement_key
+        (logging_section_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (setting_statement
+      (setting_statement_key
+        (logging_section_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (setting_statement
+      (setting_statement_key
+        (logging_section_key))
+      (setting_statement_value
+        (numeric_constant)))))
+
+=====
+Hunting Section
+=====
+
+[Hunting]
+hunting = 0
+marking_mode = skip
+next_marking_mode = no_modifiers VK_DECIMAL VK_NUMPAD0
+marking_actions = clipboard
+
+; rotate through all VISIBLE pixel shaders at the current scene.
+previous_pixelshader = no_modifiers NO_VK_DECIMAL VK_NUMPAD1
+next_pixelshader = no_modifiers NO_VK_DECIMAL VK_NUMPAD2
+mark_pixelshader = no_modifiers NO_VK_DECIMAL VK_NUMPAD3
+
+; rotate through all VISIBLE vertex shaders at the current scene.
+previous_vertexshader = no_modifiers NO_VK_DECIMAL VK_NUMPAD4
+next_vertexshader = no_modifiers NO_VK_DECIMAL VK_NUMPAD5
+mark_vertexshader = no_modifiers NO_VK_DECIMAL VK_NUMPAD6
+
+; rotate through all USED index buffers at the current scene.
+previous_indexbuffer = no_modifiers NO_VK_DECIMAL VK_NUMPAD7
+next_indexbuffer = no_modifiers NO_VK_DECIMAL VK_NUMPAD8
+mark_indexbuffer = no_modifiers NO_VK_DECIMAL VK_NUMPAD9
+
+; rotate through all USED vertex buffers at the current scene.
+previous_vertexbuffer = no_modifiers NO_VK_DECIMAL VK_DIVIDE
+next_vertexbuffer = no_modifiers NO_VK_DECIMAL VK_MULTIPLY
+mark_vertexbuffer = no_modifiers NO_VK_DECIMAL VK_SUBTRACT
+
+; rotate through all USED render targets at the current scene.
+;previous_rendertarget = no_modifiers VK_INSERT
+;next_rendertarget = no_modifiers VK_HOME
+;mark_rendertarget = no_modifiers VK_PAGEUP
+
+; rotate through all USED compute shaders at the current scene.
+previous_computeshader = no_modifiers VK_DECIMAL VK_NUMPAD1
+next_computeshader = no_modifiers VK_DECIMAL VK_NUMPAD2
+mark_computeshader = no_modifiers VK_DECIMAL VK_NUMPAD3
+
+; rotate through all VISIBLE geometry shaders at the current scene.
+previous_geometryshader = no_modifiers VK_DECIMAL VK_NUMPAD4
+next_geometryshader = no_modifiers VK_DECIMAL VK_NUMPAD5
+mark_geometryshader = no_modifiers VK_DECIMAL VK_NUMPAD6
+
+; rotate through all VISIBLE domain shaders at the current scene.
+previous_domainshader = no_modifiers VK_DECIMAL VK_NUMPAD7
+next_domainshader = no_modifiers VK_DECIMAL VK_NUMPAD8
+mark_domainshader = no_modifiers VK_DECIMAL VK_NUMPAD9
+
+; rotate through all VISIBLE hull shaders at the current scene.
+previous_hullshader = no_modifiers VK_DECIMAL VK_DIVIDE
+next_hullshader = no_modifiers VK_DECIMAL VK_MULTIPLY
+mark_hullshader = no_modifiers VK_DECIMAL VK_SUBTRACT
+
+done_hunting = NO_MODIFIERS NO_VK_DECIMAL VK_ADD
+take_screenshot = no_modifiers VK_SNAPSHOT
+reload_fixes = no_modifiers VK_F10
+toggle_hunting = no_modifiers NO_VK_DECIMAL VK_NUMPAD0
+reload_config = no_modifiers VK_F10
+wipe_user_config = ctrl alt no_shift VK_F10
+show_original = no_modifiers VK_F9
+
+monitor_performance = ctrl no_shift no_alt F9
+freeze_performance_monitor = no_ctrl shift no_alt F9
+monitor_performance_interval = 2.0
+repeat_rate = 6
+verbose_overlay = 1
+analyse_frame = no_modifiers VK_F8
+analyse_options = dump_rt dump_tex dump_cb dump_vb dump_ib buf txt
+
+---
+
+(document
+  (setting_section
+    (setting_section_header
+      (header_identifier))
+    (setting_statement
+      (setting_statement_key
+        (hunting_section_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (setting_statement
+      (setting_statement_key
+        (hunting_section_key))
+      (setting_statement_value
+        (fixed_key_value
+          (hunting_key_value))))
+    (setting_statement
+      (setting_statement_key
+        (hunting_section_key))
+      (setting_statement_value
+        (fixed_key_value
+          (key_binding_modifier))
+        (free_text)
+        (free_text)))
+    (setting_statement
+      (setting_statement_key
+        (hunting_section_key))
+      (setting_statement_value
+        (fixed_key_value
+          (hunting_key_value))))
+    (comment)
+    (setting_statement
+      (setting_statement_key
+        (hunting_section_key))
+      (setting_statement_value
+        (fixed_key_value
+          (key_binding_modifier))
+        (free_text)
+        (free_text)))
+    (setting_statement
+      (setting_statement_key
+        (hunting_section_key))
+      (setting_statement_value
+        (fixed_key_value
+          (key_binding_modifier))
+        (free_text)
+        (free_text)))
+    (setting_statement
+      (setting_statement_key
+        (hunting_section_key))
+      (setting_statement_value
+        (fixed_key_value
+          (key_binding_modifier))
+        (free_text)
+        (free_text)))
+    (comment)
+    (setting_statement
+      (setting_statement_key
+        (hunting_section_key))
+      (setting_statement_value
+        (fixed_key_value
+          (key_binding_modifier))
+        (free_text)
+        (free_text)))
+    (setting_statement
+      (setting_statement_key
+        (hunting_section_key))
+      (setting_statement_value
+        (fixed_key_value
+          (key_binding_modifier))
+        (free_text)
+        (free_text)))
+    (setting_statement
+      (setting_statement_key
+        (hunting_section_key))
+      (setting_statement_value
+        (fixed_key_value
+          (key_binding_modifier))
+        (free_text)
+        (free_text)))
+    (comment)
+    (setting_statement
+      (setting_statement_key
+        (hunting_section_key))
+      (setting_statement_value
+        (fixed_key_value
+          (key_binding_modifier))
+        (free_text)
+        (free_text)))
+    (setting_statement
+      (setting_statement_key
+        (hunting_section_key))
+      (setting_statement_value
+        (fixed_key_value
+          (key_binding_modifier))
+        (free_text)
+        (free_text)))
+    (setting_statement
+      (setting_statement_key
+        (hunting_section_key))
+      (setting_statement_value
+        (fixed_key_value
+          (key_binding_modifier))
+        (free_text)
+        (free_text)))
+    (comment)
+    (setting_statement
+      (setting_statement_key
+        (hunting_section_key))
+      (setting_statement_value
+        (fixed_key_value
+          (key_binding_modifier))
+        (free_text)
+        (free_text)))
+    (setting_statement
+      (setting_statement_key
+        (hunting_section_key))
+      (setting_statement_value
+        (fixed_key_value
+          (key_binding_modifier))
+        (free_text)
+        (free_text)))
+    (setting_statement
+      (setting_statement_key
+        (hunting_section_key))
+      (setting_statement_value
+        (fixed_key_value
+          (key_binding_modifier))
+        (free_text)
+        (free_text)))
+    (comment)
+    (comment)
+    (comment)
+    (comment)
+    (comment)
+    (setting_statement
+      (setting_statement_key
+        (hunting_section_key))
+      (setting_statement_value
+        (fixed_key_value
+          (key_binding_modifier))
+        (free_text)
+        (free_text)))
+    (setting_statement
+      (setting_statement_key
+        (hunting_section_key))
+      (setting_statement_value
+        (fixed_key_value
+          (key_binding_modifier))
+        (free_text)
+        (free_text)))
+    (setting_statement
+      (setting_statement_key
+        (hunting_section_key))
+      (setting_statement_value
+        (fixed_key_value
+          (key_binding_modifier))
+        (free_text)
+        (free_text)))
+    (comment)
+    (setting_statement
+      (setting_statement_key
+        (hunting_section_key))
+      (setting_statement_value
+        (fixed_key_value
+          (key_binding_modifier))
+        (free_text)
+        (free_text)))
+    (setting_statement
+      (setting_statement_key
+        (hunting_section_key))
+      (setting_statement_value
+        (fixed_key_value
+          (key_binding_modifier))
+        (free_text)
+        (free_text)))
+    (setting_statement
+      (setting_statement_key
+        (hunting_section_key))
+      (setting_statement_value
+        (fixed_key_value
+          (key_binding_modifier))
+        (free_text)
+        (free_text)))
+    (comment)
+    (setting_statement
+      (setting_statement_key
+        (hunting_section_key))
+      (setting_statement_value
+        (fixed_key_value
+          (key_binding_modifier))
+        (free_text)
+        (free_text)))
+    (setting_statement
+      (setting_statement_key
+        (hunting_section_key))
+      (setting_statement_value
+        (fixed_key_value
+          (key_binding_modifier))
+        (free_text)
+        (free_text)))
+    (setting_statement
+      (setting_statement_key
+        (hunting_section_key))
+      (setting_statement_value
+        (fixed_key_value
+          (key_binding_modifier))
+        (free_text)
+        (free_text)))
+    (comment)
+    (setting_statement
+      (setting_statement_key
+        (hunting_section_key))
+      (setting_statement_value
+        (fixed_key_value
+          (key_binding_modifier))
+        (free_text)
+        (free_text)))
+    (setting_statement
+      (setting_statement_key
+        (hunting_section_key))
+      (setting_statement_value
+        (fixed_key_value
+          (key_binding_modifier))
+        (free_text)
+        (free_text)))
+    (setting_statement
+      (setting_statement_key
+        (hunting_section_key))
+      (setting_statement_value
+        (fixed_key_value
+          (key_binding_modifier))
+        (free_text)
+        (free_text)))
+    (setting_statement
+      (setting_statement_key
+        (hunting_section_key))
+      (setting_statement_value
+        (fixed_key_value
+          (key_binding_modifier))
+        (free_text)
+        (free_text)))
+    (setting_statement
+      (setting_statement_key
+        (hunting_section_key))
+      (setting_statement_value
+        (fixed_key_value
+          (key_binding_modifier))
+        (free_text)))
+    (setting_statement
+      (setting_statement_key
+        (hunting_section_key))
+      (setting_statement_value
+        (fixed_key_value
+          (key_binding_modifier))
+        (free_text)))
+    (setting_statement
+      (setting_statement_key
+        (hunting_section_key))
+      (setting_statement_value
+        (fixed_key_value
+          (key_binding_modifier))
+        (free_text)
+        (free_text)))
+    (setting_statement
+      (setting_statement_key
+        (hunting_section_key))
+      (setting_statement_value
+        (fixed_key_value
+          (key_binding_modifier))
+        (free_text)))
+    (setting_statement
+      (setting_statement_key
+        (hunting_section_key))
+      (setting_statement_value
+        (fixed_key_value
+          (key_binding_modifier))
+        (fixed_key_value
+          (key_binding_modifier))
+        (fixed_key_value
+          (key_binding_modifier))
+        (free_text)))
+    (setting_statement
+      (setting_statement_key
+        (hunting_section_key))
+      (setting_statement_value
+        (fixed_key_value
+          (key_binding_modifier))
+        (free_text)))
+    (setting_statement
+      (setting_statement_key
+        (hunting_section_key))
+      (setting_statement_value
+        (fixed_key_value
+          (key_binding_modifier))
+        (fixed_key_value
+          (key_binding_modifier))
+        (fixed_key_value
+          (key_binding_modifier))
+        (free_text)))
+    (setting_statement
+      (setting_statement_key
+        (hunting_section_key))
+      (setting_statement_value
+        (fixed_key_value
+          (key_binding_modifier))
+        (fixed_key_value
+          (key_binding_modifier))
+        (fixed_key_value
+          (key_binding_modifier))
+        (free_text)))
+    (setting_statement
+      (setting_statement_key
+        (hunting_section_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (setting_statement
+      (setting_statement_key
+        (hunting_section_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (setting_statement
+      (setting_statement_key
+        (hunting_section_key))
+      (setting_statement_value
+        (numeric_constant)))
+    (setting_statement
+      (setting_statement_key
+        (hunting_section_key))
+      (setting_statement_value
+        (fixed_key_value
+          (key_binding_modifier))
+        (free_text)))
+    (setting_statement
+      (setting_statement_key
+        (hunting_section_key))
+      (setting_statement_value
+        (frame_analysis_option)
+        (frame_analysis_option)
+        (frame_analysis_option)
+        (frame_analysis_option)
+        (frame_analysis_option)
+        (frame_analysis_option)
+        (frame_analysis_option)))))

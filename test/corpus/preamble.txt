@@ -1,0 +1,57 @@
+=====================
+Namespace declaration
+=====================
+
+; A comment before the preamble keys
+namespace = lupomikti/character/mod_name
+; A comment after the key
+; A second comment
+
+---
+
+(document
+  (comment)
+  (namespace_declaration
+    (namespace_key)
+    (namespace))
+  (comment)
+  (comment))
+
+=====================
+Empty Namespace Declaration
+=====================
+
+namespace =
+
+---
+
+(document
+  (namespace_declaration
+    (namespace_key)))
+
+================
+Complex Preamble
+================
+
+; A comment before the preamble statements
+namespace = lupomikti/character/mod_name
+; A comment between the statements
+condition = hunting == 0
+; A comment after the statements
+; A second comment
+
+---
+
+(document
+  (comment)
+  (namespace_declaration
+    (namespace_key)
+    (namespace))
+  (comment)
+  (conditional_include_statement
+    (condition_key)
+    (static_binary_expression
+      left: (override_parameter)
+      right: (numeric_constant)))
+  (comment)
+  (comment))
