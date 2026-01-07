@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "tree-sitter-migoto"
 description = "DSL for the INI files used by 3Dmigoto"
-version = "0.1.0"
+version = "0.2.0"
 keywords = ["incremental", "parsing", "tree-sitter", "migoto"]
 classifiers = [
   "Intended Audience :: Developers",
