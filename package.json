@@ -2,6 +2,7 @@
   "name": "tree-sitter-migoto",
   "version": "0.1.0",
   "description": "DSL for the INI files used by 3Dmigoto",
+  "type": "module",
   "repository": "https://github.com/lupomikti/tree-sitter-migoto",
   "license": "MIT",
   "author": {

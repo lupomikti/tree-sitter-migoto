@@ -133,7 +133,7 @@ const _generate_binary_expr_rule = (rule) => choice(
     )
 )
 
-module.exports = grammar({
+export default grammar({
   name: 'migoto',
 
   extras: $ => [/[\s\f\uFEFF\u2060\u200B]|\r?\n/, $.comment],
