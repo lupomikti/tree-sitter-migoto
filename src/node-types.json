@@ -639,7 +639,21 @@
   {
     "type": "commandlist_section_header",
     "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "header_identifier",
+          "named": true
+        },
+        {
+          "type": "header_prefix",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "conditional_include_statement",
@@ -737,7 +751,17 @@
   {
     "type": "constants_section_header",
     "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "header_identifier",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "custom_resource",
@@ -1425,7 +1449,21 @@
   {
     "type": "key_section_header",
     "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "header_identifier",
+          "named": true
+        },
+        {
+          "type": "header_prefix",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "key_section_value",
@@ -1779,7 +1817,21 @@
   {
     "type": "preset_section_header",
     "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "header_identifier",
+          "named": true
+        },
+        {
+          "type": "header_prefix",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "preset_section_identifier",
@@ -2173,7 +2225,21 @@
   {
     "type": "setting_section_header",
     "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "header_identifier",
+          "named": true
+        },
+        {
+          "type": "header_prefix",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "setting_statement",
@@ -2346,7 +2412,21 @@
   {
     "type": "shader_regex_commandlist_header",
     "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "header_identifier",
+          "named": true
+        },
+        {
+          "type": "header_prefix",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "shader_regex_commandlist_section",
@@ -2381,7 +2461,21 @@
   {
     "type": "shader_regex_declarations_header",
     "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "header_identifier",
+          "named": true
+        },
+        {
+          "type": "header_prefix",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "shader_regex_declarations_section",
@@ -2412,7 +2506,21 @@
   {
     "type": "shader_regex_pattern_header",
     "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "header_identifier",
+          "named": true
+        },
+        {
+          "type": "header_prefix",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "shader_regex_pattern_section",
@@ -2443,7 +2551,21 @@
   {
     "type": "shader_regex_replace_header",
     "named": true,
-    "fields": {}
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "header_identifier",
+          "named": true
+        },
+        {
+          "type": "header_prefix",
+          "named": true
+        }
+      ]
+    }
   },
   {
     "type": "shader_regex_replace_section",
@@ -2919,10 +3041,6 @@
     "named": false
   },
   {
-    "type": "Constants",
-    "named": false
-  },
-  {
     "type": "[",
     "named": false
   },
@@ -3049,6 +3167,14 @@
   },
   {
     "type": "handling_key_value",
+    "named": true
+  },
+  {
+    "type": "header_identifier",
+    "named": true
+  },
+  {
+    "type": "header_prefix",
     "named": true
   },
   {

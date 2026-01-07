@@ -13,6 +13,11 @@ typedef enum {
     NAMESPACE_RESOLUTION_START,
     NAMESPACE_RESOLUTION_CONTENT,
     NAMESPACE_RESOLUTION_END,
+    SUFFIXED_KEY_HEADER,
+    SUFFIXED_PRESET_HEADER,
+    SUFFIXED_RESOURCE_HEADER,    // Resource[^\]]+
+    SUFFIXED_INCLUDE_HEADER,     // Include[^\]]*
+    SUFFIXED_COMMANDLIST_HEADER, // (?:ShaderOverride|TextureOverride|(?:BuiltIn)?(?:CommandList|CustomShader))[^\]]+
     REGEX_COMMANDLIST_HEADER,
     REGEX_DECLARATIONS_HEADER,
     REGEX_PATTERN_HEADER,
@@ -123,7 +128,7 @@ static inline char *_tolower_str(char *_Str) {
     size_t i = 0;
 
     while (_Str[i] != '\0') {
-        _Str[i] = tolower(_Str[i]);
+        _Str[i] = towlower(_Str[i]);
         i++;
     }
 
@@ -312,6 +317,48 @@ static inline bool scan_line(Scanner *scanner, TSLexer *lexer, const bool *valid
     return valid_symbols[result];
 }
 
+static inline bool scan_suffixed_section_header(TSLexer *lexer, TokenType current_symbol , const bool *valid_symbols) {
+    bool saw_text = false, on_ws = true, is_start = true, not_error = (current_symbol != ERROR_SENTINEL);
+    for (;;) {
+        if (lexer->lookahead == ']' || lexer->lookahead == '\r' || lexer->lookahead == '\n' || lexer->eof(lexer)) {
+            if (not_error) lexer->result_symbol = current_symbol;
+
+            // if we see a terminal but have not seen any text yet
+            // only the Include header can be valid, as it is the only one allowed a null suffix
+            if (!saw_text) {
+                return (not_error && valid_symbols[SUFFIXED_INCLUDE_HEADER]);
+            }
+
+            return not_error; // return captured text excluding the trailing whitespace
+        }
+        else if (iswspace(lexer->lookahead)) {
+            if (is_start) is_start = false;
+            if (!on_ws) {
+                on_ws = true;
+                if (saw_text) {
+                    lexer->mark_end(lexer);
+                }
+            }
+            consume(lexer);
+        }
+        else {
+            if (on_ws) {
+                on_ws = false;
+                if (!saw_text) {
+                    saw_text = true;
+                    if (is_start) {
+                        consume(lexer);
+                        is_start = false;
+                        continue;
+                    }
+                    lexer->mark_end(lexer); // mark all leading whitespace as part of the token
+                }
+            }
+            consume(lexer);
+        }
+    }
+}
+
 static inline bool scan_for_regex_suffix(Scanner *scanner, TSLexer *lexer, const bool *valid_symbols) {
     SearchState ss = NOTSEARCHING;
     TokenType result;
@@ -477,22 +524,6 @@ bool tree_sitter_migoto_external_scanner_scan(void *payload, TSLexer *lexer, con
         return false;
     }
 
-    Scanner *scanner = (Scanner*) payload;
-
-    if (valid_symbols[REGEX_COMMANDLIST_HEADER] || valid_symbols[REGEX_DECLARATIONS_HEADER] ||
-        valid_symbols[REGEX_PATTERN_HEADER] || valid_symbols[REGEX_REPLACE_HEADER])
-    {
-        // if (getenv("TREE_SITTER_DEBUG")) {
-            // fprintf(stderr, "Lykare[START]: scanning for a valid regex header\n");
-        // }
-        return scan_for_regex_suffix(scanner, lexer, valid_symbols);
-    }
-
-    if (valid_symbols[EXTERNAL_LINE] || valid_symbols[SECTION_HEADER_START]) {
-        // fprintf(stderr, "Lykare[START]: scanning an external line or checking for section header start\n");
-        return scan_line(scanner, lexer, valid_symbols);
-    }
-
     if (valid_symbols[NEWLINE]) {
         return scan_end_of_line(lexer);
     }
@@ -507,6 +538,37 @@ bool tree_sitter_migoto_external_scanner_scan(void *payload, TSLexer *lexer, con
 
     if (valid_symbols[NAMESPACE_RESOLUTION_END]) {
         return scan_namespace_res_start_end(lexer, NAMESPACE_RESOLUTION_END);
+    }
+
+    if (valid_symbols[SUFFIXED_KEY_HEADER] || valid_symbols[SUFFIXED_PRESET_HEADER] ||
+        valid_symbols[SUFFIXED_RESOURCE_HEADER] || valid_symbols[SUFFIXED_INCLUDE_HEADER] ||
+        valid_symbols[SUFFIXED_COMMANDLIST_HEADER])
+    {
+        TokenType t = ERROR_SENTINEL;
+
+        if (valid_symbols[SUFFIXED_KEY_HEADER]) t = SUFFIXED_KEY_HEADER;
+        else if (valid_symbols[SUFFIXED_PRESET_HEADER]) t = SUFFIXED_PRESET_HEADER;
+        else if (valid_symbols[SUFFIXED_RESOURCE_HEADER]) t = SUFFIXED_RESOURCE_HEADER;
+        else if (valid_symbols[SUFFIXED_INCLUDE_HEADER]) t = SUFFIXED_INCLUDE_HEADER;
+        else if (valid_symbols[SUFFIXED_COMMANDLIST_HEADER]) t = SUFFIXED_COMMANDLIST_HEADER;
+
+        return scan_suffixed_section_header(lexer, t, valid_symbols);
+    }
+
+    Scanner *scanner = (Scanner*) payload;
+
+    if (valid_symbols[REGEX_COMMANDLIST_HEADER] || valid_symbols[REGEX_DECLARATIONS_HEADER] ||
+        valid_symbols[REGEX_PATTERN_HEADER] || valid_symbols[REGEX_REPLACE_HEADER])
+    {
+        // if (getenv("TREE_SITTER_DEBUG")) {
+            // fprintf(stderr, "Lykare[START]: scanning for a valid regex header\n");
+        // }
+        return scan_for_regex_suffix(scanner, lexer, valid_symbols);
+    }
+
+    if (valid_symbols[EXTERNAL_LINE] || valid_symbols[SECTION_HEADER_START]) {
+        // fprintf(stderr, "Lykare[START]: scanning an external line or checking for section header start\n");
+        return scan_line(scanner, lexer, valid_symbols);
     }
 
     return false;

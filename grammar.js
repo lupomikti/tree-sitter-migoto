@@ -12,20 +12,19 @@ const PREC = {
   OR: 1, // ||
   AND: 2, // &&
   COMPARE: 3, // < > <= >=
-  RELATION: 4, // @not-implemented (e.g. `in` or `instanceof` in javascript)
+  RELATION: 4, // @not-implemented (e.g. `in` or `instanceof` in javascript) ~
   EQUALITY: 5, // == === != !==
-  BIT_OR: 6, // @not-implemented
-  BIT_NOT: 7, // @not-implemented
-  BIT_AND: 8, // @not-implemented
-  BIT_SHIFT: 9, // @not-implemented
-  CONCAT: 10, // @not-implemented
+  BIT_OR: 6, // @not-implemented |
+  BIT_NOT: 7, // @not-implemented ^
+  BIT_AND: 8, // @not-implemented &
+  BIT_SHIFT: 9, // @not-implemented >> <<
+  CONCAT: 10, // @not-implemented ..
   PLUS: 11, // + -
   MULTI: 12, // * / // %
   UNARY: 13, // ! - +
   POWER: 14, // **
 }
 
-// const newline = /\r?\n/
 const custom_section_name = /[^\-+*\/&% !>|<=$,\r\n]+/i
 const custom_resource_section_name = /[^\/& !>|<=$,\r\n]+/i
 const namespace_regex = /[^\s>\\|\/<?:*="$][^>\\|\/<?:*=$\r\n]+(?:[\\\/][^>\\|\/<?:*=$\r\n]+)*/i
@@ -66,21 +65,9 @@ const dxgi_types_regex = new RustRegex(`(?xi)(?:DXGI_FORMAT_)?(UNKNOWN|R32G32B32
 |BC2_TYPELESS|BC2_UNORM|BC2_UNORM_SRGB|BC3_TYPELESS|BC3_UNORM|BC3_UNORM_SRGB|BC4_TYPELESS|BC4_UNORM|BC4_SNORM|BC5_TYPELESS|BC5_UNORM|BC5_SNORM|B5G6R5_UNORM|B5G5R5A1_UNORM|B8G8R8A8_UNORM|B8G8R8X8_UNORM|R10G10B10_XR_BIAS_A2_UNORM|B8G8R8A8_TYPELESS|B8G8R8A8_UNORM_SRGB
 |B8G8R8X8_TYPELESS|B8G8R8X8_UNORM_SRGB|BC6H_TYPELESS|BC6H_UF16|BC6H_SF16|BC7_TYPELESS|BC7_UNORM|BC7_UNORM_SRGB|AYUV|Y410|Y416|NV12|P010|P016|420_OPAQUE|YUY2|Y210|Y216|NV11|AI44|IA44|P8|A8P8|B4G4R4A4_UNORM)`)
 
-/**
- * @param {GrammarSymbols<any>} $
- * @param {string|RegExp} section_name 
- * @returns {SeqRule}
- */
-const _create_section_header = ($, section_name) => seq(
-  '[',
-  section_name,
-  optional(']'),
-  $._newline
-)
 
-// from tree-sitter-lua
 /**
- * 
+ * Adapted from tree-sitter-lua, this returns a sequence of rules separated by a given delimiter
  * @param {RuleOrLiteral} rule 
  * @param {string} separator 
  * @param {boolean} trailing_separator 
@@ -102,17 +89,18 @@ const _generate_binary_expr_rule = (rule) => choice(
       ['&&', PREC.AND],
       ['<', PREC.COMPARE],
       ['<=', PREC.COMPARE],
+      // ['~', PREC.RELATION],
       ['===', PREC.EQUALITY],
       ['==', PREC.EQUALITY],
       ['!==', PREC.EQUALITY],
       ['!=', PREC.EQUALITY],
       ['>=', PREC.COMPARE],
       ['>', PREC.COMPARE],
-      // ['', PREC.BIT_OR],
-      // ['', PREC.BIT_NOT],
-      // ['', PREC.BIT_AND],
-      // ['', PREC.BIT_SHIFT],
-      // ['', PREC.BIT_SHIFT],
+      // ['|', PREC.BIT_OR],
+      // ['^', PREC.BIT_NOT],
+      // ['&', PREC.BIT_AND],
+      // ['>>', PREC.BIT_SHIFT],
+      // ['<<', PREC.BIT_SHIFT],
       ['+', PREC.PLUS],
       ['-', PREC.PLUS],
       ['*', PREC.MULTI],
@@ -156,6 +144,11 @@ module.exports = grammar({
     $.namespace_resolution_start,
     $.namespace_resolution_content,
     $.namespace_resolution_end,
+    $._suffixed_key_header,
+    $._suffixed_preset_header,
+    $._suffixed_resource_header,
+    $._suffixed_include_header,
+    $._suffixed_commandlist_header,
     $._regex_commandlist_header,
     $._regex_declarations_header,
     $._regex_pattern_header,
@@ -214,7 +207,12 @@ module.exports = grammar({
       $._shader_regex_section
     ),
 
-    constants_section_header: $ => _create_section_header($, 'Constants'),
+    constants_section_header: $ => seq(
+      '[',
+      alias(/Constants/i, $.header_identifier),
+      optional(']'),
+      $._newline
+    ),
 
     constants_section: $ => seq(
       field('header', $.constants_section_header),
@@ -224,7 +222,13 @@ module.exports = grammar({
       ))
     ),
 
-    key_section_header: $ => _create_section_header($, /Key[^\]]+/i),
+    key_section_header: $ => seq(
+      '[',
+      alias(/Key/i, $.header_prefix),
+      alias($._suffixed_key_header, $.header_identifier),
+      optional(']'),
+      $._newline
+    ),
 
     key_section: $ => seq(
       field('header', $.key_section_header),
@@ -265,6 +269,13 @@ module.exports = grammar({
       alias(/(linear|cosine)/i, $.transition_type_key_value),
     ),
 
+    key_run_instruction: $ => seq(
+      alias(/run/i, $.instruction),
+      '=',
+      list_seq($.callable_commandlist, ','),
+      $._newline
+    ),
+
     key_condition_statement: $ => seq(
       field('key', alias('condition', $.condition_key)),
       '=',
@@ -272,7 +283,23 @@ module.exports = grammar({
       $._newline
     ),
 
-    preset_section_header: $ => _create_section_header($, /Preset[^\]]+/i),
+    key_assignment_statement: $ => seq(
+      field('name', choice(
+        $.ini_parameter,
+        $.named_variable
+      )),
+      "=",
+      field('expression', $.static_list_expression),
+      $._newline
+    ),
+
+    preset_section_header: $ => seq(
+      '[',
+      alias(/Preset/i, $.header_prefix),
+      alias($._suffixed_preset_header, $.header_identifier),
+      optional(']'),
+      $._newline
+    ),
 
     preset_section: $ => seq(
       field('header', $.preset_section_header),
@@ -306,10 +333,27 @@ module.exports = grammar({
       )
     ),
 
+    preset_run_instruction: $ => seq(
+      alias(/run/i, $.instruction),
+      '=',
+      $.callable_commandlist,
+      $._newline
+    ),
+
     preset_condition_statement: $ => seq(
       alias('condition', $.condition_key),
       '=',
       $.operational_expression,
+      $._newline
+    ),
+
+    preset_assignment_statement: $ => seq(
+      field('name', choice(
+        $.ini_parameter,
+        $.named_variable
+      )),
+      "=",
+      field('expression', $._static_value),
       $._newline
     ),
 
@@ -322,8 +366,7 @@ module.exports = grammar({
 
     shader_regex_pattern_header: $ => seq(
       '[',
-      /ShaderRegex/i,
-      $._regex_pattern_header,
+      seq(alias(/ShaderRegex/i, $.header_prefix), alias($._regex_pattern_header, $.header_identifier)),
       optional(']')
     ),
 
@@ -337,8 +380,7 @@ module.exports = grammar({
 
     shader_regex_replace_header: $ => seq(
       '[',
-      /ShaderRegex/i,
-      $._regex_replace_header,
+      seq(alias(/ShaderRegex/i, $.header_prefix), alias($._regex_replace_header, $.header_identifier)),
       optional(']')
     ),
 
@@ -356,8 +398,7 @@ module.exports = grammar({
 
     shader_regex_declarations_header: $ => seq(
       '[',
-      /ShaderRegex/i,
-      $._regex_declarations_header,
+      seq(alias(/ShaderRegex/i, $.header_prefix), alias($._regex_declarations_header, $.header_identifier)),
       optional(']')
     ),
 
@@ -369,8 +410,7 @@ module.exports = grammar({
 
     shader_regex_commandlist_header: $ => seq(
       '[',
-      /ShaderRegex/i,
-      $._regex_commandlist_header,
+      seq(alias(/ShaderRegex/i, $.header_prefix), alias($._regex_commandlist_header, $.header_identifier)),
       optional(']')
     ),
 
@@ -399,8 +439,15 @@ module.exports = grammar({
       $._newline
     ),
 
-    setting_section_header: $ => _create_section_header($,
-      /(Logging|System|Device|Stereo|Rendering|Hunting|Profile|ConvergenceMap|Loader|Resource[^\]]+|Include[^\]]*)/i
+    setting_section_header: $ => seq(
+      '[',
+      choice(
+        alias(/(Logging|System|Device|Stereo|Rendering|Hunting|Profile|ConvergenceMap|Loader)/i, $.header_identifier),
+        seq(alias(/Resource/i, $.header_prefix), alias($._suffixed_resource_header, $.header_identifier)),
+        seq(alias(/Include/i, $.header_prefix), alias($._suffixed_include_header, $.header_identifier)),
+      ),
+      optional(']'),
+      $._newline
     ),
 
     setting_section: $ => seq(
@@ -478,29 +525,17 @@ module.exports = grammar({
       alias(/(?:(?:no_)?(?:vk_)?(?:ctrl|alt|shift|windows)|no_modifiers)/i, $.key_binding_modifier)
     ),
 
-    boolean_value: _ => /(?:true|false|yes|no|on|off)/i,
-
-    path_value: $ => choice(
-      alias(path_regex, $.path_key_value),
-      alias(file_regex, $.file_key_value)
-    ),
-
-    fuzzy_match_expression: $ => seq(
-      optional(field('operator', alias(/([><]=?|[!=])/, $.fuzzy_operator))),
+    commandlist_section_header: $ => seq(
+      '[',
       choice(
-        $.integer,
-        $.field_expression
-      )
-    ),
-
-    field_expression: $ => seq(
-      field('field_name', alias(/((?:res_)?(?:width|height)|depth|array)/i, $.field)),
-      optional(seq('*', $.integer)),
-      optional(seq('/', $.integer))
-    ),
-
-    commandlist_section_header: $ => _create_section_header($,
-      /(Present|Clear(?:RenderTarget|DepthStencil)View|ClearUnorderedAccessView(?:Uint|Float)|(?:ShaderOverride|TextureOverride|(?:BuiltIn)?(?:CommandList|CustomShader))[^\]]+)/i
+        alias(/(Present|Clear(?:RenderTarget|DepthStencil)View|ClearUnorderedAccessView(?:Uint|Float))/i, $.header_identifier),
+        seq(
+          alias(/(ShaderOverride|TextureOverride|(?:BuiltIn)?(?:CommandList|CustomShader))/i, $.header_prefix),
+          alias($._suffixed_commandlist_header, $.header_identifier)
+        ),
+      ),
+      optional(']'),
+      $._newline
     ),
 
     commandlist_section: $ => seq(
@@ -594,28 +629,6 @@ module.exports = grammar({
       )
     ),
 
-    key_assignment_statement: $ => seq(
-      field('name', choice(
-        $.ini_parameter,
-        $.named_variable
-      )),
-      "=",
-      field('expression', $.static_list_expression),
-      $._newline
-    ),
-
-    static_list_expression: $ => list_seq($._static_value, ','),
-
-    preset_assignment_statement: $ => seq(
-      field('name', choice(
-        $.ini_parameter,
-        $.named_variable
-      )),
-      "=",
-      field('expression', $._static_value),
-      $._newline
-    ),
-
     // adapted from tree-sitter-lua
     _block: ($) => repeat1($.primary_statement),
 
@@ -676,20 +689,6 @@ module.exports = grammar({
       alias(/run/i, $.instruction),
       '=',
       $._callable_section,
-      $._newline
-    ),
-
-    key_run_instruction: $ => seq(
-      alias(/run/i, $.instruction),
-      '=',
-      list_seq($.callable_commandlist, ','),
-      $._newline
-    ),
-
-    preset_run_instruction: $ => seq(
-      alias(/run/i, $.instruction),
-      '=',
-      $.callable_commandlist,
       $._newline
     ),
 
@@ -903,6 +902,20 @@ module.exports = grammar({
       $.custom_resource
     ),
 
+    fuzzy_match_expression: $ => seq(
+      optional(field('operator', alias(/([><]=?|[!=])/, $.fuzzy_operator))),
+      choice(
+        $.integer,
+        $.field_expression
+      )
+    ),
+
+    field_expression: $ => seq(
+      field('field_name', alias(/((?:res_)?(?:width|height)|depth|array)/i, $.field)),
+      optional(seq('*', $.integer)),
+      optional(seq('/', $.integer))
+    ),
+
     static_operational_expression: $ => choice(
       $._static_value,
       $.static_parenthesized_expression,
@@ -922,6 +935,8 @@ module.exports = grammar({
       PREC.UNARY,
       seq(choice('-', '+', '!'), field('operand', $.static_operational_expression))
     ),
+
+    static_list_expression: $ => list_seq($._static_value, ','),
 
     operational_expression: $ => choice(
       $._static_value,
@@ -1055,6 +1070,13 @@ module.exports = grammar({
       '"',
       token.immediate(repeat(/[^\x00-\x08\x0a-\x1f\x22\x7f]/)), // exclude: from null to backspace, from \n to unit separator, ", delete
       token.immediate('"')
+    ),
+
+    boolean_value: _ => /(?:true|false|yes|no|on|off)/i,
+
+    path_value: $ => choice(
+      alias(path_regex, $.path_key_value),
+      alias(file_regex, $.file_key_value)
     ),
 
     frame_analysis_option: _ => new RustRegex(`(?xi)(
