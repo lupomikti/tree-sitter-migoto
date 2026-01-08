@@ -4,6 +4,7 @@
 
 #include <ctype.h>
 #include <wctype.h>
+#include <string.h>
 
 #define strlwr _tolower_str
 
@@ -32,7 +33,6 @@ typedef enum {
 const char *SECTION_NAMES[] = {
     "shaderoverride",
     "shaderregex",
-    "textureoverride",
     "customshader",
     "commandlist",
     "builtincustomshader",
@@ -45,16 +45,12 @@ const char *SECTION_NAMES[] = {
     "constants",
     "logging",
     "system",
-    "device",
     "stereo",
     "rendering",
-    "hunting",
     "profile",
     "convergencemap",
     "resource",
-    "key",
     "preset",
-    "include",
     "loader",
     0
 };
@@ -138,12 +134,11 @@ static inline char *_tolower_str(char *_Str) {
     return _Str;
 }
 
-/// Determines if an element of search_arr is a substring of search_term
-static inline bool is_terminating_section_name(const char *search_term, const char **search_arr)
-{
+/// Determines if search_term exactly matches one of the section names in search_arr
+static inline bool is_terminating_section_name(char *search_term, const char **search_arr) {
     const char *lwr_term = strlwr(search_term);
     for(int i = 0; search_arr[i]; i++) {
-        if(strstr(lwr_term, search_arr[i]) != NULL) {
+        if(!strcmp(lwr_term, search_arr[i])) {
             return true;
         }
     }
@@ -231,24 +226,93 @@ static inline bool scan_namespace_res_content(TSLexer *lexer) {
 static inline bool scan_maybe_section_header(Scanner *scanner, TSLexer *lexer, const bool *valid_symbols) {
     consume(lexer); // consume the '[' that starts
 
-    bool searching = false;
+    // consume all the leading whitespace
+    while (iswspace(lexer->lookahead) && lexer->lookahead != ']' && lexer->lookahead != '\n' && !lexer->eof(lexer)) {
+        consume(lexer);
+    }
 
+    // if after consuming whitespace we're at a terminal or eof, return false
+    if (lexer->lookahead == ']' || lexer->lookahead == '\n' || lexer->eof(lexer)) {
+        return false;
+    }
+
+    // if instead the next character is not alphabetical, return false
+    // if it is alphabetical, but not the first character of a section name, return false
+    // otherwise we can start searching
     if (!iswalpha(lexer->lookahead)) {
         return false;
     }
-    else {
-        searching = true;
+    // would love to just use strchr here, but wasm doesn't have support for it
+    else if (memchr("stcbplrhki", towlower(lexer->lookahead), 11)) {
+        return false;
     }
 
-    while(searching) {
-        array_push(&scanner->word, lexer->lookahead);
+    uint8_t search_length = 0;
+    char *target_term; // undefined
+
+    // choose the search length or set target term based on first character
+    switch (towlower(lexer->lookahead)) {
+    case 's':
+        search_length = 14;
+        break;
+    case 't':
+        target_term = "textureoverride";
+        search_length = 15;
+        break;
+    case 'c':
+        search_length = 29;
+        break;
+    case 'b':
+        search_length = 19;
+        break;
+    case 'p':
+    case 'l':
+        search_length = 7;
+        break;
+    case 'd':
+        target_term = "device";
+        search_length = 6;
+        break;
+    case 'r':
+        search_length = 9;
+        break;
+    case 'h':
+        target_term = "hunting";
+        search_length = 7;
+        break;
+    case 'k':
+        target_term = "key";
+        search_length = 3;
+        break;
+    case 'i':
+        target_term = "include";
+        search_length = 7;
+        break;
+    default:
+        return false;
+    }
+
+    char lookahead = lexer->lookahead;
+
+    do {
+        array_push(&scanner->word, lookahead);
         consume(lexer);
-        if (lexer->lookahead == ']' || lexer->lookahead == '\n') {
-            searching = false;
-        }
-    }
+        lookahead = lexer->lookahead;
 
-    if (is_terminating_section_name(scanner->word.contents, SECTION_NAMES)) {
+        // if we hit whitespace or non-alphabetical before collecting the correct number of characters
+        // if we see a terminal before collecting the correct number of characters
+        if (iswspace(lookahead) || !iswalpha(lookahead) ||
+            lookahead == ']' || lookahead == '\n' || lexer->eof(lexer))
+        {
+            return false;
+        }
+    } while (scanner->word.size < search_length);
+
+    array_push(&scanner->word, '\0'); // NUL term char array before comparison
+
+    if ((target_term && !strcmp(strlwr(scanner->word.contents), target_term)) ||
+        is_terminating_section_name(scanner->word.contents, SECTION_NAMES))
+    {
         reset(scanner);
         return true;
     }
