@@ -325,6 +325,7 @@ static inline bool scan_maybe_section_header(Scanner *scanner, TSLexer *lexer, c
         if (iswspace(lookahead) || !iswalpha(lookahead) ||
             lookahead == ']' || lookahead == '\n' || lexer->eof(lexer))
         {
+            reset(scanner);
             return false;
         }
     } while (scanner->word.size < search_lengths[0]);
@@ -342,9 +343,11 @@ static inline bool scan_maybe_section_header(Scanner *scanner, TSLexer *lexer, c
             ismatch = is_terminating_section_name_l(scanner->word.contents, search_lengths[i], SECTION_NAMES);
         }
 
+        reset(scanner);
         return ismatch;
     }
 
+    reset(scanner);
     return false;
 }
 
@@ -361,9 +364,9 @@ static inline bool scan_line(Scanner *scanner, TSLexer *lexer, const bool *valid
     // IF the line contains a valid section header
     // THEN we will return true for SECTION_HEADER_START with a zero-width token
 
-    while (!lexer->eof(lexer)) {
+    for (;;) {
         bool is_wspace = iswspace(lexer->lookahead);
-        if (lexer->lookahead == '\r' || lexer->lookahead == '\n') {
+        if (lexer->lookahead == '\r' || lexer->lookahead == '\n' || lexer->eof(lexer)) {
             result = EXTERNAL_LINE;
             if (saw_text) {
                 lexer->mark_end(lexer);
@@ -510,7 +513,6 @@ static inline bool scan_for_regex_suffix(Scanner *scanner, TSLexer *lexer, const
                 result = REGEX_DECLARATIONS_HEADER;
             }
 
-
             switch (lexer->lookahead)
             {
             case ']':
@@ -521,12 +523,16 @@ static inline bool scan_for_regex_suffix(Scanner *scanner, TSLexer *lexer, const
 
                 strlwr(scanner->word.contents);
 
+                // fprintf(stderr, "Lykare[LINE]: word contains '%s' before comparison\n", scanner->word.contents);
+
                 if (!strcmp(scanner->word.contents, search_target)) {
                     reset(scanner);
                     if (!valid_symbols[result]) return false;
                     lexer->result_symbol = result;
                     return true;
                 }
+
+                // fprintf(stderr, "Lykare[LINE]: word did not match '%s'\n", search_target);
 
                 ss = NOTSEARCHING;
                 reset(scanner);

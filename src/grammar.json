@@ -1025,8 +1025,13 @@
                         "name": "character_escape"
                       },
                       {
-                        "type": "SYMBOL",
-                        "name": "free_text"
+                        "type": "ALIAS",
+                        "content": {
+                          "type": "SYMBOL",
+                          "name": "_free_text_no_brackets"
+                        },
+                        "named": true,
+                        "value": "free_text"
                       }
                     ]
                   }
@@ -6087,6 +6092,11 @@
     "free_text": {
       "type": "PATTERN",
       "value": "[^\\\\\\/=\"${}\\s]+",
+      "flags": "i"
+    },
+    "_free_text_no_brackets": {
+      "type": "PATTERN",
+      "value": "[^\\\\\\/=\"${\\[\\]}\\s]+",
       "flags": "i"
     },
     "comment": {

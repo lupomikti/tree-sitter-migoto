@@ -373,9 +373,11 @@ export default grammar({
     shader_regex_pattern_section: $ => seq(
       field('header', $.shader_regex_pattern_header),
       $._newline,
-      repeat(
-        seq(alias($._external_line, $.regex_pattern), $._newline, optional($._section_header_start))
-      )
+      repeat(seq(
+        alias($._external_line, $.regex_pattern),
+        $._newline,
+        optional($._section_header_start)
+      ))
     ),
 
     shader_regex_replace_header: $ => seq(
@@ -387,13 +389,11 @@ export default grammar({
     shader_regex_replace_section: $ => seq(
       field('header', $.shader_regex_replace_header),
       $._newline,
-      repeat(
-        seq(
-          alias(repeat1(choice($.regex_replacement, $.character_escape, $.free_text)), $.regex_replace_line),
-          $._newline,
-          optional($._section_header_start)
-        )
-      )
+      repeat(seq(
+        alias(repeat1(choice($.regex_replacement, $.character_escape, alias($._free_text_no_brackets, $.free_text))), $.regex_replace_line),
+        $._newline,
+        optional($._section_header_start)
+      ))
     ),
 
     shader_regex_declarations_header: $ => seq(
@@ -405,7 +405,11 @@ export default grammar({
     shader_regex_declarations_section: $ => seq(
       field('header', $.shader_regex_declarations_header),
       $._newline,
-      repeat(seq(alias($._external_line, $.dxbc_declaration), $._newline, optional($._section_header_start)))
+      repeat(seq(
+        alias($._external_line, $.dxbc_declaration),
+        $._newline,
+        optional($._section_header_start)
+      ))
     ),
 
     shader_regex_commandlist_header: $ => seq(
@@ -1092,6 +1096,8 @@ export default grammar({
     character_escape: _ => /\\[a-z\(\)\[\]${}]/i,
 
     free_text: _ => /[^\\\/="${}\s]+/i,
+
+    _free_text_no_brackets: _ => /[^\\\/="${\[\]}\s]+/i, // only used in shader regex pattern replacement section
 
     comment: $ => token(seq(
       field('start', ';'),
