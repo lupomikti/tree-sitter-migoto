@@ -181,14 +181,14 @@ export default grammar({
     ),
 
     namespace_declaration: $ => seq(
-      alias('namespace', $.namespace_key),
+      alias(/namespace/i, $.namespace_key),
       '=',
       optional(alias(namespace_regex, $.namespace)),
       $._newline
     ),
 
     conditional_include_statement: $ => seq(
-      alias('condition', $.condition_key),
+      alias(/condition/i, $.condition_key),
       '=',
       $.static_operational_expression,
       $._newline
@@ -277,7 +277,7 @@ export default grammar({
     ),
 
     key_condition_statement: $ => seq(
-      field('key', alias('condition', $.condition_key)),
+      field('key', alias(/condition/i, $.condition_key)),
       '=',
       list_seq($.operational_expression, ','),
       $._newline
@@ -341,7 +341,7 @@ export default grammar({
     ),
 
     preset_condition_statement: $ => seq(
-      alias('condition', $.condition_key),
+      alias(/condition/i, $.condition_key),
       '=',
       $.operational_expression,
       $._newline

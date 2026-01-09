@@ -134,6 +134,16 @@ static inline char *_tolower_str(char *_Str) {
     return _Str;
 }
 
+/// Determines if search_term exactly matches one of the section names in search_arr up to length `size` of search_term
+static inline bool is_terminating_section_name_l(char *search_term, uint8_t size, const char **search_arr) {
+    for(int i = 0; search_arr[i]; i++) {
+        if(!strncmp(strlwr(search_term), search_arr[i], size)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 /// Determines if search_term exactly matches one of the section names in search_arr
 static inline bool is_terminating_section_name(char *search_term, const char **search_arr) {
     const char *lwr_term = strlwr(search_term);
@@ -243,50 +253,61 @@ static inline bool scan_maybe_section_header(Scanner *scanner, TSLexer *lexer, c
         return false;
     }
     // would love to just use strchr here, but wasm doesn't have support for it
-    else if (memchr("stcbplrhki", towlower(lexer->lookahead), 11)) {
+    else if (memchr("stcbplrhki", towlower(lexer->lookahead), 11) == NULL) {
         return false;
     }
 
-    uint8_t search_length = 0;
-    char *target_term; // undefined
+    uint8_t search_lengths[7] = {0, 0, 0, 0, 0, 0, 0};
+    char *target_term = 0;
 
     // choose the search length or set target term based on first character
+    // s [6,11,14], c [11,12,14,21,28,29], b [18,19], p [6,7], l [6,7], r [8,9]: all have multiple options for header
     switch (towlower(lexer->lookahead)) {
     case 's':
-        search_length = 14;
+        search_lengths[0] = 14;
+        search_lengths[1] = 11;
+        search_lengths[2] = 6;
         break;
     case 't':
         target_term = "textureoverride";
-        search_length = 15;
+        search_lengths[0] = 15;
         break;
     case 'c':
-        search_length = 29;
+        search_lengths[0] = 29;
+        search_lengths[1] = 28;
+        search_lengths[2] = 21;
+        search_lengths[3] = 14;
+        search_lengths[4] = 12;
+        search_lengths[5] = 11;
         break;
     case 'b':
-        search_length = 19;
+        search_lengths[0] = 19;
+        search_lengths[1] = 18;
         break;
     case 'p':
     case 'l':
-        search_length = 7;
+        search_lengths[0] = 7;
+        search_lengths[1] = 6;
         break;
     case 'd':
         target_term = "device";
-        search_length = 6;
+        search_lengths[0] = 6;
         break;
     case 'r':
-        search_length = 9;
+        search_lengths[0] = 9;
+        search_lengths[1] = 8;
         break;
     case 'h':
         target_term = "hunting";
-        search_length = 7;
+        search_lengths[0] = 7;
         break;
     case 'k':
         target_term = "key";
-        search_length = 3;
+        search_lengths[0] = 3;
         break;
     case 'i':
         target_term = "include";
-        search_length = 7;
+        search_lengths[0] = 7;
         break;
     default:
         return false;
@@ -306,15 +327,22 @@ static inline bool scan_maybe_section_header(Scanner *scanner, TSLexer *lexer, c
         {
             return false;
         }
-    } while (scanner->word.size < search_length);
+    } while (scanner->word.size < search_lengths[0]);
 
     array_push(&scanner->word, '\0'); // NUL term char array before comparison
 
-    if ((target_term && !strcmp(strlwr(scanner->word.contents), target_term)) ||
-        is_terminating_section_name(scanner->word.contents, SECTION_NAMES))
-    {
+    if (target_term && !strcmp(strlwr(scanner->word.contents), target_term)) {
         reset(scanner);
         return true;
+    }
+    else if (!target_term) {
+        bool ismatch = false;
+
+        for (int i = 0; !ismatch && search_lengths[i]; i++) {
+            ismatch = is_terminating_section_name_l(scanner->word.contents, search_lengths[i], SECTION_NAMES);
+        }
+
+        return ismatch;
     }
 
     return false;
@@ -355,11 +383,22 @@ static inline bool scan_line(Scanner *scanner, TSLexer *lexer, const bool *valid
             return valid_symbols[EXTERNAL_LINE];
         }
         else if (!saw_text && lexer->lookahead == '[') {
+            // this way of handling things has an unfortunate side effect of checking for the same section header twice
+
             lexer->mark_end(lexer); // tell the lexer to not add the next characters to the token
+
             if (scan_maybe_section_header(scanner, lexer, valid_symbols)) {
+                // if this was an $._external_line search, return false so we don't accidentally mark this as the wrong type of regex section
+                if (valid_symbols[EXTERNAL_LINE]) {
+                    lexer->result_symbol = EXTERNAL_LINE;
+                    return false;
+                }
+                // else we were looking for $._section_header_start
                 result = SECTION_HEADER_START;
                 break;
             }
+
+            // it wasn't a section header ahead
 
             lexer->mark_end(lexer); // resume adding characters, adding in the ones consumed while scanning
             saw_text = true;

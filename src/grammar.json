@@ -71,8 +71,9 @@
         {
           "type": "ALIAS",
           "content": {
-            "type": "STRING",
-            "value": "namespace"
+            "type": "PATTERN",
+            "value": "namespace",
+            "flags": "i"
           },
           "named": true,
           "value": "namespace_key"
@@ -111,8 +112,9 @@
         {
           "type": "ALIAS",
           "content": {
-            "type": "STRING",
-            "value": "condition"
+            "type": "PATTERN",
+            "value": "condition",
+            "flags": "i"
           },
           "named": true,
           "value": "condition_key"
@@ -496,8 +498,9 @@
           "content": {
             "type": "ALIAS",
             "content": {
-              "type": "STRING",
-              "value": "condition"
+              "type": "PATTERN",
+              "value": "condition",
+              "flags": "i"
             },
             "named": true,
             "value": "condition_key"
@@ -766,8 +769,9 @@
         {
           "type": "ALIAS",
           "content": {
-            "type": "STRING",
-            "value": "condition"
+            "type": "PATTERN",
+            "value": "condition",
+            "flags": "i"
           },
           "named": true,
           "value": "condition_key"
