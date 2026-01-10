@@ -166,7 +166,7 @@
 (handling_instruction
   fixed_value: (handling_key_value) @constant.builtin)
 
-(draw_instruction
+(_
   fixed_value: (draw_instruction_key_value) @constant.builtin)
 
 (frame_analysis_option) @constant.builtin
