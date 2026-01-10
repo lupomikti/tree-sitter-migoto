@@ -18,7 +18,7 @@
     }
   ],
   "metadata": {
-    "version": "0.3.1",
+    "version": "0.3.2",
     "license": "MIT",
     "description": "DSL for the INI files used by 3Dmigoto",
     "authors": [
