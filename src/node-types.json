@@ -164,11 +164,19 @@
     "named": true,
     "subtypes": [
       {
+        "type": "numeric_constant",
+        "named": true
+      },
+      {
         "type": "parenthesized_resource_comparison_expression",
         "named": true
       },
       {
         "type": "resource_comparison_expression",
+        "named": true
+      },
+      {
+        "type": "resource_operand",
         "named": true
       }
     ]
@@ -1641,7 +1649,7 @@
       "required": true,
       "types": [
         {
-          "type": "resource_comparison_expression",
+          "type": "resource_operational_expression",
           "named": true
         }
       ]
@@ -1999,11 +2007,7 @@
         "required": true,
         "types": [
           {
-            "type": "numeric_constant",
-            "named": true
-          },
-          {
-            "type": "resource_operand",
+            "type": "resource_operational_expression",
             "named": true
           }
         ]
@@ -2059,11 +2063,7 @@
         "required": true,
         "types": [
           {
-            "type": "numeric_constant",
-            "named": true
-          },
-          {
-            "type": "resource_operand",
+            "type": "resource_operational_expression",
             "named": true
           }
         ]

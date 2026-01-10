@@ -196,6 +196,103 @@ endif
           (numeric_constant))))))
 
 =====
+CommandList With Resource Comparison
+=====
+
+[CommandListGatherSKData]
+if $costume_mods
+  checktextureoverride = cs-t0
+  if (ResourceSKIdentity !== null && ResourceSKMultipliers !== null)
+    handling = skip
+    cs-t100 = ref ResourceSKIdentity
+    cs-u7 = ref ResourceSKMultipliers
+    run = CustomShaderSKDataGather
+    ResourceSKIdentity = null
+    ResourceSKMultipliers = null
+  endif
+endif
+
+---
+
+(document
+  (commandlist_section
+    (commandlist_section_header
+      (header_prefix)
+      (header_identifier))
+    (conditional_statement
+      (named_variable
+        (variable_identifier))
+      (block
+        (check_texture_override_instruction
+          (instruction)
+          (resource_operand
+            (shader_variable)))
+        (conditional_statement
+          (parenthesized_resource_comparison_expression
+            (resource_comparison_expression
+              (resource_comparison_expression
+                (resource_operand
+                  (custom_resource
+                    (resource_prefix)
+                    (section_identifier)))
+                (resource_operand
+                  (resource_identifier
+                    (null))))
+              (resource_comparison_expression
+                (resource_operand
+                  (custom_resource
+                    (resource_prefix)
+                    (section_identifier)))
+                (resource_operand
+                  (resource_identifier
+                    (null))))))
+          (block
+            (handling_instruction
+              (instruction)
+              (handling_key_value))
+            (assignment_statement
+              (resource_operand
+                (shader_variable))
+              (resource_usage_expression
+                (resource_modifier)
+                (resource_operand
+                  (custom_resource
+                    (resource_prefix)
+                    (section_identifier)))))
+            (assignment_statement
+              (resource_operand
+                (shader_variable))
+              (resource_usage_expression
+                (resource_modifier)
+                (resource_operand
+                  (custom_resource
+                    (resource_prefix)
+                    (section_identifier)))))
+            (run_instruction
+              (instruction)
+              (callable_customshader
+                (callable_prefix)
+                (section_identifier)))
+            (assignment_statement
+              (resource_operand
+                (custom_resource
+                  (resource_prefix)
+                  (section_identifier)))
+              (resource_usage_expression
+                (resource_operand
+                  (resource_identifier
+                    (null)))))
+            (assignment_statement
+              (resource_operand
+                (custom_resource
+                  (resource_prefix)
+                  (section_identifier)))
+              (resource_usage_expression
+                (resource_operand
+                  (resource_identifier
+                    (null)))))))))))
+
+=====
 Present Section
 =====
 

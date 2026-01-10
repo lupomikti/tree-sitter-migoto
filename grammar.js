@@ -853,6 +853,8 @@ export default grammar({
     ),
 
     resource_operational_expression: $ => choice(
+      prec(2, $.numeric_constant),
+      $.resource_operand,
       $.resource_comparison_expression,
       $.parenthesized_resource_comparison_expression
     ),
@@ -879,10 +881,10 @@ export default grammar({
         prec.left(
           precedence,
           seq(
-            field('left', choice($.resource_operand, $.numeric_constant)),
+            field('left', $.resource_operational_expression),
             // @ts-ignore
             field('operator', operator),
-            field('right', choice($.resource_operand, $.numeric_constant))
+            field('right', $.resource_operational_expression)
           )
         )
       )
@@ -890,7 +892,7 @@ export default grammar({
 
     parenthesized_resource_comparison_expression: $ => seq(
       '(',
-      $.resource_comparison_expression,
+      $.resource_operational_expression,
       ')'
     ),
 
