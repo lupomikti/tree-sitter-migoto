@@ -1,14 +1,14 @@
 (setting_section
   header: (setting_section_header) @name
-  (#match? @name "^\\[[Rr]esource.+")) @definition.class
+  (#match? @name "(?i)^\\[resource.+")) @definition.class
 
 (commandlist_section
   header: (commandlist_section_header) @name
-  (#match? @name "^\\[[Cc]ommand[Ll]ist.+")) @definition.function
+  (#match? @name "(?i)^\\[commandlist.+")) @definition.function
 
 (commandlist_section
   header: (commandlist_section_header) @name
-  (#match? @name "^\\[[Cc]ustom[Ss]hader.+")) @definition.function
+  (#match? @name "(?i)^\\[customshader.+")) @definition.function
 
 ((callable_commandlist) @name) @reference.call
 
