@@ -263,7 +263,7 @@ export default grammar({
           field('fixed_value', alias(/(?:(?:no_)?(?:vk_)?(?:ctrl|alt|shift|windows)|no_modifiers)/i, $.key_binding_modifier)),
           $.boolean_value,
           $._static_value,
-          token(prec(1, alias(';', $.semicolon_character))),
+          alias(token(prec(1, choice(';', '='))), $.exception_character),
           $.free_text
         )
       )
@@ -560,14 +560,9 @@ export default grammar({
       $._newline
     ),
 
-    commandlist_section_body: $ => repeat1(choice(
-      $.setting_statement,
-      $.primary_statement
-    )),
-
     commandlist_section: $ => seq(
       field('header', $.commandlist_section_header),
-      optional(field('body', $.commandlist_section_body))
+      optional(field('body', alias($._block, $.commandlist_section_body)))
     ),
 
     primary_statement: $ => choice(
@@ -652,7 +647,10 @@ export default grammar({
     ),
 
     // adapted from tree-sitter-lua
-    _block: ($) => repeat1($.primary_statement),
+    _block: ($) => repeat1(choice(
+      $.setting_statement,
+      $.primary_statement
+    )),
 
     // adapted from tree-sitter-lua
     conditional_statement: $ => seq(

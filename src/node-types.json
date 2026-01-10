@@ -470,6 +470,10 @@
         {
           "type": "primary_statement",
           "named": true
+        },
+        {
+          "type": "setting_statement",
+          "named": true
         }
       ]
     }
@@ -1559,6 +1563,10 @@
       "types": [
         {
           "type": "boolean_value",
+          "named": true
+        },
+        {
+          "type": "exception_character",
           "named": true
         },
         {
@@ -3295,6 +3303,10 @@
   {
     "type": "endif",
     "named": false
+  },
+  {
+    "type": "exception_character",
+    "named": true
   },
   {
     "type": "field",

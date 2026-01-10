@@ -424,20 +424,29 @@
                 "name": "_static_value"
               },
               {
-                "type": "TOKEN",
+                "type": "ALIAS",
                 "content": {
-                  "type": "PREC",
-                  "value": 1,
+                  "type": "TOKEN",
                   "content": {
-                    "type": "ALIAS",
+                    "type": "PREC",
+                    "value": 1,
                     "content": {
-                      "type": "STRING",
-                      "value": ";"
-                    },
-                    "named": true,
-                    "value": "semicolon_character"
+                      "type": "CHOICE",
+                      "members": [
+                        {
+                          "type": "STRING",
+                          "value": ";"
+                        },
+                        {
+                          "type": "STRING",
+                          "value": "="
+                        }
+                      ]
+                    }
                   }
-                }
+                },
+                "named": true,
+                "value": "exception_character"
               },
               {
                 "type": "SYMBOL",
@@ -2078,22 +2087,6 @@
         }
       ]
     },
-    "commandlist_section_body": {
-      "type": "REPEAT1",
-      "content": {
-        "type": "CHOICE",
-        "members": [
-          {
-            "type": "SYMBOL",
-            "name": "setting_statement"
-          },
-          {
-            "type": "SYMBOL",
-            "name": "primary_statement"
-          }
-        ]
-      }
-    },
     "commandlist_section": {
       "type": "SEQ",
       "members": [
@@ -2112,8 +2105,13 @@
               "type": "FIELD",
               "name": "body",
               "content": {
-                "type": "SYMBOL",
-                "name": "commandlist_section_body"
+                "type": "ALIAS",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "_block"
+                },
+                "named": true,
+                "value": "commandlist_section_body"
               }
             },
             {
@@ -2502,8 +2500,17 @@
     "_block": {
       "type": "REPEAT1",
       "content": {
-        "type": "SYMBOL",
-        "name": "primary_statement"
+        "type": "CHOICE",
+        "members": [
+          {
+            "type": "SYMBOL",
+            "name": "setting_statement"
+          },
+          {
+            "type": "SYMBOL",
+            "name": "primary_statement"
+          }
+        ]
       }
     },
     "conditional_statement": {

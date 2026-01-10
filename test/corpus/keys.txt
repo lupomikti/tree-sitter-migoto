@@ -93,6 +93,64 @@ run = CommandListRunGlowEffect
           (section_identifier))))))
 
 =====
+Special Character Keys
+=====
+
+[KeySpecial1]
+key = ;
+
+[KeySpecial2]
+key = alt ;
+back = shift ; no_alt
+
+[KeySpecial3]
+key = =
+back = minus no_modifiers
+
+---
+
+(document
+  (key_section
+    (key_section_header
+      (header_prefix)
+      (header_identifier))
+    (key_section_body
+      (key_setting_statement
+        (key_section_key)
+        (key_section_value
+          (exception_character)))))
+  (key_section
+    (key_section_header
+      (header_prefix)
+      (header_identifier))
+    (key_section_body
+      (key_setting_statement
+        (key_section_key)
+        (key_section_value
+          (key_binding_modifier)
+          (exception_character)))
+      (key_setting_statement
+        (key_section_key)
+        (key_section_value
+          (key_binding_modifier)
+          (exception_character)
+          (key_binding_modifier)))))
+  (key_section
+    (key_section_header
+      (header_prefix)
+      (header_identifier))
+    (key_section_body
+      (key_setting_statement
+        (key_section_key)
+        (key_section_value
+          (exception_character)))
+      (key_setting_statement
+        (key_section_key)
+        (key_section_value
+          (free_text)
+          (key_binding_modifier))))))
+
+=====
 Run Toggles
 :fail-fast
 =====

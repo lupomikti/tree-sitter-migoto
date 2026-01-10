@@ -308,3 +308,47 @@ endif
               (numeric_constant)
               (numeric_constant)
               (numeric_constant))))))))
+
+=====
+Texture Override Setting Inside If
+=====
+
+[TextureOverrideCharacterBodyA]
+hash = 13790832
+if $swapvar == 2
+  match_first_index = 0
+  ib = null
+endif
+
+---
+
+(document
+  (commandlist_section
+    (commandlist_section_header
+      (header_prefix)
+      (header_identifier))
+    (commandlist_section_body
+      (setting_statement
+        (setting_statement_key
+          (multi_section_key))
+        (setting_statement_value
+          (numeric_constant)))
+      (conditional_statement
+        (if_statement
+          (binary_expression
+            (named_variable
+              (variable_identifier))
+            (numeric_constant))
+          (block
+            (setting_statement
+              (setting_statement_key
+                (texov_draw_match_key))
+              (setting_statement_value
+                (numeric_constant)))
+            (assignment_statement
+              (resource_operand
+                (buffer_variable))
+              (resource_usage_expression
+                (resource_operand
+                  (resource_identifier
+                    (null)))))))))))
