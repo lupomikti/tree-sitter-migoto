@@ -1010,6 +1010,10 @@
             "type": "SEQ",
             "members": [
               {
+                "type": "SYMBOL",
+                "name": "_section_header_guard"
+              },
+              {
                 "type": "ALIAS",
                 "content": {
                   "type": "REPEAT1",
@@ -1025,13 +1029,8 @@
                         "name": "character_escape"
                       },
                       {
-                        "type": "ALIAS",
-                        "content": {
-                          "type": "SYMBOL",
-                          "name": "_free_text_no_brackets"
-                        },
-                        "named": true,
-                        "value": "free_text"
+                        "type": "SYMBOL",
+                        "name": "free_text"
                       }
                     ]
                   }
@@ -3670,6 +3669,108 @@
       "members": [
         {
           "type": "PREC_LEFT",
+          "value": 1,
+          "content": {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "FIELD",
+                "name": "left",
+                "content": {
+                  "type": "CHOICE",
+                  "members": [
+                    {
+                      "type": "SYMBOL",
+                      "name": "resource_operand"
+                    },
+                    {
+                      "type": "SYMBOL",
+                      "name": "numeric_constant"
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "FIELD",
+                "name": "operator",
+                "content": {
+                  "type": "STRING",
+                  "value": "||"
+                }
+              },
+              {
+                "type": "FIELD",
+                "name": "right",
+                "content": {
+                  "type": "CHOICE",
+                  "members": [
+                    {
+                      "type": "SYMBOL",
+                      "name": "resource_operand"
+                    },
+                    {
+                      "type": "SYMBOL",
+                      "name": "numeric_constant"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "PREC_LEFT",
+          "value": 2,
+          "content": {
+            "type": "SEQ",
+            "members": [
+              {
+                "type": "FIELD",
+                "name": "left",
+                "content": {
+                  "type": "CHOICE",
+                  "members": [
+                    {
+                      "type": "SYMBOL",
+                      "name": "resource_operand"
+                    },
+                    {
+                      "type": "SYMBOL",
+                      "name": "numeric_constant"
+                    }
+                  ]
+                }
+              },
+              {
+                "type": "FIELD",
+                "name": "operator",
+                "content": {
+                  "type": "STRING",
+                  "value": "&&"
+                }
+              },
+              {
+                "type": "FIELD",
+                "name": "right",
+                "content": {
+                  "type": "CHOICE",
+                  "members": [
+                    {
+                      "type": "SYMBOL",
+                      "name": "resource_operand"
+                    },
+                    {
+                      "type": "SYMBOL",
+                      "name": "numeric_constant"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "PREC_LEFT",
           "value": 3,
           "content": {
             "type": "SEQ",
@@ -6094,11 +6195,6 @@
       "value": "[^\\\\\\/=\"${}\\s]+",
       "flags": "i"
     },
-    "_free_text_no_brackets": {
-      "type": "PATTERN",
-      "value": "[^\\\\\\/=\"${\\[\\]}\\s]+",
-      "flags": "i"
-    },
     "comment": {
       "type": "TOKEN",
       "content": {
@@ -6204,6 +6300,10 @@
     {
       "type": "SYMBOL",
       "name": "_section_header_start"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_section_header_guard"
     },
     {
       "type": "SYMBOL",

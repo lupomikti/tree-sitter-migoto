@@ -141,6 +141,7 @@ export default grammar({
   externals: $ => [
     $._external_line,
     $._section_header_start,
+    $._section_header_guard,
     $.namespace_resolution_start,
     $.namespace_resolution_content,
     $.namespace_resolution_end,
@@ -390,7 +391,8 @@ export default grammar({
       field('header', $.shader_regex_replace_header),
       $._newline,
       repeat(seq(
-        alias(repeat1(choice($.regex_replacement, $.character_escape, alias($._free_text_no_brackets, $.free_text))), $.regex_replace_line),
+        $._section_header_guard,
+        alias(repeat1(choice($.regex_replacement, $.character_escape, $.free_text)), $.regex_replace_line),
         $._newline,
         optional($._section_header_start)
       ))
@@ -863,6 +865,8 @@ export default grammar({
 
     resource_comparison_expression: $ => choice(
       ...[
+        ['||', PREC.OR],
+        ['&&', PREC.AND],
         ['<', PREC.COMPARE],
         ['<=', PREC.COMPARE],
         ['>=', PREC.COMPARE],
@@ -1096,8 +1100,6 @@ export default grammar({
     character_escape: _ => /\\[a-z\(\)\[\]${}]/i,
 
     free_text: _ => /[^\\\/="${}\s]+/i,
-
-    _free_text_no_brackets: _ => /[^\\\/="${\[\]}\s]+/i, // only used in shader regex pattern replacement section
 
     comment: $ => token(seq(
       field('start', ';'),

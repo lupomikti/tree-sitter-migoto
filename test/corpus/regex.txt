@@ -120,10 +120,13 @@ Shader Regex Replacement
 [ShaderRegexTesting.Pattern.Replace]
 ${TillRet}
 ld_indexable(texture1d)(float,float,float,float) ${ini}.xyzw, l(69,0), t120.xyzw\n
+[firsttestofguard]\n
 if_z ${ini}.y\n
+\t  add r1.xyz, cb1[3].xyz, -cb15[3].xyz\n
 \t	resinfo_indexable(texture2d)(float,float,float,float) ${dim}.xyyy, l(0), t69.xyzw\n
 ;\t  max ${dim}.xy, ${ini}.xx, ${dim}.xy\n
 \t	if_nz ${dim}.xy\n
+if_z [ResourceSecondTestOfGuard]\n
 
 ---
 
@@ -143,7 +146,17 @@ if_z ${ini}.y\n
       (character_escape))
     (regex_replace_line
       (free_text)
+      (character_escape))
+    (regex_replace_line
+      (free_text)
       (regex_replacement)
+      (free_text)
+      (character_escape))
+    (regex_replace_line
+      (character_escape)
+      (free_text)
+      (free_text)
+      (free_text)
       (free_text)
       (character_escape))
     (regex_replace_line
@@ -159,6 +172,10 @@ if_z ${ini}.y\n
       (character_escape)
       (free_text)
       (regex_replacement)
+      (free_text)
+      (character_escape))
+    (regex_replace_line
+      (free_text)
       (free_text)
       (character_escape))))
 

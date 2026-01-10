@@ -11,6 +11,7 @@
 typedef enum {
     EXTERNAL_LINE,
     SECTION_HEADER_START,
+    SECTION_HEADER_GUARD,
     NAMESPACE_RESOLUTION_START,
     NAMESPACE_RESOLUTION_CONTENT,
     NAMESPACE_RESOLUTION_END,
@@ -352,7 +353,7 @@ static inline bool scan_maybe_section_header(Scanner *scanner, TSLexer *lexer, c
 }
 
 static inline bool scan_line(Scanner *scanner, TSLexer *lexer, const bool *valid_symbols) {    
-    bool saw_text = false;
+    bool saw_text = false, is_guard = valid_symbols[SECTION_HEADER_GUARD];
     TokenType result = ERROR_SENTINEL;
 
     // IF we see any non-whitespace text before a newline
@@ -381,9 +382,12 @@ static inline bool scan_line(Scanner *scanner, TSLexer *lexer, const bool *valid
             // if we haven't seen any text yet, the first we see is a semicolon
             // this is not an external line, it's a comment
 
-            // return zero-width true if this was looking for an external line
+            if (valid_symbols[EXTERNAL_LINE]) result = EXTERNAL_LINE;
+            else if (is_guard) result = SECTION_HEADER_GUARD;
+
+            // return zero-width true if this was looking for an external line or section header guard
             // so the comment doesn't escape the whole section
-            return valid_symbols[EXTERNAL_LINE];
+            break;
         }
         else if (!saw_text && lexer->lookahead == '[') {
             // this way of handling things has an unfortunate side effect of checking for the same section header twice
@@ -394,6 +398,11 @@ static inline bool scan_line(Scanner *scanner, TSLexer *lexer, const bool *valid
                 // if this was an $._external_line search, return false so we don't accidentally mark this as the wrong type of regex section
                 if (valid_symbols[EXTERNAL_LINE]) {
                     lexer->result_symbol = EXTERNAL_LINE;
+                    return false;
+                }
+                // if this was a $._section_header_guard search, return false so the regex replacement section can still use $.free_text
+                if (is_guard) {
+                    lexer->result_symbol = SECTION_HEADER_GUARD;
                     return false;
                 }
                 // else we were looking for $._section_header_start
@@ -413,6 +422,10 @@ static inline bool scan_line(Scanner *scanner, TSLexer *lexer, const bool *valid
             }
 
             if (saw_text) {
+                if (is_guard) {
+                    result = SECTION_HEADER_GUARD;
+                    break;
+                }
                 consume(lexer);
             }
             else {
@@ -659,7 +672,7 @@ bool tree_sitter_migoto_external_scanner_scan(void *payload, TSLexer *lexer, con
         return scan_for_regex_suffix(scanner, lexer, valid_symbols);
     }
 
-    if (valid_symbols[EXTERNAL_LINE] || valid_symbols[SECTION_HEADER_START]) {
+    if (valid_symbols[EXTERNAL_LINE] || valid_symbols[SECTION_HEADER_START] || valid_symbols[SECTION_HEADER_GUARD]) {
         return scan_line(scanner, lexer, valid_symbols);
     }
 
