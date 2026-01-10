@@ -215,12 +215,14 @@ export default grammar({
       $._newline
     ),
 
+    constants_section_body: $ => repeat1(choice(
+      $.global_declaration,
+      $.primary_statement
+    )),
+
     constants_section: $ => seq(
       field('header', $.constants_section_header),
-      repeat(choice(
-        $.global_declaration,
-        $.primary_statement
-      ))
+      optional(field('body', $.constants_section_body))
     ),
 
     key_section_header: $ => seq(
@@ -231,14 +233,16 @@ export default grammar({
       $._newline
     ),
 
+    key_section_body: $ => repeat1(choice(
+      $.key_setting_statement,
+      $.key_run_instruction,
+      $.key_condition_statement,
+      $.key_assignment_statement
+    )),
+
     key_section: $ => seq(
       field('header', $.key_section_header),
-      repeat(choice(
-        $.key_setting_statement,
-        $.key_run_instruction,
-        $.key_condition_statement,
-        $.key_assignment_statement
-      ))
+      optional(field('body', $.key_section_body))
     ),
 
     key_setting_statement: $ => seq(
@@ -302,14 +306,16 @@ export default grammar({
       $._newline
     ),
 
+    preset_section_body: $ => repeat1(choice(
+      $.preset_setting_statement,
+      $.preset_run_instruction,
+      $.preset_condition_statement,
+      $.preset_assignment_statement
+    )),
+
     preset_section: $ => seq(
       field('header', $.preset_section_header),
-      repeat(choice(
-        $.preset_setting_statement,
-        $.preset_run_instruction,
-        $.preset_condition_statement,
-        $.preset_assignment_statement
-      ))
+      optional(field('body', $.preset_section_body))
     ),
 
     preset_setting_statement: $ => seq(
@@ -371,14 +377,16 @@ export default grammar({
       optional(']')
     ),
 
+    shader_regex_pattern_body: $ => repeat1(seq(
+      alias($._external_line, $.regex_pattern),
+      $._newline,
+      optional($._section_header_start)
+    )),
+
     shader_regex_pattern_section: $ => seq(
       field('header', $.shader_regex_pattern_header),
       $._newline,
-      repeat(seq(
-        alias($._external_line, $.regex_pattern),
-        $._newline,
-        optional($._section_header_start)
-      ))
+      optional(field('body', $.shader_regex_pattern_body))
     ),
 
     shader_regex_replace_header: $ => seq(
@@ -387,15 +395,17 @@ export default grammar({
       optional(']')
     ),
 
+    shader_regex_replace_body: $ => repeat1(seq(
+      $._section_header_guard,
+      alias(repeat1(choice($.regex_replacement, $.character_escape, $.free_text)), $.regex_replace_line),
+      $._newline,
+      optional($._section_header_start)
+    )),
+
     shader_regex_replace_section: $ => seq(
       field('header', $.shader_regex_replace_header),
       $._newline,
-      repeat(seq(
-        $._section_header_guard,
-        alias(repeat1(choice($.regex_replacement, $.character_escape, $.free_text)), $.regex_replace_line),
-        $._newline,
-        optional($._section_header_start)
-      ))
+      optional(field('body', $.shader_regex_replace_body))
     ),
 
     shader_regex_declarations_header: $ => seq(
@@ -404,14 +414,16 @@ export default grammar({
       optional(']')
     ),
 
+    shader_regex_declarations_body: $ => repeat1(seq(
+      alias($._external_line, $.dxbc_declaration),
+      $._newline,
+      optional($._section_header_start)
+    )),
+
     shader_regex_declarations_section: $ => seq(
       field('header', $.shader_regex_declarations_header),
       $._newline,
-      repeat(seq(
-        alias($._external_line, $.dxbc_declaration),
-        $._newline,
-        optional($._section_header_start)
-      ))
+      optional(field('body', $.shader_regex_declarations_body))
     ),
 
     shader_regex_commandlist_header: $ => seq(
@@ -420,13 +432,15 @@ export default grammar({
       optional(']')
     ),
 
+    shader_regex_commandlist_body: $ => repeat1(choice(
+      $.shader_regex_setting_statement,
+      $.primary_statement
+    )),
+
     shader_regex_commandlist_section: $ => seq(
       field('header', $.shader_regex_commandlist_header),
       $._newline,
-      repeat(choice(
-        $.shader_regex_setting_statement,
-        $.primary_statement
-      ))
+      optional(field('body', $.shader_regex_commandlist_body))
     ),
 
     shader_regex_setting_statement: $ => seq(
@@ -456,9 +470,11 @@ export default grammar({
       $._newline
     ),
 
+    setting_section_body: $ => repeat1($.setting_statement),
+
     setting_section: $ => seq(
       field('header', $.setting_section_header),
-      repeat($.setting_statement)
+      optional(field('body', $.setting_section_body))
     ),
 
     setting_statement: $ => choice(
@@ -544,12 +560,14 @@ export default grammar({
       $._newline
     ),
 
+    commandlist_section_body: $ => repeat1(choice(
+      $.setting_statement,
+      $.primary_statement
+    )),
+
     commandlist_section: $ => seq(
       field('header', $.commandlist_section_header),
-      repeat(choice(
-        $.setting_statement,
-        $.primary_statement
-      ))
+      optional(field('body', $.commandlist_section_body))
     ),
 
     primary_statement: $ => choice(
@@ -638,14 +656,18 @@ export default grammar({
 
     // adapted from tree-sitter-lua
     conditional_statement: $ => seq(
-      alias($._if, 'if'),
-      field('condition', choice($.operational_expression, $.resource_operational_expression)),
-      $._newline,
-      field('consequence', alias(optional($._block), $.block)),
+      $.if_statement,
       repeat(field('alternative', $.elseif_statement)),
       optional(field('alternative', $.else_statement)),
       alias($._endif, 'endif'),
       $._newline
+    ),
+
+    if_statement: $ => seq(
+      alias($._if, 'if'),
+      field('condition', choice($.operational_expression, $.resource_operational_expression)),
+      $._newline,
+      field('consequence', alias(optional($._block), $.block))
     ),
 
     // adapted from tree-sitter-lua

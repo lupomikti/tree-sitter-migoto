@@ -15,27 +15,28 @@ persist global $var5 = 2
   (constants_section
     header: (constants_section_header
       (header_identifier))
-    (global_declaration
-      variable: (named_variable
-        (variable_identifier)))
-    (global_declaration
-      variable: (named_variable
-        (variable_identifier)))
-    (global_declaration
-      (assignment_statement
+    body: (constants_section_body
+      (global_declaration
         variable: (named_variable
-          (variable_identifier))
-        value: (numeric_constant)))
-    (global_declaration
-      (assignment_statement
+          (variable_identifier)))
+      (global_declaration
         variable: (named_variable
-          (variable_identifier))
-        value: (numeric_constant)))
-    (global_declaration
-      (assignment_statement
-        variable: (named_variable
-          (variable_identifier))
-        value: (numeric_constant)))))
+          (variable_identifier)))
+      (global_declaration
+        (assignment_statement
+          variable: (named_variable
+            (variable_identifier))
+          value: (numeric_constant)))
+      (global_declaration
+        (assignment_statement
+          variable: (named_variable
+            (variable_identifier))
+          value: (numeric_constant)))
+      (global_declaration
+        (assignment_statement
+          variable: (named_variable
+            (variable_identifier))
+          value: (numeric_constant))))))
 
 =====
 Constants With Statements
@@ -56,25 +57,27 @@ endif
   (constants_section
     header: (constants_section_header
       (header_identifier))
-    (global_declaration
-      (assignment_statement
-        variable: (named_variable
-          (variable_identifier))
-        value: (numeric_constant)))
-    (global_declaration
-      (assignment_statement
-        variable: (named_variable
-          (variable_identifier))
-        value: (numeric_constant)))
-    (comment)
-    (conditional_statement
-      condition: (binary_expression
-        left: (named_variable
-          (variable_identifier))
-        right: (numeric_constant))
-      consequence: (block
-        (run_instruction
-          (instruction)
-          (callable_commandlist
-            (callable_prefix)
-            (section_identifier)))))))
+    body: (constants_section_body
+      (global_declaration
+        (assignment_statement
+          variable: (named_variable
+            (variable_identifier))
+          value: (numeric_constant)))
+      (global_declaration
+        (assignment_statement
+          variable: (named_variable
+            (variable_identifier))
+          value: (numeric_constant)))
+      (comment)
+      (conditional_statement
+        (if_statement
+          condition: (binary_expression
+            left: (named_variable
+              (variable_identifier))
+            right: (numeric_constant))
+          consequence: (block
+            (run_instruction
+              (instruction)
+              (callable_commandlist
+                (callable_prefix)
+                (section_identifier)))))))))

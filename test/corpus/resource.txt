@@ -32,70 +32,74 @@ data = "A string to be displayed on screen"
     (setting_section_header
       (header_prefix)
       (header_identifier))
-    (setting_statement
-      (setting_statement_key
-        (resource_section_key))
-      (setting_statement_value
-        (fixed_key_value
-          (resource_type))))
-    (setting_statement
-      (setting_statement_key
-        (resource_section_key))
-      (setting_statement_value
-        (numeric_constant)))
-    (setting_statement
-      (setting_statement_key
-        (resource_section_key))
-      (setting_statement_value
-        (path_value
-          (file_key_value)))))
+    (setting_section_body
+      (setting_statement
+        (setting_statement_key
+          (resource_section_key))
+        (setting_statement_value
+          (fixed_key_value
+            (resource_type))))
+      (setting_statement
+        (setting_statement_key
+          (resource_section_key))
+        (setting_statement_value
+          (numeric_constant)))
+      (setting_statement
+        (setting_statement_key
+          (resource_section_key))
+        (setting_statement_value
+          (path_value
+            (file_key_value))))))
   (setting_section
     (setting_section_header
       (header_prefix)
       (header_identifier))
-    (setting_statement
-      (setting_statement_key
-        (resource_section_key))
-      (setting_statement_value
-        (fixed_key_value
-          (resource_type))))
-    (setting_statement
-      (setting_statement_key
-        (multi_section_key))
-      (setting_statement_value
-        (fixed_key_value
-          (resource_format))))
-    (setting_statement
-      (setting_statement_key
-        (resource_section_key))
-      (setting_statement_value
-        (path_value
-          (file_key_value)))))
+    (setting_section_body
+      (setting_statement
+        (setting_statement_key
+          (resource_section_key))
+        (setting_statement_value
+          (fixed_key_value
+            (resource_type))))
+      (setting_statement
+        (setting_statement_key
+          (multi_section_key))
+        (setting_statement_value
+          (fixed_key_value
+            (resource_format))))
+      (setting_statement
+        (setting_statement_key
+          (resource_section_key))
+        (setting_statement_value
+          (path_value
+            (file_key_value))))))
   (setting_section
     (setting_section_header
       (header_prefix)
       (header_identifier))
-    (setting_statement
-      (setting_statement_key
-        (resource_section_key))
-      (setting_statement_value
-        (path_value
-          (file_key_value)))))
+    (setting_section_body
+      (setting_statement
+        (setting_statement_key
+          (resource_section_key))
+        (setting_statement_value
+          (path_value
+            (file_key_value))))))
   (setting_section
     (setting_section_header
       (header_prefix)
       (header_identifier))
-    (setting_statement
-      (setting_statement_key
-        (resource_section_key))
-      (setting_statement_value
-        (fixed_key_value
-          (resource_type))))
-    (setting_statement
-      (setting_statement_key
-        (resource_section_key))
-      (setting_statement_value
-        (string)))))
+    (setting_section_body
+      (setting_statement
+        (setting_statement_key
+          (resource_section_key))
+        (setting_statement_value
+          (fixed_key_value
+            (resource_type))))
+      (setting_statement
+        (setting_statement_key
+          (resource_section_key))
+        (setting_statement_value
+          (string))))))
 
 =====
 Resource Array data
@@ -113,38 +117,39 @@ data = R32_FLOAT  -0.25 +0.90 +0.25 +0.80   1.00 1.00 1.00 1.00   0.00 0.00 0.00
     (setting_section_header
       (header_prefix)
       (header_identifier))
-    (setting_statement
-      (setting_statement_key
-        (resource_section_key))
-      (setting_statement_value
-        (fixed_key_value
-          (resource_type))))
-    (setting_statement
-      (setting_statement_key
-        (resource_section_key))
-      (setting_statement_value
-        (numeric_constant)))
-    (setting_statement
-      (setting_statement_key
-        (resource_section_key))
-      (setting_statement_value
-        (fixed_key_value
-          (resource_format))
-        (numeric_constant)
-        (numeric_constant)
-        (numeric_constant)
-        (numeric_constant)
-        (numeric_constant)
-        (numeric_constant)
-        (numeric_constant)
-        (numeric_constant)
-        (numeric_constant)
-        (numeric_constant)
-        (numeric_constant)
-        (numeric_constant)
-        (numeric_constant)
-        (numeric_constant)
-        (numeric_constant)
-        (numeric_constant)
-        (numeric_constant)
-        (numeric_constant)))))
+    (setting_section_body
+      (setting_statement
+        (setting_statement_key
+          (resource_section_key))
+        (setting_statement_value
+          (fixed_key_value
+            (resource_type))))
+      (setting_statement
+        (setting_statement_key
+          (resource_section_key))
+        (setting_statement_value
+          (numeric_constant)))
+      (setting_statement
+        (setting_statement_key
+          (resource_section_key))
+        (setting_statement_value
+          (fixed_key_value
+            (resource_format))
+          (numeric_constant)
+          (numeric_constant)
+          (numeric_constant)
+          (numeric_constant)
+          (numeric_constant)
+          (numeric_constant)
+          (numeric_constant)
+          (numeric_constant)
+          (numeric_constant)
+          (numeric_constant)
+          (numeric_constant)
+          (numeric_constant)
+          (numeric_constant)
+          (numeric_constant)
+          (numeric_constant)
+          (numeric_constant)
+          (numeric_constant)
+          (numeric_constant))))))

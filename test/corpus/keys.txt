@@ -16,38 +16,39 @@ $swapvar = 0,1,2,3,4,5,6
     header: (key_section_header
       (header_prefix)
       (header_identifier))
-    (key_condition_statement
-      key: (condition_key)
-      (binary_expression
-        left: (named_variable
+    body: (key_section_body
+      (key_condition_statement
+        key: (condition_key)
+        (binary_expression
+          left: (named_variable
+            (variable_identifier))
+          right: (numeric_constant)))
+      (key_setting_statement
+        key: (key_section_key)
+        value: (key_section_value
+          (free_text)
+          fixed_value: (key_binding_modifier)))
+      (key_setting_statement
+        key: (key_section_key)
+        value: (key_section_value
+          (free_text)
+          fixed_value: (key_binding_modifier)))
+      (key_setting_statement
+        key: (key_section_key)
+        value: (key_section_value
+          fixed_value: (key_fixed_key_value
+            (key_key_value))))
+      (key_assignment_statement
+        name: (named_variable
           (variable_identifier))
-        right: (numeric_constant)))
-    (key_setting_statement
-      key: (key_section_key)
-      value: (key_section_value
-        (free_text)
-        fixed_value: (key_binding_modifier)))
-    (key_setting_statement
-      key: (key_section_key)
-      value: (key_section_value
-        (free_text)
-        fixed_value: (key_binding_modifier)))
-    (key_setting_statement
-      key: (key_section_key)
-      value: (key_section_value
-        fixed_value: (key_fixed_key_value
-          (key_key_value))))
-    (key_assignment_statement
-      name: (named_variable
-        (variable_identifier))
-      expression: (static_list_expression
-        (numeric_constant)
-        (numeric_constant)
-        (numeric_constant)
-        (numeric_constant)
-        (numeric_constant)
-        (numeric_constant)
-        (numeric_constant)))))
+        expression: (static_list_expression
+          (numeric_constant)
+          (numeric_constant)
+          (numeric_constant)
+          (numeric_constant)
+          (numeric_constant)
+          (numeric_constant)
+          (numeric_constant))))))
 
 =====
 Basic Hold Key
@@ -66,29 +67,30 @@ run = CommandListRunGlowEffect
     header: (key_section_header
       (header_prefix)
       (header_identifier))
-    (key_condition_statement
-      key: (condition_key)
-      (binary_expression
-        left: (named_variable
-          (variable_identifier))
-        right: (numeric_constant)))
-    (key_setting_statement
-      key: (key_section_key)
-      value: (key_section_value
-        fixed_value: (key_binding_modifier)
-        (free_text)
-        fixed_value: (key_binding_modifier)
-        fixed_value: (key_binding_modifier)))
-    (key_setting_statement
-      key: (key_section_key)
-      value: (key_section_value
-        fixed_value: (key_fixed_key_value
-          (key_key_value))))
-    (key_run_instruction
-      (instruction)
-      (callable_commandlist
-        (callable_prefix)
-        (section_identifier)))))
+    body: (key_section_body
+      (key_condition_statement
+        key: (condition_key)
+        (binary_expression
+          left: (named_variable
+            (variable_identifier))
+          right: (numeric_constant)))
+      (key_setting_statement
+        key: (key_section_key)
+        value: (key_section_value
+          fixed_value: (key_binding_modifier)
+          (free_text)
+          fixed_value: (key_binding_modifier)
+          fixed_value: (key_binding_modifier)))
+      (key_setting_statement
+        key: (key_section_key)
+        value: (key_section_value
+          fixed_value: (key_fixed_key_value
+            (key_key_value))))
+      (key_run_instruction
+        (instruction)
+        (callable_commandlist
+          (callable_prefix)
+          (section_identifier))))))
 
 =====
 Run Toggles
@@ -109,38 +111,39 @@ run = CommandListGlowA, CommandListGlowB, CommandListGlowC
     header: (key_section_header
       (header_prefix)
       (header_identifier))
-    (key_condition_statement
-      key: (condition_key)
-      (binary_expression
-        left: (named_variable
-          (variable_identifier))
-        right: (numeric_constant)))
-    (key_setting_statement
-      key: (key_section_key)
-      value: (key_section_value
-        fixed_value: (key_binding_modifier)
-        (free_text)))
-    (key_setting_statement
-      key: (key_section_key)
-      value: (key_section_value
-        fixed_value: (key_binding_modifier)
-        (free_text)))
-    (key_setting_statement
-      key: (key_section_key)
-      value: (key_section_value
-        fixed_value: (key_fixed_key_value
-          (key_key_value))))
-    (key_run_instruction
-      (instruction)
-      (callable_commandlist
-        (callable_prefix)
-        (section_identifier))
-      (callable_commandlist
-        (callable_prefix)
-        (section_identifier))
-      (callable_commandlist
-        (callable_prefix)
-        (section_identifier)))))
+    body: (key_section_body
+      (key_condition_statement
+        key: (condition_key)
+        (binary_expression
+          left: (named_variable
+            (variable_identifier))
+          right: (numeric_constant)))
+      (key_setting_statement
+        key: (key_section_key)
+        value: (key_section_value
+          fixed_value: (key_binding_modifier)
+          (free_text)))
+      (key_setting_statement
+        key: (key_section_key)
+        value: (key_section_value
+          fixed_value: (key_binding_modifier)
+          (free_text)))
+      (key_setting_statement
+        key: (key_section_key)
+        value: (key_section_value
+          fixed_value: (key_fixed_key_value
+            (key_key_value))))
+      (key_run_instruction
+        (instruction)
+        (callable_commandlist
+          (callable_prefix)
+          (section_identifier))
+        (callable_commandlist
+          (callable_prefix)
+          (section_identifier))
+        (callable_commandlist
+          (callable_prefix)
+          (section_identifier))))))
 
 =====
 Condition Switching
@@ -160,47 +163,48 @@ run = CommandListEffect1, CommandListEffect2, CommandListCleanUp
     header: (key_section_header
       (header_prefix)
       (header_identifier))
-    (key_condition_statement
-      key: (condition_key)
-      (binary_expression
-        left: (binary_expression
+    body: (key_section_body
+      (key_condition_statement
+        key: (condition_key)
+        (binary_expression
+          left: (binary_expression
+            left: (named_variable
+              (variable_identifier))
+            right: (numeric_constant))
+          right: (named_variable
+            (variable_identifier)))
+        (binary_expression
+          left: (binary_expression
+            left: (named_variable
+              (variable_identifier))
+            right: (numeric_constant))
+          right: (named_variable
+            (variable_identifier)))
+        (binary_expression
           left: (named_variable
             (variable_identifier))
-          right: (numeric_constant))
-        right: (named_variable
-          (variable_identifier)))
-      (binary_expression
-        left: (binary_expression
-          left: (named_variable
-            (variable_identifier))
-          right: (numeric_constant))
-        right: (named_variable
-          (variable_identifier)))
-      (binary_expression
-        left: (named_variable
-          (variable_identifier))
-        right: (numeric_constant)))
-    (key_setting_statement
-      key: (key_section_key)
-      value: (key_section_value
-        (free_text)))
-    (key_setting_statement
-      key: (key_section_key)
-      value: (key_section_value
-        (free_text)))
-    (key_setting_statement
-      key: (key_section_key)
-      value: (key_section_value
-        fixed_value: (key_fixed_key_value
-          (key_key_value))))
-    (key_run_instruction
-      (instruction)
-      (callable_commandlist
-        (callable_prefix)
-        (section_identifier))
-      (callable_commandlist
-        (callable_prefix)
-        (section_identifier))
-      (callable_commandlist
-        (callable_prefix)
-        (section_identifier)))))
+          right: (numeric_constant)))
+      (key_setting_statement
+        key: (key_section_key)
+        value: (key_section_value
+          (free_text)))
+      (key_setting_statement
+        key: (key_section_key)
+        value: (key_section_value
+          (free_text)))
+      (key_setting_statement
+        key: (key_section_key)
+        value: (key_section_value
+          fixed_value: (key_fixed_key_value
+            (key_key_value))))
+      (key_run_instruction
+        (instruction)
+        (callable_commandlist
+          (callable_prefix)
+          (section_identifier))
+        (callable_commandlist
+          (callable_prefix)
+          (section_identifier))
+        (callable_commandlist
+          (callable_prefix)
+          (section_identifier))))))

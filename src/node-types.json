@@ -618,6 +618,16 @@
     "type": "commandlist_section",
     "named": true,
     "fields": {
+      "body": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "commandlist_section_body",
+            "named": true
+          }
+        ]
+      },
       "header": {
         "multiple": false,
         "required": true,
@@ -628,10 +638,15 @@
           }
         ]
       }
-    },
+    }
+  },
+  {
+    "type": "commandlist_section_body",
+    "named": true,
+    "fields": {},
     "children": {
       "multiple": true,
-      "required": false,
+      "required": true,
       "types": [
         {
           "type": "primary_statement",
@@ -699,37 +714,33 @@
             "named": true
           }
         ]
-      },
-      "condition": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "operational_expression",
-            "named": true
-          },
-          {
-            "type": "resource_operational_expression",
-            "named": true
-          }
-        ]
-      },
-      "consequence": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "block",
-            "named": true
-          }
-        ]
       }
+    },
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "if_statement",
+          "named": true
+        }
+      ]
     }
   },
   {
     "type": "constants_section",
     "named": true,
     "fields": {
+      "body": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "constants_section_body",
+            "named": true
+          }
+        ]
+      },
       "header": {
         "multiple": false,
         "required": true,
@@ -740,10 +751,15 @@
           }
         ]
       }
-    },
+    }
+  },
+  {
+    "type": "constants_section_body",
+    "named": true,
+    "fields": {},
     "children": {
       "multiple": true,
-      "required": false,
+      "required": true,
       "types": [
         {
           "type": "global_declaration",
@@ -1318,6 +1334,36 @@
     }
   },
   {
+    "type": "if_statement",
+    "named": true,
+    "fields": {
+      "condition": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "operational_expression",
+            "named": true
+          },
+          {
+            "type": "resource_operational_expression",
+            "named": true
+          }
+        ]
+      },
+      "consequence": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "block",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "ini_parameter",
     "named": true,
     "fields": {}
@@ -1420,6 +1466,16 @@
     "type": "key_section",
     "named": true,
     "fields": {
+      "body": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "key_section_body",
+            "named": true
+          }
+        ]
+      },
       "header": {
         "multiple": false,
         "required": true,
@@ -1430,10 +1486,15 @@
           }
         ]
       }
-    },
+    }
+  },
+  {
+    "type": "key_section_body",
+    "named": true,
+    "fields": {},
     "children": {
       "multiple": true,
-      "required": false,
+      "required": true,
       "types": [
         {
           "type": "key_assignment_statement",
@@ -1788,6 +1849,16 @@
     "type": "preset_section",
     "named": true,
     "fields": {
+      "body": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "preset_section_body",
+            "named": true
+          }
+        ]
+      },
       "header": {
         "multiple": false,
         "required": true,
@@ -1798,10 +1869,15 @@
           }
         ]
       }
-    },
+    }
+  },
+  {
+    "type": "preset_section_body",
+    "named": true,
+    "fields": {},
     "children": {
       "multiple": true,
-      "required": false,
+      "required": true,
       "types": [
         {
           "type": "preset_assignment_statement",
@@ -2208,6 +2284,16 @@
     "type": "setting_section",
     "named": true,
     "fields": {
+      "body": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "setting_section_body",
+            "named": true
+          }
+        ]
+      },
       "header": {
         "multiple": false,
         "required": true,
@@ -2218,10 +2304,15 @@
           }
         ]
       }
-    },
+    }
+  },
+  {
+    "type": "setting_section_body",
+    "named": true,
+    "fields": {},
     "children": {
       "multiple": true,
-      "required": false,
+      "required": true,
       "types": [
         {
           "type": "setting_statement",
@@ -2418,6 +2509,25 @@
     "fields": {}
   },
   {
+    "type": "shader_regex_commandlist_body",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "primary_statement",
+          "named": true
+        },
+        {
+          "type": "shader_regex_setting_statement",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "shader_regex_commandlist_header",
     "named": true,
     "fields": {},
@@ -2440,6 +2550,16 @@
     "type": "shader_regex_commandlist_section",
     "named": true,
     "fields": {
+      "body": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "shader_regex_commandlist_body",
+            "named": true
+          }
+        ]
+      },
       "header": {
         "multiple": false,
         "required": true,
@@ -2450,17 +2570,18 @@
           }
         ]
       }
-    },
+    }
+  },
+  {
+    "type": "shader_regex_declarations_body",
+    "named": true,
+    "fields": {},
     "children": {
       "multiple": true,
-      "required": false,
+      "required": true,
       "types": [
         {
-          "type": "primary_statement",
-          "named": true
-        },
-        {
-          "type": "shader_regex_setting_statement",
+          "type": "dxbc_declaration",
           "named": true
         }
       ]
@@ -2489,6 +2610,16 @@
     "type": "shader_regex_declarations_section",
     "named": true,
     "fields": {
+      "body": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "shader_regex_declarations_body",
+            "named": true
+          }
+        ]
+      },
       "header": {
         "multiple": false,
         "required": true,
@@ -2499,13 +2630,18 @@
           }
         ]
       }
-    },
+    }
+  },
+  {
+    "type": "shader_regex_pattern_body",
+    "named": true,
+    "fields": {},
     "children": {
       "multiple": true,
-      "required": false,
+      "required": true,
       "types": [
         {
-          "type": "dxbc_declaration",
+          "type": "regex_pattern",
           "named": true
         }
       ]
@@ -2534,6 +2670,16 @@
     "type": "shader_regex_pattern_section",
     "named": true,
     "fields": {
+      "body": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "shader_regex_pattern_body",
+            "named": true
+          }
+        ]
+      },
       "header": {
         "multiple": false,
         "required": true,
@@ -2544,13 +2690,18 @@
           }
         ]
       }
-    },
+    }
+  },
+  {
+    "type": "shader_regex_replace_body",
+    "named": true,
+    "fields": {},
     "children": {
       "multiple": true,
-      "required": false,
+      "required": true,
       "types": [
         {
-          "type": "regex_pattern",
+          "type": "regex_replace_line",
           "named": true
         }
       ]
@@ -2579,6 +2730,16 @@
     "type": "shader_regex_replace_section",
     "named": true,
     "fields": {
+      "body": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "shader_regex_replace_body",
+            "named": true
+          }
+        ]
+      },
       "header": {
         "multiple": false,
         "required": true,
@@ -2589,16 +2750,6 @@
           }
         ]
       }
-    },
-    "children": {
-      "multiple": true,
-      "required": false,
-      "types": [
-        {
-          "type": "regex_replace_line",
-          "named": true
-        }
-      ]
     }
   },
   {
