@@ -61,7 +61,20 @@ exclude_recursive = desktop.ini
 
 ; Include with Suffix
 [IncludeUserLibraries]
-include = Libraries/User/user_include.ini
+include = Libraries\User\user_include.ini
+
+; Includes with Spaces
+[Include Patch]
+include = d3dx_patch.ini
+
+[Include API]
+include = API.ini
+
+[Include KeyBindings]
+include = KeyBindings.ini
+
+[Include Libraries]
+include = Libraries\Includes.ini
 
 ---
 
@@ -95,6 +108,51 @@ include = Libraries/User/user_include.ini
           (path_value
             (file_key_value))))))
   (comment)
+  (setting_section
+    (setting_section_header
+      (header_prefix)
+      (header_identifier))
+    (setting_section_body
+      (setting_statement
+        (setting_statement_key
+          (include_section_key))
+        (setting_statement_value
+          (path_value
+            (path_key_value))))))
+  (comment)
+  (setting_section
+    (setting_section_header
+      (header_prefix)
+      (header_identifier))
+    (setting_section_body
+      (setting_statement
+        (setting_statement_key
+          (include_section_key))
+        (setting_statement_value
+          (path_value
+            (file_key_value))))))
+  (setting_section
+    (setting_section_header
+      (header_prefix)
+      (header_identifier))
+    (setting_section_body
+      (setting_statement
+        (setting_statement_key
+          (include_section_key))
+        (setting_statement_value
+          (path_value
+            (file_key_value))))))
+  (setting_section
+    (setting_section_header
+      (header_prefix)
+      (header_identifier))
+    (setting_section_body
+      (setting_statement
+        (setting_statement_key
+          (include_section_key))
+        (setting_statement_value
+          (path_value
+            (file_key_value))))))
   (setting_section
     (setting_section_header
       (header_prefix)

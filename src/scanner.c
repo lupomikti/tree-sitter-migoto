@@ -450,6 +450,8 @@ static inline bool scan_suffixed_section_header(TSLexer *lexer, TokenType curren
                 return (not_error && valid_symbols[SUFFIXED_INCLUDE_HEADER]);
             }
 
+            if (!on_ws) lexer->mark_end(lexer);
+
             return not_error; // return captured text excluding the trailing whitespace
         }
         else if (iswspace(lexer->lookahead)) {
