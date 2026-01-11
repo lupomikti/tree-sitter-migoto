@@ -6106,12 +6106,25 @@
       ]
     },
     "numeric_constant": {
-      "type": "TOKEN",
-      "content": {
-        "type": "PATTERN",
-        "value": "[+-]?\\d+(\\.\\d+)?",
-        "flags": "i"
-      }
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "TOKEN",
+          "content": {
+            "type": "PATTERN",
+            "value": "[+-]?\\d+(\\.\\d+)?",
+            "flags": "i"
+          }
+        },
+        {
+          "type": "TOKEN",
+          "content": {
+            "type": "PATTERN",
+            "value": "-\\.\\d+",
+            "flags": "i"
+          }
+        }
+      ]
     },
     "integer": {
       "type": "TOKEN",

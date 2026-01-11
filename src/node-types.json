@@ -1709,6 +1709,11 @@
     }
   },
   {
+    "type": "numeric_constant",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "parenthesized_expression",
     "named": true,
     "fields": {},
@@ -3463,10 +3468,6 @@
   },
   {
     "type": "null",
-    "named": true
-  },
-  {
-    "type": "numeric_constant",
     "named": true
   },
   {

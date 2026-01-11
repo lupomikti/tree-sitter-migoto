@@ -1100,7 +1100,10 @@ export default grammar({
       $.numeric_constant
     ),
 
-    numeric_constant: _ => token(/[+-]?\d+(\.\d+)?/i),
+    numeric_constant: _ => choice(
+      token(/[+-]?\d+(\.\d+)?/i),
+      token(/-\.\d+/i), // apparently 3dmigoto allows floats of the form -.56 and the like
+    ),
 
     integer: _ => token(/\d+/i),
 

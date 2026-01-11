@@ -6,8 +6,8 @@ Constants Section
 global $var1
 global persist $var2
 global $var3 = 1
-global persist $var4 = 0
-persist global $var5 = 2
+global persist $var4 = 0.57
+persist global $var5 = -.2
 
 ---
 
