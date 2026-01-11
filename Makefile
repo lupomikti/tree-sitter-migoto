@@ -1,6 +1,6 @@
 LANGUAGE_NAME := tree-sitter-migoto
 HOMEPAGE_URL := https://github.com/lupomikti/tree-sitter-migoto
-VERSION := 0.4.2
+VERSION := 0.4.3
 
 # repository
 SRC_DIR := src
