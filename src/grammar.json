@@ -1602,7 +1602,7 @@
                   "flags": "i"
                 },
                 "named": true,
-                "value": "custom_shader_key"
+                "value": "custom_shader_setting_key"
               }
             },
             {
@@ -4312,7 +4312,7 @@
       ]
     },
     "blend_expression": {
-      "type": "SEQ",
+      "type": "CHOICE",
       "members": [
         {
           "type": "FIELD",
@@ -4321,7 +4321,7 @@
             "type": "ALIAS",
             "content": {
               "type": "PATTERN",
-              "value": "(add|(?:rev_)?subtract|min|max|disable)",
+              "value": "disable",
               "flags": "i"
             },
             "named": true,
@@ -4329,12 +4329,31 @@
           }
         },
         {
-          "type": "SYMBOL",
-          "name": "blend_factor"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "blend_factor"
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "FIELD",
+              "name": "operator",
+              "content": {
+                "type": "ALIAS",
+                "content": {
+                  "type": "PATTERN",
+                  "value": "(add|(?:rev_)?subtract|min|max)",
+                  "flags": "i"
+                },
+                "named": true,
+                "value": "blend_operator"
+              }
+            },
+            {
+              "type": "SYMBOL",
+              "name": "blend_factor"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "blend_factor"
+            }
+          ]
         }
       ]
     },

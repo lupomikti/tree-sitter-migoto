@@ -485,7 +485,7 @@ export default grammar({
         $._newline
       ),
       seq(
-        field('key', alias(/[vhdgpc]s/i, $.custom_shader_key)),
+        field('key', alias(/[vhdgpc]s/i, $.custom_shader_setting_key)),
         '=',
         field('value', alias($._specific_custom_shader_value, $.setting_statement_value)),
         $._newline
@@ -943,10 +943,13 @@ export default grammar({
       optional(seq('/', $.integer))
     ),
 
-    blend_expression: $ => seq(
-      field('operator', alias(/(add|(?:rev_)?subtract|min|max|disable)/i, $.blend_operator)),
-      $.blend_factor,
-      $.blend_factor
+    blend_expression: $ => choice(
+      field('operator', alias(/disable/i, $.blend_operator)),
+      seq(
+        field('operator', alias(/(add|(?:rev_)?subtract|min|max)/i, $.blend_operator)),
+        $.blend_factor,
+        $.blend_factor
+      )
     ),
 
     blend_factor: _ => /(zero|one|(?:inv_)?(?:src1?|dest)_(?:color|alpha)|src_alpha_sat|(?:inv_)?blend_factor)/i,

@@ -76,6 +76,7 @@ ps = null
 hs = null
 ds = null
 gs = null
+blend = disable
 ; Dispatch enough threads for the mesh, at least 1
 local $dispatch_x = $mesh_vert_count/64 + 1
 if $dispatch_x < $THREAD_GROUP_COUNT_X
@@ -107,30 +108,36 @@ $count = $count + 1
           (section_identifier)))
       (comment)
       (setting_statement
-        (custom_shader_key)
+        (custom_shader_setting_key)
         (setting_statement_value
           (path_value
             (path_key_value))))
       (setting_statement
-        (custom_shader_key)
+        (custom_shader_setting_key)
         (setting_statement_value
           (null)))
       (setting_statement
-        (custom_shader_key)
+        (custom_shader_setting_key)
         (setting_statement_value
           (null)))
       (setting_statement
-        (custom_shader_key)
+        (custom_shader_setting_key)
         (setting_statement_value
           (null)))
       (setting_statement
-        (custom_shader_key)
+        (custom_shader_setting_key)
         (setting_statement_value
           (null)))
       (setting_statement
-        (custom_shader_key)
+        (custom_shader_setting_key)
         (setting_statement_value
           (null)))
+      (setting_statement
+        (setting_statement_key
+          (custom_shader_state_key))
+        (setting_statement_value
+          (blend_expression
+            (blend_operator))))
       (comment)
       (local_initialisation
         (named_variable
@@ -233,32 +240,32 @@ ResourceTextParams = null
     (comment)
     (commandlist_section_body
       (setting_statement
-        (custom_shader_key)
+        (custom_shader_setting_key)
         (setting_statement_value
           (path_value
             (path_key_value))))
       (comment)
       (setting_statement
-        (custom_shader_key)
+        (custom_shader_setting_key)
         (setting_statement_value
           (path_value
             (path_key_value))))
       (comment)
       (setting_statement
-        (custom_shader_key)
+        (custom_shader_setting_key)
         (setting_statement_value
           (path_value
             (path_key_value))))
       (setting_statement
-        (custom_shader_key)
+        (custom_shader_setting_key)
         (setting_statement_value
           (null)))
       (setting_statement
-        (custom_shader_key)
+        (custom_shader_setting_key)
         (setting_statement_value
           (null)))
       (setting_statement
-        (custom_shader_key)
+        (custom_shader_setting_key)
         (setting_statement_value
           (null)))
       (comment)

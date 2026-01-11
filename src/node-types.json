@@ -476,7 +476,7 @@
     },
     "children": {
       "multiple": true,
-      "required": true,
+      "required": false,
       "types": [
         {
           "type": "blend_factor",
@@ -2375,7 +2375,7 @@
         "required": true,
         "types": [
           {
-            "type": "custom_shader_key",
+            "type": "custom_shader_setting_key",
             "named": true
           },
           {
@@ -3284,6 +3284,10 @@
   },
   {
     "type": "custom_shader_key_value",
+    "named": true
+  },
+  {
+    "type": "custom_shader_setting_key",
     "named": true
   },
   {
