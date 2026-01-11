@@ -263,7 +263,7 @@ export default grammar({
           field('fixed_value', alias(/(?:(?:no_)?(?:vk_)?(?:ctrl|alt|shift|windows)|no_modifiers)/i, $.key_binding_modifier)),
           $.boolean_value,
           $._static_value,
-          alias(token(prec(1, choice(';', '='))), $.exception_character),
+          alias(token(prec(1, choice(';', '=', '/', '\\'))), $.exception_character),
           $.free_text
         )
       )

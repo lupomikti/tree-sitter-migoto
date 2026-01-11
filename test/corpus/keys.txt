@@ -157,8 +157,8 @@ Run Toggles
 
 [KeyC]
 condition = $active == 1
-key = ALT N
-back = ALT P
+key = ALT /
+back = ALT \
 type = cycle
 run = CommandListGlowA, CommandListGlowB, CommandListGlowC
 
@@ -180,12 +180,12 @@ run = CommandListGlowA, CommandListGlowB, CommandListGlowC
         key: (key_section_key)
         value: (key_section_value
           fixed_value: (key_binding_modifier)
-          (free_text)))
+          (exception_character)))
       (key_setting_statement
         key: (key_section_key)
         value: (key_section_value
           fixed_value: (key_binding_modifier)
-          (free_text)))
+          (exception_character)))
       (key_setting_statement
         key: (key_section_key)
         value: (key_section_value
