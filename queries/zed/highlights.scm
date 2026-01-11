@@ -69,7 +69,7 @@
 
 (commandlist_section
   header: _ @function
-  (#match? @function "(?i)^\\[c(ommandlist|ustomshader).+"))
+  (#match? @function "(?i)^\\[\\s*c(ommandlist|ustomshader).+"))
 
 ; Keys
 (_

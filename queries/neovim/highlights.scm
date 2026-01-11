@@ -69,7 +69,7 @@
 
 (commandlist_section
   header: _ @function
-  (#match? @function "(?i)^\\[c(ommandlist|ustomshader).+"))
+  (#match? @function "^\\[\\s*[Cc]([Oo][Mm][Mm][Aa][Nn][Dd][Ll][Ii][Ss][Tt]|[Uu][Ss][Tt][Oo][Mm][Ss][Hh][Aa][Dd][Ee][Rr]).+"))
 
 ; Keys
 (_
