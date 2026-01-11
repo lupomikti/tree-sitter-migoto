@@ -143,8 +143,6 @@
 (_
   fixed_value: (fixed_key_value
     [
-      (blend_operator) @operator
-      (blend_factor) @keyword
       (key_binding_modifier) @keyword.modifier
       (resource_type) @type.builtin
       (resource_format) @variable.member
@@ -168,6 +166,8 @@
 
 (_
   fixed_value: (draw_instruction_key_value) @constant.builtin)
+
+(blend_factor) @keyword
 
 (frame_analysis_option) @constant.builtin
 

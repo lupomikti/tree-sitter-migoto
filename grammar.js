@@ -518,6 +518,7 @@ export default grammar({
       $.string,
       $.path_value,
       $.fuzzy_match_expression,
+      $.blend_expression,
       repeat1(
         choice(
           field('fixed_value', $.fixed_key_value),
@@ -538,8 +539,6 @@ export default grammar({
       alias(resource_type_values, $.resource_type),
       alias(resource_key_values, $.resource_key_value),
       alias(dxgi_types_regex, $.resource_format),
-      alias(/(add|(?:rev_)?subtract|min|max|disable)/i, $.blend_operator),
-      alias(/(zero|one|(?:inv_)?(?:src1?|dest)_(?:color|alpha)|src_alpha_sat|(?:inv_)?blend_factor)/i, $.blend_factor),
       alias(/(deferred_contexts|(?:immediate_)?context|device|all|recommended|except_set_(?:shader_resources|sampler|rasterizer_state)|skip_dxgi_(?:factory|device))/i, $.system_key_value),
       alias(/(depth_stencil|swap_chain)/i, $.device_key_value),
       alias(/(3dmigoto|embedded|bytecode)/i, $.rendering_key_value),
@@ -943,6 +942,14 @@ export default grammar({
       optional(seq('*', $.integer)),
       optional(seq('/', $.integer))
     ),
+
+    blend_expression: $ => seq(
+      field('operator', alias(/(add|(?:rev_)?subtract|min|max|disable)/i, $.blend_operator)),
+      $.blend_factor,
+      $.blend_factor
+    ),
+
+    blend_factor: _ => /(zero|one|(?:inv_)?(?:src1?|dest)_(?:color|alpha)|src_alpha_sat|(?:inv_)?blend_factor)/i,
 
     static_operational_expression: $ => choice(
       $._static_value,

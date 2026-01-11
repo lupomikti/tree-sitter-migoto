@@ -143,8 +143,6 @@
 (_
   fixed_value: (fixed_key_value
     [
-      (blend_operator) @operator
-      (blend_factor) @keyword
       (key_binding_modifier) @keyword
       (resource_type) @type
       (resource_format) @enum
@@ -168,6 +166,8 @@
 
 (_
   fixed_value: (draw_instruction_key_value) @constant)
+
+(blend_factor) @keyword
 
 (frame_analysis_option) @constant
 

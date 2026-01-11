@@ -460,6 +460,32 @@
     }
   },
   {
+    "type": "blend_expression",
+    "named": true,
+    "fields": {
+      "operator": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "blend_operator",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "blend_factor",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "block",
     "named": true,
     "fields": {},
@@ -1182,14 +1208,6 @@
       "multiple": false,
       "required": true,
       "types": [
-        {
-          "type": "blend_factor",
-          "named": true
-        },
-        {
-          "type": "blend_operator",
-          "named": true
-        },
         {
           "type": "custom_shader_key_value",
           "named": true
@@ -2476,6 +2494,10 @@
       "multiple": true,
       "required": false,
       "types": [
+        {
+          "type": "blend_expression",
+          "named": true
+        },
         {
           "type": "boolean_value",
           "named": true

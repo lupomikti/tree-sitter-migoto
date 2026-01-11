@@ -1833,6 +1833,10 @@
           "name": "fuzzy_match_expression"
         },
         {
+          "type": "SYMBOL",
+          "name": "blend_expression"
+        },
+        {
           "type": "REPEAT1",
           "content": {
             "type": "CHOICE",
@@ -1950,26 +1954,6 @@
           },
           "named": true,
           "value": "resource_format"
-        },
-        {
-          "type": "ALIAS",
-          "content": {
-            "type": "PATTERN",
-            "value": "(add|(?:rev_)?subtract|min|max|disable)",
-            "flags": "i"
-          },
-          "named": true,
-          "value": "blend_operator"
-        },
-        {
-          "type": "ALIAS",
-          "content": {
-            "type": "PATTERN",
-            "value": "(zero|one|(?:inv_)?(?:src1?|dest)_(?:color|alpha)|src_alpha_sat|(?:inv_)?blend_factor)",
-            "flags": "i"
-          },
-          "named": true,
-          "value": "blend_factor"
         },
         {
           "type": "ALIAS",
@@ -4326,6 +4310,38 @@
           ]
         }
       ]
+    },
+    "blend_expression": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "FIELD",
+          "name": "operator",
+          "content": {
+            "type": "ALIAS",
+            "content": {
+              "type": "PATTERN",
+              "value": "(add|(?:rev_)?subtract|min|max|disable)",
+              "flags": "i"
+            },
+            "named": true,
+            "value": "blend_operator"
+          }
+        },
+        {
+          "type": "SYMBOL",
+          "name": "blend_factor"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "blend_factor"
+        }
+      ]
+    },
+    "blend_factor": {
+      "type": "PATTERN",
+      "value": "(zero|one|(?:inv_)?(?:src1?|dest)_(?:color|alpha)|src_alpha_sat|(?:inv_)?blend_factor)",
+      "flags": "i"
     },
     "static_operational_expression": {
       "type": "CHOICE",

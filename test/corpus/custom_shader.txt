@@ -22,11 +22,9 @@ dispatch = $somevar + 3, ($anothervar % 2) // 1, 1
         (setting_statement_key
           (custom_shader_state_key))
         (setting_statement_value
-          (fixed_key_value
-            (blend_operator))
-          (fixed_key_value
-            (blend_factor))
-          (fixed_key_value
+          (blend_expression
+            (blend_operator)
+            (blend_factor)
             (blend_factor))))
       (setting_statement
         (setting_statement_key
@@ -282,11 +280,9 @@ ResourceTextParams = null
         (setting_statement_key
           (custom_shader_state_key))
         (setting_statement_value
-          (fixed_key_value
-            (blend_operator))
-          (fixed_key_value
-            (blend_factor))
-          (fixed_key_value
+          (blend_expression
+            (blend_operator)
+            (blend_factor)
             (blend_factor))))
       (comment)
       (setting_statement
