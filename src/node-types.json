@@ -890,11 +890,7 @@
       "required": false,
       "types": [
         {
-          "type": "conditional_include_statement",
-          "named": true
-        },
-        {
-          "type": "namespace_declaration",
+          "type": "preamble",
           "named": true
         },
         {
@@ -1756,6 +1752,25 @@
         },
         {
           "type": "path_key_value",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "preamble",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "conditional_include_statement",
+          "named": true
+        },
+        {
+          "type": "namespace_declaration",
           "named": true
         }
       ]

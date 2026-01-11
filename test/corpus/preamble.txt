@@ -11,9 +11,10 @@ namespace = lupomikti/character/mod_name
 
 (document
   (comment)
-  (namespace_declaration
-    (namespace_key)
-    (namespace))
+  (preamble
+    (namespace_declaration
+      (namespace_key)
+      (namespace)))
   (comment)
   (comment))
 
@@ -26,8 +27,9 @@ namespace =
 ---
 
 (document
-  (namespace_declaration
-    (namespace_key)))
+  (preamble
+    (namespace_declaration
+      (namespace_key))))
 
 ================
 Complex Preamble
@@ -44,14 +46,15 @@ condition = hunting == 0
 
 (document
   (comment)
-  (namespace_declaration
-    (namespace_key)
-    (namespace))
-  (comment)
-  (conditional_include_statement
-    (condition_key)
-    (static_binary_expression
-      left: (override_parameter)
-      right: (numeric_constant)))
+  (preamble
+    (namespace_declaration
+      (namespace_key)
+      (namespace))
+    (comment)
+    (conditional_include_statement
+      (condition_key)
+      (static_binary_expression
+        left: (override_parameter)
+        right: (numeric_constant))))
   (comment)
   (comment))

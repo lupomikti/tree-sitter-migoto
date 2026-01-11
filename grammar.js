@@ -170,11 +170,11 @@ export default grammar({
 
   rules: {
     document: $ => seq(
-      optional($._preamble),
+      optional($.preamble),
       repeat($.section)
     ),
 
-    _preamble: $ => choice(
+    preamble: $ => choice(
       $.namespace_declaration,
       $.conditional_include_statement,
       seq($.namespace_declaration, $.conditional_include_statement),

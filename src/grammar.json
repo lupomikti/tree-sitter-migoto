@@ -10,7 +10,7 @@
           "members": [
             {
               "type": "SYMBOL",
-              "name": "_preamble"
+              "name": "preamble"
             },
             {
               "type": "BLANK"
@@ -26,7 +26,7 @@
         }
       ]
     },
-    "_preamble": {
+    "preamble": {
       "type": "CHOICE",
       "members": [
         {
