@@ -5,16 +5,19 @@
     "persist"
   ] @keyword.type)
 
+(global_initialisation
+  [
+    "global"
+    "persist"
+  ] @keyword.type)
+
 (local_declaration
   "local" @keyword.type)
 
 (local_initialisation
   "local" @keyword.type)
 
-[
-  "pre"
-  "post"
-] @keyword.modifier
+(execution_modifier) @keyword.modifier
 
 (resource_usage_expression
   (resource_modifier) @keyword.modifier)
@@ -96,12 +99,6 @@
     (section_identifier) @variable
   ])
 
-(_
-  variable: (named_variable) @variable)
-
-(_
-  name: (named_variable) @variable)
-
 (named_variable
   [
     "$" @variable
@@ -126,46 +123,13 @@
 
 ; Constants and Terminals
 (_
-  fixed_value: (fixed_key_value
-    [
-      (multi_key_value)
-      (override_key_value)
-      (fuzzy_match_key_value)
-      (resource_key_value)
-      (system_key_value)
-      (device_key_value)
-      (rendering_key_value)
-      (hunting_key_value)
-      (transition_type_key_value)
-      (custom_shader_key_value)
-    ] @constant.builtin))
+  fixed_value: (_) @constant.builtin)
 
-(_
-  fixed_value: (fixed_key_value
-    [
-      (key_binding_modifier) @keyword.modifier
-      (resource_type) @type.builtin
-      (resource_format) @variable.member
-    ]))
+(key_binding_modifier) @keyword.modifier
 
-(key_section_value
-  fixed_value: (key_fixed_key_value
-    [
-      (key_key_value) @constant.builtin
-      (transition_type_key_value) @constant.builtin
-    ]))
+(resource_type) @type.builtin
 
-(key_section_value
-  fixed_value: (key_binding_modifier) @keyword.modifier)
-
-(preset_section_value
-  fixed_value: (transition_type_key_value) @constant.builtin)
-
-(handling_instruction
-  fixed_value: (handling_key_value) @constant.builtin)
-
-(_
-  fixed_value: (draw_instruction_key_value) @constant.builtin)
+(resource_format) @variable.member
 
 (blend_factor) @keyword
 
@@ -177,7 +141,10 @@
 
 (string) @string
 
-(path_value) @string.special.path
+[
+  (path_key_value)
+  (file_key_value)
+] @string.special.path
 
 (numeric_constant) @number.float
 
