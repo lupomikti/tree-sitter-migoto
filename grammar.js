@@ -29,7 +29,7 @@ const custom_section_name = /[^\-+*\/&% !>|<=$,\r\n]+/i
 const custom_resource_section_name = /[^\/& !>|<=$,\r\n]+/i
 const namespace_regex = /[^\s>\\|\/<?:*="$][^>\\|\/<?:*=$\r\n]+(?:[\\\/][^>\\|\/<?:*=$\r\n]+)*/i
 const path_regex = /(?:(?:(?:[a-z]:|\.[\.]?)[\\\/])?(?:\.\.|[^\s>\\|\/<?:*="$][^>\\|\/<?:*="$\r\n]+)(?:[\\\/](?:\.\.|[^\s>\\|\/<?:*="$][^>\\|\/<?:*="$\r\n]+))+)/i
-const file_regex = /[^\s>\\|\/<?:*="$][^>\\|\/<?:*="$\r\n]+\.[a-z\-]+/i // intentionally choosing to not support numerals in file extensions
+const file_regex = /[^\s>\\|\/<?:*="$\r\n][^>\\|\/<?:*="$\r\n]*\.[a-z\-]+/i // intentionally choosing to not support numerals in file extensions
 
 const custom_shader_state_keys = new RustRegex(`(?xi)(
   blend_factor\\[[0-3]\\]|(?:blend|alpha|mask)(?:\\[[0-7]\\])?|alpha_to_coverage|sample_mask|blend_state_merge|
@@ -37,12 +37,15 @@ const custom_shader_state_keys = new RustRegex(`(?xi)(
   fill|cull|front|depth_(?:bias(?:_clamp)?|clip_enable)|slope_scaled_depth_bias|(?:scissor|multisample|antialiased_line)_enable|rasterizer_state_merge
 )`)
 
+const custom_shader_keys_with_brackets = new RustRegex(`(?xi)(blend_factor\\[[0-3]\\]|(?:blend|alpha|mask)(?:\\[[0-7]\\])?)`)
+
 const custom_shader_key_values = new RustRegex(`(?xi)(
   front|back|wireframe|solid|
   undefined|(point|line|triangle)_list|(line|triangle)_strip|(line|triangle)_(list|strip)_adj|[123]?\d_control_point_patch_list|
   debug|skip_(validation|optimization)|pack_matrix_(row_major|column_major)|partial_precision|force_[vp]s_software_no_opt|no_preshader|(avoid|prefer)_flow_control|enable_(strictness|backwards_compatibility|unbounded_descriptor_tables)|ieee_strictness|optimization_level[0123]|warnings_are_errors|resources_may_alias|all_resources_bound
 )`)
 
+const setting_section_key_binding_keys = /((?:done_|toggle_)hunting|next_marking_mode|mark_snapshot|(?:previous|next|mark)_(?:pixel|vertex|compute|geometry|domain|hull)shader|(?:previous|next|mark)_(?:index|vertex)buffer|(?:previous|next|mark)_rendertarget|take_screenshot|reload_fixes|(?:reload|wipe_user)_config|show_original|monitor_performance|freeze_performance_monitor|tune[123]_(?:up|down)|analyse_frame|toggle_full_screen|force_full_screen_on_key)/i
 const hunting_section_keys = /((?:done_|toggle_)?hunting|(?:next_)?marking_mode|marking_actions|mark_snapshot|(?:previous|next|mark)_(?:pixel|vertex|compute|geometry|domain|hull)shader|(?:previous|next|mark)_(?:index|vertex)buffer|(?:previous|next|mark)_rendertarget|take_screenshot|reload_fixes|(?:reload|wipe_user)_config|show_original|monitor_performance(?:_interval)?|repeat_rate|freeze_performance_monitor|verbose_overlay|tune_(?:enable|step)|tune[123]_(?:up|down)|analyse_frame|analyse_options|kill_deferred)/i
 const system_section_keys = /(proxy_d3d(?:9|11)|load_library_redirect|check_foreground_window|hook|allow_(?:check_interface|create_device|platform_update)|skip_early_includes_load|config_initialization_delay|settings_auto_save_interval|dll_initialization_delay|screen_(?:width|height)|dump_path)/i
 const device_section_keys = /(upscaling|upscale_mode|(?:filter_)?refresh_rate|(?:toggle_)?full_screen|force_full_screen_on_key|force_stereo|allow_windowcommands|get_resolution_from|hide_cursor|cursor_upscaling_bypass)/i
@@ -138,13 +141,29 @@ export default grammar({
 
   extras: $ => [/[\s\f\uFEFF\u2060\u200B]|\r?\n/, $.comment],
 
+  word: $ => $.fixed_value,
+
+  inline: $ => [
+    $._key_section_key,
+    $._preset_section_key,
+    $._setting_statement_key
+  ],
+
   externals: $ => [
     $._external_line,
     $._section_header_start,
     $._section_header_guard,
-    $.namespace_resolution_start,
-    $.namespace_resolution_content,
-    $.namespace_resolution_end,
+    $._key_header_prefix,
+    $._regex_header_prefix,
+    $._preset_header_prefix,
+    $._include_header_prefix,
+    $._commandlist_header_prefix,
+    $._commandlist_callable_prefix,
+    $._customshader_callable_prefix,
+    $._customresource_header_prefix,
+    $._namespace_resolution_start,
+    $._namespace_resolution_content,
+    $._namespace_resolution_end,
     $._suffixed_key_header,
     $._suffixed_preset_header,
     $._suffixed_resource_header,
@@ -162,7 +181,8 @@ export default grammar({
     $.section,
     $.primary_statement,
     $.instruction_statement,
-    $.resource_operational_expression,
+    $.list_expression,
+    // $.resource_operational_expression,
     $.operational_expression,
     $.static_operational_expression,
     $.identifier,
@@ -217,6 +237,7 @@ export default grammar({
 
     constants_section_body: $ => repeat1(choice(
       $.global_declaration,
+      $.global_initialisation,
       $.primary_statement
     )),
 
@@ -225,9 +246,14 @@ export default grammar({
       optional(field('body', $.constants_section_body))
     ),
 
+    /***********************
+     *     KEY SECTION     *
+     **********************/
+
     key_section_header: $ => seq(
       '[',
-      alias(/Key/i, $.header_prefix),
+      // alias(/Key/i, $.header_prefix),
+      alias($._key_header_prefix, $.header_prefix),
       alias($._suffixed_key_header, $.header_identifier),
       optional(']'),
       $._newline
@@ -245,34 +271,35 @@ export default grammar({
       optional(field('body', $.key_section_body))
     ),
 
-    key_setting_statement: $ => seq(
-      field('key', $.key_section_key),
-      '=',
-      field('value', $.key_section_value),
-      $._newline
-    ),
-
-    key_section_key: _ => token(
-      /(type|key|back|(?:release_)?delay|wrap|smart|separation|convergence|(?:release_)?transition|(?:release_)?transition_type)/i
-    ),
-
-    key_section_value: $ => choice(
-      field('fixed_value', $.key_fixed_key_value),
-      repeat1(
-        choice(
-          field('fixed_value', alias(/(?:(?:no_)?(?:vk_)?(?:ctrl|alt|shift|windows)|no_modifiers)/i, $.key_binding_modifier)),
-          $.boolean_value,
-          $._static_value,
-          alias(token(prec(1, choice(';', '=', '/', '\\'))), $.exception_character),
-          $.free_text
-        )
+    key_setting_statement: $ => choice(
+      seq(
+        field('key', $._key_section_key),
+        '=',
+        field('value', $.key_section_value),
+        $._newline
+      ),
+      seq(
+        field('key', alias($._key_section_key_binding_key, $.key_section_key)),
+        "=",
+        field('value', choice($.free_text, $._exception_character, $.key_binding_expression)),
+        $._newline
       )
     ),
 
-    key_fixed_key_value: $ => choice(
-      alias(/(hold|activate|toggle|cycle)/i, $.key_key_value),
-      alias(/(linear|cosine)/i, $.transition_type_key_value),
+    _key_section_key: $ => alias($.fixed_value, $.key_section_key),
+
+    _key_section_key_binding_key: _ => token(/key|back/i),
+
+    key_section_value: $ => choice(
+      field('fixed_value', alias($.fixed_value, $.fixed_key_key_value)),
+      $.boolean_value,
+      $._static_value
     ),
+
+    // key_fixed_key_value: $ => choice(
+    //   alias(/(hold|activate|toggle|cycle)/i, $.key_key_value),
+    //   alias(/(linear|cosine)/i, $.transition_type_key_value),
+    // ),
 
     key_run_instruction: $ => seq(
       alias(/run/i, $.instruction),
@@ -298,9 +325,14 @@ export default grammar({
       $._newline
     ),
 
+    /***************************
+     *     PRESET SECTION      *
+     **************************/
+
     preset_section_header: $ => seq(
       '[',
-      alias(/Preset/i, $.header_prefix),
+      // alias(/Preset/i, $.header_prefix),
+      alias($._preset_header_prefix, $.header_prefix),
       alias($._suffixed_preset_header, $.header_identifier),
       optional(']'),
       $._newline
@@ -319,25 +351,22 @@ export default grammar({
     ),
 
     preset_setting_statement: $ => seq(
-      field('key', $.preset_section_key),
+      field('key', $._preset_section_key),
       '=',
       field('value', $.preset_section_value),
       $._newline
     ),
 
-    preset_section_key: _ => token(
-      /(separation|convergence|(?:release_)?transition|(?:release_)?transition_type|unique_triggers_required)/i
-    ),
+    _preset_section_key: $ => alias($.fixed_value, $.preset_section_key),
+
+    // preset_section_key: _ => token(
+    //   /(separation|convergence|(?:release_)?transition|(?:release_)?transition_type|unique_triggers_required)/i
+    // ),
 
     preset_section_value: $ => choice(
-      field('fixed_value', alias(/(linear|cosine)/i, $.transition_type_key_value)),
-      repeat1(
-        choice(
-          $.boolean_value,
-          $._static_value,
-          $.free_text
-        )
-      )
+      field('fixed_value', alias($.fixed_value, $.fixed_preset_key_value)),
+      $.boolean_value,
+      $._static_value
     ),
 
     preset_run_instruction: $ => seq(
@@ -364,6 +393,10 @@ export default grammar({
       $._newline
     ),
 
+    /**********************************
+     *     SHADER REGEX SECTIONS      *
+     *********************************/
+
     _shader_regex_section: $ => choice(
       $.shader_regex_replace_section,
       $.shader_regex_pattern_section,
@@ -373,7 +406,11 @@ export default grammar({
 
     shader_regex_pattern_header: $ => seq(
       '[',
-      seq(alias(/ShaderRegex/i, $.header_prefix), alias($._regex_pattern_header, $.header_identifier)),
+      seq(
+        // alias(/ShaderRegex/i, $.header_prefix),
+        alias($._regex_header_prefix, $.header_prefix),
+        alias($._regex_pattern_header, $.header_identifier)
+      ),
       optional(']')
     ),
 
@@ -391,7 +428,11 @@ export default grammar({
 
     shader_regex_replace_header: $ => seq(
       '[',
-      seq(alias(/ShaderRegex/i, $.header_prefix), alias($._regex_replace_header, $.header_identifier)),
+      seq(
+        // alias(/ShaderRegex/i, $.header_prefix),
+        alias($._regex_header_prefix, $.header_prefix),
+        alias($._regex_replace_header, $.header_identifier)
+      ),
       optional(']')
     ),
 
@@ -410,7 +451,11 @@ export default grammar({
 
     shader_regex_declarations_header: $ => seq(
       '[',
-      seq(alias(/ShaderRegex/i, $.header_prefix), alias($._regex_declarations_header, $.header_identifier)),
+      seq(
+        // alias(/ShaderRegex/i, $.header_prefix),
+        alias($._regex_header_prefix, $.header_prefix),
+        alias($._regex_declarations_header, $.header_identifier)
+      ),
       optional(']')
     ),
 
@@ -428,7 +473,11 @@ export default grammar({
 
     shader_regex_commandlist_header: $ => seq(
       '[',
-      seq(alias(/ShaderRegex/i, $.header_prefix), alias($._regex_commandlist_header, $.header_identifier)),
+      seq(
+        // alias(/ShaderRegex/i, $.header_prefix),
+        alias($._regex_header_prefix, $.header_prefix),
+        alias($._regex_commandlist_header, $.header_identifier)
+      ),
       optional(']')
     ),
 
@@ -459,12 +508,26 @@ export default grammar({
       $._newline
     ),
 
+    /*************************************
+     *     NON-COMMANDLIST SECTIONS      *
+     ************************************/
+
     setting_section_header: $ => seq(
       '[',
       choice(
         alias(/(Logging|System|Device|Stereo|Rendering|Hunting|Profile|ConvergenceMap|Loader)/i, $.header_identifier),
-        seq(alias(/Resource/i, $.header_prefix), alias($._suffixed_resource_header, $.header_identifier)),
-        seq(alias(/Include/i, $.header_prefix), alias($._suffixed_include_header, $.header_identifier)),
+        // seq(alias(/Resource/i, $.header_prefix), alias($._suffixed_resource_header, $.header_identifier)),
+        // seq(alias(/Include/i, $.header_prefix), alias($._suffixed_include_header, $.header_identifier)),
+        choice(
+          seq(
+            alias($._customresource_header_prefix, $.header_prefix),
+            alias($._suffixed_resource_header, $.header_identifier)
+          ),
+          seq(
+            alias($._include_header_prefix, $.header_prefix),
+            alias($._suffixed_include_header, $.header_identifier)
+          ),
+        )
       ),
       optional(']'),
       $._newline
@@ -478,80 +541,104 @@ export default grammar({
     ),
 
     setting_statement: $ => choice(
+      // general setting keys that don't need special handling
       seq(
-        field('key', $.setting_statement_key),
+        field('key', choice($._setting_statement_key, $._bracketed_setting_statement_key)),
         '=',
         field('value', $.setting_statement_value),
         $._newline
       ),
+      // the shader name keys used in custom shader sections which can be a path or null
       seq(
-        field('key', alias(/[vhdgpc]s/i, $.custom_shader_setting_key)),
+        field('key', alias(/[vhdgpc]s/i, $.setting_statement_key)),
         '=',
         field('value', alias($._specific_custom_shader_value, $.setting_statement_value)),
+        $._newline
+      ),
+      // any keys that take KeyBindings, which can also be a single free_text node or single exception_character node
+      seq(
+        field('key', alias(setting_section_key_binding_keys, $.setting_statement_key)),
+        '=',
+        field('value', alias($._specific_key_binding_value, $.setting_statement_value)),
+        $._newline
+      ),
+      // remaining keys that can take paths/files so a value that would have a conflict btwn fixed_value and free_text is always treated as a path
+      seq(
+        field('key', $._directory_setting_statement_key),
+        '=',
+        field('value', alias($._specific_directory_value, $.setting_statement_value)),
         $._newline
       )
     ),
 
-    _specific_custom_shader_value: $ => choice($.null, $.path_value),
+    _specific_custom_shader_value: $ => choice($.null, $._path_value),
 
-    setting_statement_key: $ => choice(
-      alias(/(hash|filter_index|match_priority|format|(?:width|height)(?:_multiply)?)/i, $.multi_section_key),
-      alias(/(type|filename|data|max_copies_per_frame|mode|(?:bind|misc)_flags|depth|mips|array|msaa(?:_quality)?|byte_width|stride)/i, $.resource_section_key),
-      alias(/(stereomode|expand_region_copy|deny_cpu_read|iteration)/i, $.texov_resouce_match_key),
-      alias(/((?:override_|uav_)?byte_stride|override_vertex_count)/i, $.texov_vertex_limit_key),
-      alias(/(match_(?:first_(?:vertex|index|instance)|(?:vertex_|index_|instance_)count))/i, $.texov_draw_match_key),
-      alias(/(match_(?:type|usage|(?:bind|cpu_access|misc)_flags|(?:byte_)?width|height|stride|mips|format|depth|array|msaa(?:_quality)?))/i, $.texov_fuzzy_match_key),
-      alias(/(flags|max_executions_per_frame|topology|sampler)/i, $.custom_shader_key),
-      alias(custom_shader_state_keys, $.custom_shader_state_key),
-      alias(/(allow_duplicate_hash|depth_filter|partner|model|disable_scissor)/i, $.shader_override_key),
-      alias(/((?:in|ex)clude(?:_recursive)?|user_config)/i, $.include_section_key),
-      alias(/(separation|convergence|calls|input|debug(?:_locks)?|unbuffered|force_cpu_affinity|wait_for_debugger|crash|dump_all_profiles|show_warnings)/i, $.logging_section_key),
-      alias(hunting_section_keys, $.hunting_section_key),
-      alias(system_section_keys, $.system_section_key),
-      alias(/(target|module|require_admin|launch|delay|loader|check_version|entry_point|hook_proc|wait_for_target)/i, $.loader_section_key),
-      alias(device_section_keys, $.device_section_key),
-      alias(/(automatic_mode|unlock_(?:separation|convergence)|create_profile|surface(?:_square)?_createmode|force_no_nvapi)/i, $.stereo_section_key),
-      alias(rendering_section_keys, $.rendering_section_key)
-    ),
+    _specific_key_binding_value: $ => choice($.free_text, $._exception_character, $.key_binding_expression),
+
+    _specific_directory_value: $ => choice(alias($.free_text, $.path_key_value), $._path_value),
+
+    _directory_setting_statement_key: $ =>
+      // path/file only keys:
+      alias(token(prec(-1, /(override|cache|storage)_directory|include(_recursive)?|exclude_recursive/i)), $.setting_statement_key),
+
+    _bracketed_setting_statement_key: $ => alias(custom_shader_keys_with_brackets, $.setting_statement_key),
+
+    _setting_statement_key: $ => alias($.fixed_value, $.setting_statement_key),
+
+    // setting_statement_key: $ => choice(
+    //   alias(/(hash|filter_index|match_priority|format|(?:width|height)(?:_multiply)?)/i, $.multi_section_key),
+    //   alias(/(type|filename|data|max_copies_per_frame|mode|(?:bind|misc)_flags|depth|mips|array|msaa(?:_quality)?|byte_width|stride)/i, $.resource_section_key),
+    //   alias(/(stereomode|expand_region_copy|deny_cpu_read|iteration)/i, $.texov_resouce_match_key),
+    //   alias(/((?:override_|uav_)?byte_stride|override_vertex_count)/i, $.texov_vertex_limit_key),
+    //   alias(/(match_(?:first_(?:vertex|index|instance)|(?:vertex_|index_|instance_)count))/i, $.texov_draw_match_key),
+    //   alias(/(match_(?:type|usage|(?:bind|cpu_access|misc)_flags|(?:byte_)?width|height|stride|mips|format|depth|array|msaa(?:_quality)?))/i, $.texov_fuzzy_match_key),
+    //   alias(/(flags|max_executions_per_frame|topology|sampler)/i, $.custom_shader_key),
+    //   alias(custom_shader_state_keys, $.custom_shader_state_key),
+    //   alias(/(allow_duplicate_hash|depth_filter|partner|model|disable_scissor)/i, $.shader_override_key),
+    //   alias(/((?:in|ex)clude(?:_recursive)?|user_config)/i, $.include_section_key),
+    //   alias(/(separation|convergence|calls|input|debug(?:_locks)?|unbuffered|force_cpu_affinity|wait_for_debugger|crash|dump_all_profiles|show_warnings)/i, $.logging_section_key),
+    //   alias(hunting_section_keys, $.hunting_section_key),
+    //   alias(system_section_keys, $.system_section_key),
+    //   alias(/(target|module|require_admin|launch|delay|loader|check_version|entry_point|hook_proc|wait_for_target)/i, $.loader_section_key),
+    //   alias(device_section_keys, $.device_section_key),
+    //   alias(/(automatic_mode|unlock_(?:separation|convergence)|create_profile|surface(?:_square)?_createmode|force_no_nvapi)/i, $.stereo_section_key),
+    //   alias(rendering_section_keys, $.rendering_section_key)
+    // ),
 
     setting_statement_value: $ => choice(
+      alias(dxgi_types_regex, $.resource_format),
+      alias(resource_type_values, $.resource_type),
+      field('fixed_value', alias($.fixed_value, $.fixed_setting_key_value)),
+      $.numeric_constant,
+      $.boolean_value,
       $.string,
-      $.path_value,
+      $._path_value,
       $.fuzzy_match_expression,
-      $.blend_expression,
-      repeat1(
-        choice(
-          field('fixed_value', $.fixed_key_value),
-          $.frame_analysis_option,
-          $.boolean_value,
-          $.numeric_constant,
-          token(prec(1, alias(';', $.semicolon_character))),
-          $.free_text
-        )
-      )
+      $.list_expression,
     ),
 
-    fixed_key_value: $ => choice(
-      alias(/(mono|none)/i, $.multi_key_value),
-      alias(/(overrule|depth_(?:(?:in)?active))/i, $.override_key_value),
-      alias(custom_shader_key_values, $.custom_shader_key_value),
-      alias(/(default|immutable|dynamic|staging)/i, $.fuzzy_match_key_value),
-      alias(resource_type_values, $.resource_type),
-      alias(resource_key_values, $.resource_key_value),
-      alias(dxgi_types_regex, $.resource_format),
-      alias(/(deferred_contexts|(?:immediate_)?context|device|all|recommended|except_set_(?:shader_resources|sampler|rasterizer_state)|skip_dxgi_(?:factory|device))/i, $.system_key_value),
-      alias(/(depth_stencil|swap_chain)/i, $.device_key_value),
-      alias(/(3dmigoto|embedded|bytecode)/i, $.rendering_key_value),
-      alias(/(skip|original|pink|hlsl|asm|assembly|regex|ShaderRegex|clipboard|mono_snapshot|stereo_snapshot|snapshot_if_pink)/i, $.hunting_key_value),
-      alias(/(?:(?:no_)?(?:vk_)?(?:ctrl|alt|shift|windows)|no_modifiers)/i, $.key_binding_modifier)
-    ),
+    // fixed_setting_key_value: $ => choice(
+    //   alias(/(mono|none)/i, $.multi_key_value),
+    //   alias(/(overrule|depth_(?:(?:in)?active))/i, $.override_key_value),
+    //   alias(custom_shader_key_values, $.custom_shader_key_value),
+    //   alias(/(default|immutable|dynamic|staging)/i, $.fuzzy_match_key_value),
+    //   alias(resource_type_values, $.resource_type),
+    //   alias(resource_key_values, $.resource_key_value),
+    //   alias(dxgi_types_regex, $.resource_format),
+    //   alias(/(deferred_contexts|(?:immediate_)?context|device|all|recommended|except_set_(?:shader_resources|sampler|rasterizer_state)|skip_dxgi_(?:factory|device))/i, $.system_key_value),
+    //   alias(/(depth_stencil|swap_chain)/i, $.device_key_value),
+    //   alias(/(3dmigoto|embedded|bytecode)/i, $.rendering_key_value),
+    //   alias(/(skip|original|pink|hlsl|asm|assembly|regex|ShaderRegex|clipboard|mono_snapshot|stereo_snapshot|snapshot_if_pink)/i, $.hunting_key_value),
+    //   alias(/(?:(?:no_)?(?:vk_)?(?:ctrl|alt|shift|windows)|no_modifiers)/i, $.key_binding_modifier)
+    // ),
 
     commandlist_section_header: $ => seq(
       '[',
       choice(
         alias(/(Present|Clear(?:RenderTarget|DepthStencil)View|ClearUnorderedAccessView(?:Uint|Float))/i, $.header_identifier),
         seq(
-          alias(/(ShaderOverride|TextureOverride|(?:BuiltIn)?(?:CommandList|CustomShader))/i, $.header_prefix),
+          // alias(/(ShaderOverride|TextureOverride|(?:BuiltIn)?(?:CommandList|CustomShader))/i, $.header_prefix),
+          alias($._commandlist_header_prefix, $.header_prefix),
           alias($._suffixed_commandlist_header, $.header_identifier)
         ),
       ),
@@ -567,7 +654,8 @@ export default grammar({
     primary_statement: $ => choice(
       $.local_declaration,
       $.local_initialisation,
-      $._general_statement,
+      $.assignment_statement,
+      $.instruction_statement,
       $.conditional_statement
     ),
 
@@ -578,18 +666,11 @@ export default grammar({
     ),
 
     local_initialisation: $ => seq(
-      seq(
-        alias($._local, 'local'),
-        field('variable', $.named_variable)
-      ),
+      alias($._local, 'local'),
+      field('variable', $.named_variable),
       '=',
       field('expression', $.operational_expression),
       $._newline
-    ),
-
-    _general_statement: $ => choice(
-      $.assignment_statement,
-      $.instruction_statement
     ),
 
     global_declaration: $ => choice(
@@ -597,12 +678,14 @@ export default grammar({
       $._global_persist_declaration
     ),
 
+    global_initialisation: $ => choice(
+      $._global_transient_initialisation,
+      $._global_persist_initialisation
+    ),
+
     _global_transient_declaration: $ => seq(
       alias($._global, 'global'),
-      choice(
-        field('variable', $.named_variable),
-        alias($._global_initialisation, $.assignment_statement)
-      ),
+      field('variable', $.named_variable),
       $._newline
     ),
 
@@ -611,21 +694,33 @@ export default grammar({
         seq(alias($._global, 'global'), alias($._persist, 'persist')),
         seq(alias($._persist, 'persist'), alias($._global, 'global'))
       ),
-      choice(
-        field('variable', $.named_variable),
-        alias($._global_initialisation, $.assignment_statement)
-      ),
+      field('variable', $.named_variable),
       $._newline
     ),
 
-    _global_initialisation: $ => seq(
+    _global_transient_initialisation: $ => seq(
+      alias($._global, 'global'),
+      $._static_initialisation,
+      $._newline
+    ),
+
+    _global_persist_initialisation: $ => seq(
+      choice(
+        seq(alias($._global, 'global'), alias($._persist, 'persist')),
+        seq(alias($._persist, 'persist'), alias($._global, 'global'))
+      ),
+      $._static_initialisation,
+      $._newline
+    ),
+
+    _static_initialisation: $ => seq(
       field('variable', $.named_variable),
       '=',
       field('value', $._static_value)
     ),
 
     assignment_statement: $ => seq(
-      optional(choice(alias($._pre, 'pre'), alias($._post, 'post'))),
+      optional($.execution_modifier),
       choice(
         seq(
           field('name', choice(
@@ -637,7 +732,7 @@ export default grammar({
           $._newline
         ),
         seq(
-          field('name', alias($.limited_resource_operand, $.resource_operand)),
+          field('name', $._limited_resource_operand),
           '=',
           field('expression', $.resource_usage_expression),
           $._newline
@@ -662,7 +757,7 @@ export default grammar({
 
     if_statement: $ => seq(
       alias($._if, 'if'),
-      field('condition', choice($.operational_expression, $.resource_operational_expression)),
+      field('condition', $.operational_expression),
       $._newline,
       field('consequence', alias(optional($._block), $.block))
     ),
@@ -670,7 +765,7 @@ export default grammar({
     // adapted from tree-sitter-lua
     elseif_statement: $ => seq(
       choice(alias($._elif, 'elif'), alias($._elseif, 'else if')),
-      field('condition', choice($.operational_expression, $.resource_operational_expression)),
+      field('condition', $.operational_expression),
       $._newline,
       field('consequence', alias(optional($._block), $.block))
     ),
@@ -702,13 +797,13 @@ export default grammar({
       $.drawauto_instruction,
     ),
 
-    _execution_modifier: $ => choice(
+    execution_modifier: $ => choice(
       alias($._pre, 'pre'),
       alias($._post, 'post')
     ),
 
     run_instruction: $ => seq(
-      field('modifier', optional($._execution_modifier)),
+      optional($.execution_modifier),
       alias(/run/i, $.instruction),
       '=',
       $._callable_section,
@@ -716,15 +811,15 @@ export default grammar({
     ),
 
     check_texture_override_instruction: $ => seq(
-      field('modifier', optional($._execution_modifier)),
+      optional($.execution_modifier),
       alias(/checktextureoverride/i, $.instruction),
       '=',
-      $.resource_operand,
+      $._resource_operand,
       $._newline
     ),
 
     preset_instruction: $ => seq(
-      field('modifier', optional($._execution_modifier)),
+      optional($.execution_modifier),
       alias(/(?:exclude_)?preset/i, $.instruction),
       '=',
       choice(
@@ -735,39 +830,41 @@ export default grammar({
     ),
 
     handling_instruction: $ => seq(
-      field('modifier', optional($._execution_modifier)),
+      optional($.execution_modifier),
       alias(/handling/i, $.instruction),
       '=',
-      field('fixed_value', alias(/(skip|abort)/i, $.handling_key_value)),
+      // field('fixed_value', alias(/(skip|abort)/i, $.handling_key_value)),
+      field('fixed_value', alias($.fixed_value, $.handling_key_value)),
       $._newline
     ),
 
     reset_instruction: $ => seq(
-      field('modifier', optional($._execution_modifier)),
+      optional($.execution_modifier),
       alias(/reset_per_frame_limits/i, $.instruction),
       '=',
       repeat1(choice(
-        $.resource_operand,
+        $._resource_operand,
         $.callable_customshader
       )),
       $._newline
     ),
 
     clear_instruction: $ => seq(
-      field('modifier', optional($._execution_modifier)),
+      optional($.execution_modifier),
       alias(/clear/i, $.instruction),
       '=',
       repeat1(choice(
-        $.resource_operand,
+        $._resource_operand,
         alias(/0x[a-f0-9]+/i, $.hex_integer),
         $._static_value, // numeric constant + inf and NaN
-        field('fixed_value', alias(/(int|depth|stencil)/i, $.clear_instruction_key_value))
+        // field('fixed_value', alias(/(int|depth|stencil)/i, $.clear_instruction_key_value))
+        field('fixed_value', alias($.fixed_value, $.clear_instruction_key_value))
       )),
       $._newline
     ),
 
     stereo_instruction: $ => seq(
-      field('modifier', optional($._execution_modifier)),
+      optional($.execution_modifier),
       alias(/(?:separation|convergence)/i, $.instruction),
       '=',
       $._static_value, // numeric constant + inf and NaN
@@ -775,45 +872,44 @@ export default grammar({
     ),
 
     dme_instruction: $ => seq(
-      field('modifier', optional($._execution_modifier)),
+      optional($.execution_modifier),
       alias(/direct_mode_eye/i, $.instruction),
       '=',
-      field('fixed_value', alias(/(mono|left|right)/i, $.dme_instruction_key_value)),
+      // field('fixed_value', alias(/(mono|left|right)/i, $.dme_instruction_key_value)),
+      field('fixed_value', alias($.fixed_value, $.dme_instruction_key_value)),
       $._newline
     ),
 
     analysis_instruction: $ => seq(
-      field('modifier', optional($._execution_modifier)),
+      optional($.execution_modifier),
       alias(/analyse_options/i, $.instruction),
       '=',
-      field('fixed_value', repeat1($.frame_analysis_option)),
+      $.frame_analysis_option_list,
       $._newline
     ),
 
     dump_instruction: $ => seq(
-      field('modifier', optional($._execution_modifier)),
+      optional($.execution_modifier),
       alias(/dump/i, $.instruction),
       '=',
-      repeat1(choice(
-        $.resource_operand,
-        $.frame_analysis_option
-      )),
+      $.dump_instruction_value_list,
       $._newline
     ),
 
     special_instruction: $ => seq(
-      field('modifier', optional($._execution_modifier)),
+      optional($.execution_modifier),
       alias(/special/i, $.instruction),
       '=',
-      field('fixed_value', alias(
-        /(upscaling_switch_bb|draw_3dmigoto_overlay)/i,
-        $.special_instruction_key_value
-      )),
+      // field('fixed_value', alias(
+      //   /(upscaling_switch_bb|draw_3dmigoto_overlay)/i,
+      //   $.special_instruction_key_value
+      // )),
+      field('fixed_value', alias($.fixed_value, $.special_instruction_key_value)),
       $._newline
     ),
 
     store_instruction: $ => seq(
-      field('modifier', optional($._execution_modifier)),
+      optional($.execution_modifier),
       alias(/store/i, $.instruction),
       '=',
       $.named_variable,
@@ -825,29 +921,31 @@ export default grammar({
     ),
 
     draw_instruction: $ => seq(
-      field('modifier', optional($._execution_modifier)),
+      optional($.execution_modifier),
       alias(/draw/i, $.instruction),
       '=',
       choice(
-        field('fixed_value', alias(/(auto|from_caller)/i, $.draw_instruction_key_value)),
+        // field('fixed_value', alias(/(auto|from_caller)/i, $.draw_instruction_key_value)),
+        field('fixed_value', alias($.fixed_value, $.draw_instruction_key_value)),
         list_seq($.operational_expression, ',')
       ),
       $._newline
     ),
 
     drawindexed_instruction: $ => seq(
-      field('modifier', optional($._execution_modifier)),
+      optional($.execution_modifier),
       alias(/drawindexed(?:instanced)?/i, $.instruction),
       '=',
       choice(
-        field('fixed_value', alias(/auto/i, $.draw_instruction_key_value)),
+        // field('fixed_value', alias(/auto/i, $.draw_instruction_key_value)),
+        field('fixed_value', alias($.fixed_value, $.draw_instruction_key_value)),
         list_seq($.operational_expression, ',')
       ),
       $._newline
     ),
 
     drawinstanced_dispatch_instruction: $ => seq(
-      field('modifier', optional($._execution_modifier)),
+      optional($.execution_modifier),
       alias(/(?:drawinstanced|dispatch)/i, $.instruction),
       '=',
       list_seq($.operational_expression, ','),
@@ -855,75 +953,107 @@ export default grammar({
     ),
 
     drawindirect_instruction: $ => seq(
-      field('modifier', optional($._execution_modifier)),
+      optional($.execution_modifier),
       alias(/(?:drawinstanced|drawindexedinstanced|dispatch)indirect/i, $.instruction),
       '=',
-      alias(
-        seq($.resource_operand, ',', $.integer),
-        $.resource_offset_expression
-      ),
+      alias(seq($._resource_operand, ',', $.integer), $.resource_offset_expression),
       $._newline
     ),
 
     drawauto_instruction: $ => seq(
-      field('modifier', optional($._execution_modifier)),
+      optional($.execution_modifier),
       alias(/drawauto/i, $.instruction),
       $._newline
     ),
 
-    resource_operational_expression: $ => choice(
-      prec(2, $.numeric_constant),
-      $.resource_operand,
-      $.resource_comparison_expression,
-      $.parenthesized_resource_comparison_expression
+    // EXPRESSIONS
+
+    list_expression: $ => choice(
+      $.resource_usage_expression,
+      $.resource_data_array_expression,
+      $.blend_expression,
+      $.frame_analysis_option_list
     ),
 
-    resource_usage_expression: $ => seq(
-      repeat($.resource_modifier),
-      $.resource_operand,
-      repeat($.resource_modifier)
-    ),
-
-    resource_comparison_expression: $ => choice(
-      ...[
-        ['||', PREC.OR],
-        ['&&', PREC.AND],
-        ['<', PREC.COMPARE],
-        ['<=', PREC.COMPARE],
-        ['>=', PREC.COMPARE],
-        ['>', PREC.COMPARE],
-        ['===', PREC.EQUALITY],
-        ['==', PREC.EQUALITY],
-        ['!==', PREC.EQUALITY],
-        ['!=', PREC.EQUALITY],
-      ].map(([operator, precedence]) =>
-        prec.left(
-          precedence,
-          seq(
-            field('left', $.resource_operational_expression),
-            // @ts-ignore
-            field('operator', operator),
-            field('right', $.resource_operational_expression)
-          )
+    // written to guarantee 2 or more desired nodes
+    key_binding_expression: $ => seq(
+      choice(
+        $.key_binding_modifier,
+        $._exception_character,
+        $.free_text
+      ),
+      repeat1(
+        choice(
+          $.key_binding_modifier,
+          $._exception_character,
+          $.free_text
         )
       )
     ),
 
-    parenthesized_resource_comparison_expression: $ => seq(
-      '(',
-      $.resource_operational_expression,
-      ')'
+    _exception_character: $ => alias(token(prec(1, choice(';', '=', '/', '\\'))), $.exception_character),
+
+    key_binding_modifier: _ => /(?:(?:no_)?(?:vk_)?(?:ctrl|alt|shift|windows)|no_modifiers)/i,
+
+    resource_data_array_expression: $ => seq(
+      optional(alias(dxgi_types_regex, $.resource_format)),
+      $.numeric_constant,
+      repeat1($.numeric_constant)
     ),
+
+    // resource_operational_expression: $ => choice(
+    //   prec(2, $.numeric_constant),
+    //   $._resource_operand,
+    //   $.resource_comparison_expression,
+    //   $.parenthesized_resource_comparison_expression
+    // ),
+
+    resource_usage_expression: $ => seq(
+      repeat($.resource_modifier),
+      $._resource_operand,
+      repeat($.resource_modifier)
+    ),
+
+    // resource_comparison_expression: $ => choice(
+    //   ...[
+    //     ['||', PREC.OR],
+    //     ['&&', PREC.AND],
+    //     ['<', PREC.COMPARE],
+    //     ['<=', PREC.COMPARE],
+    //     ['>=', PREC.COMPARE],
+    //     ['>', PREC.COMPARE],
+    //     ['===', PREC.EQUALITY],
+    //     ['==', PREC.EQUALITY],
+    //     ['!==', PREC.EQUALITY],
+    //     ['!=', PREC.EQUALITY],
+    //   ].map(([operator, precedence]) =>
+    //     prec.left(
+    //       precedence,
+    //       seq(
+    //         field('left', $.resource_operational_expression),
+    //         // @ts-ignore
+    //         field('operator', operator),
+    //         field('right', $.resource_operational_expression)
+    //       )
+    //     )
+    //   )
+    // ),
+
+    // parenthesized_resource_comparison_expression: $ => seq(
+    //   '(',
+    //   $.resource_operational_expression,
+    //   ')'
+    // ),
 
     resource_modifier: _ => /(copy(?:_desc(?:ription)?)?|ref(?:erence)?|raw|stereo|mono|stereo2mono|set_viewport|no_view_cache|resolve_msaa|unless_null)/i,
 
-    resource_operand: $ => choice(
+    _resource_operand: $ => choice(
       $._language_variable,
       $.resource_identifier,
       $.custom_resource
     ),
 
-    limited_resource_operand: $ => choice(
+    _limited_resource_operand: $ => choice(
       $._limited_language_variable,
       $.resource_identifier,
       $.custom_resource
@@ -953,6 +1083,10 @@ export default grammar({
     ),
 
     blend_factor: _ => /(zero|one|(?:inv_)?(?:src1?|dest)_(?:color|alpha)|src_alpha_sat|(?:inv_)?blend_factor)/i,
+
+    frame_analysis_option_list: $ => repeat1($.frame_analysis_option),
+
+    dump_instruction_value_list: $ => repeat1(choice($._resource_operand, $.frame_analysis_option)),
 
     static_operational_expression: $ => choice(
       $._static_value,
@@ -1001,6 +1135,7 @@ export default grammar({
     identifier: $ => choice(
       $.named_variable,
       $.ini_parameter,
+      $._limited_resource_operand,
       $.shader_identifier,
       $.scissor_rectangle,
       $.override_parameter
@@ -1023,12 +1158,13 @@ export default grammar({
     ),
 
     custom_resource: $ => seq(
-      alias(/Resource/i, $.resource_prefix),
+      // alias(/Resource/i, $.resource_prefix),
+      alias($._customresource_header_prefix, $.resource_prefix),
       seq(
         optional(seq(
-          alias($.namespace_resolution_start, '\\'),
-          alias($.namespace_resolution_content, $.namespace),
-          alias($.namespace_resolution_end, '\\')
+          alias($._namespace_resolution_start, '\\'),
+          alias($._namespace_resolution_content, $.namespace),
+          alias($._namespace_resolution_end, '\\')
         )),
         alias(custom_resource_section_name, $.section_identifier)
       )
@@ -1037,9 +1173,9 @@ export default grammar({
     named_variable: $ => seq(
       '$',
       optional(seq(
-        alias($.namespace_resolution_start, '\\'),
-        alias($.namespace_resolution_content, $.namespace),
-        alias($.namespace_resolution_end, '\\')
+        alias($._namespace_resolution_start, '\\'),
+        alias($._namespace_resolution_content, $.namespace),
+        alias($._namespace_resolution_end, '\\')
       )),
       alias(/[a-z_]\w+|[a-z]/i, $.variable_identifier)
     ),
@@ -1071,25 +1207,28 @@ export default grammar({
     ),
 
     callable_commandlist: $ => seq(
-      alias(/(?:BuiltIn)?CommandList/i, $.callable_prefix),
+      // alias(/(?:BuiltIn)?CommandList/i, $.callable_prefix),
+      alias($._commandlist_callable_prefix, $.callable_prefix),
       $._useable_section_identifier
     ),
 
     callable_customshader: $ => seq(
-      alias(/(?:BuiltIn)?CustomShader/i, $.callable_prefix),
+      // alias(/(?:BuiltIn)?CustomShader/i, $.callable_prefix),
+      alias($._customshader_callable_prefix, $.callable_prefix),
       $._useable_section_identifier
     ),
 
     preset_section_identifier: $ => seq(
-      alias(/Preset/i, $.preset_prefix),
+      // alias(/Preset/i, $.preset_prefix),
+      alias($._preset_header_prefix, $.preset_prefix),
       $._useable_section_identifier
     ),
 
     _useable_section_identifier: $ => seq(
       optional(seq(
-        alias($.namespace_resolution_start, '\\'),
-        alias($.namespace_resolution_content, $.namespace),
-        alias($.namespace_resolution_end, '\\')
+        alias($._namespace_resolution_start, '\\'),
+        alias($._namespace_resolution_content, $.namespace),
+        alias($._namespace_resolution_end, '\\')
       )),
       alias(custom_section_name, $.section_identifier)
     ),
@@ -1115,7 +1254,7 @@ export default grammar({
 
     boolean_value: _ => /(?:true|false|yes|no|on|off)/i,
 
-    path_value: $ => choice(
+    _path_value: $ => choice(
       alias(path_regex, $.path_key_value),
       alias(file_regex, $.file_key_value)
     ),
@@ -1135,6 +1274,8 @@ export default grammar({
     character_escape: _ => /\\[a-z\(\)\[\]${}]/i,
 
     free_text: _ => /[^\\\/="${}\s]+/i,
+
+    fixed_value: _ => token(prec(-1, /[a-z0-9][a-z0-9_]+/i)),
 
     comment: $ => token(seq(
       field('start', ';'),

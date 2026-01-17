@@ -7,11 +7,20 @@
 #include <string.h>
 
 #define strlwr _tolower_str
+#define scan_section_header_prefix scan_maybe_section_header
 
 typedef enum {
     EXTERNAL_LINE,
     SECTION_HEADER_START,
     SECTION_HEADER_GUARD,
+    KEY_HEADER_PREFIX,
+    REGEX_HEADER_PREFIX,
+    PRESET_HEADER_PREFIX,
+    INCLUDE_HEADER_PREFIX,
+    COMMANDLIST_HEADER_PREFIX,
+    COMMANDLIST_CALLABLE_PREFIX,
+    CUSTOMSHADER_CALLABLE_PREFIX,
+    CUSTOMRESOURCE_HEADER_PREFIX,
     NAMESPACE_RESOLUTION_START,
     NAMESPACE_RESOLUTION_CONTENT,
     NAMESPACE_RESOLUTION_END,
@@ -31,6 +40,20 @@ typedef enum {
     ERROR_SENTINEL,
 } TokenType;
 
+const char *SECTION_PREFIX_NAMES[] = {
+    "shaderoverride",
+    "shaderregex",
+    "customshader", // + builtincustomshader
+    "commandlist",  // + builtincommandlist
+    "textureoverride",
+    "resource",
+    "include",
+    "preset",
+    "key",
+    0
+};
+
+// Intentionally leaves out a few names with unique first letters
 const char *SECTION_NAMES[] = {
     "shaderoverride",
     "shaderregex",
@@ -128,7 +151,7 @@ static inline char *_tolower_str(char *_Str) {
     size_t i = 0;
 
     while (_Str[i] != '\0') {
-        _Str[i] = towlower(_Str[i]);
+        _Str[i] = (char) towlower(_Str[i]);
         i++;
     }
 
@@ -136,24 +159,16 @@ static inline char *_tolower_str(char *_Str) {
 }
 
 /// Determines if search_term exactly matches one of the section names in search_arr up to length `size` of search_term
-static inline bool is_terminating_section_name_l(char *search_term, uint8_t size, const char **search_arr) {
+static inline int is_section_name_l(char *search_term, uint8_t *sizes, const char **search_arr) {
+    strlwr(search_term); // mutates search_term
     for(int i = 0; search_arr[i]; i++) {
-        if(!strncmp(strlwr(search_term), search_arr[i], size)) {
-            return true;
+        for (int j = 0; sizes[j]; j++) {
+            if(!strncmp(search_term, search_arr[i], sizes[j])) {
+                return j+1;
+            }
         }
     }
-    return false;
-}
-
-/// Determines if search_term exactly matches one of the section names in search_arr
-static inline bool is_terminating_section_name(char *search_term, const char **search_arr) {
-    const char *lwr_term = strlwr(search_term);
-    for(int i = 0; search_arr[i]; i++) {
-        if(!strcmp(lwr_term, search_arr[i])) {
-            return true;
-        }
-    }
-    return false;
+    return 0;
 }
 
 static inline bool scan_end_of_line(TSLexer *lexer) {
@@ -234,12 +249,24 @@ static inline bool scan_namespace_res_content(TSLexer *lexer) {
     }
 }
 
-static inline bool scan_maybe_section_header(Scanner *scanner, TSLexer *lexer, const bool *valid_symbols) {
-    consume(lexer); // consume the '[' that starts
+static inline bool scan_maybe_section_header(Scanner *scanner, TSLexer *lexer, const bool *valid_symbols, bool is_prefix_search) { 
+    if (!is_prefix_search) {
+        consume(lexer); // consume the '[' that starts
+    }
 
     // consume all the leading whitespace
     while (iswspace(lexer->lookahead) && lexer->lookahead != ']' && lexer->lookahead != '\n' && !lexer->eof(lexer)) {
-        consume(lexer);
+        if (is_prefix_search && (
+            valid_symbols[COMMANDLIST_CALLABLE_PREFIX] ||
+            valid_symbols[CUSTOMSHADER_CALLABLE_PREFIX] ||
+            valid_symbols[CUSTOMRESOURCE_HEADER_PREFIX]
+        ))
+        {
+            skip(lexer);
+        }
+        else {
+            consume(lexer);
+        }
     }
 
     // if after consuming whitespace we're at a terminal or eof, return false
@@ -247,14 +274,13 @@ static inline bool scan_maybe_section_header(Scanner *scanner, TSLexer *lexer, c
         return false;
     }
 
-    // if instead the next character is not alphabetical, return false
+    // if the next character is not alphabetical, return false
     // if it is alphabetical, but not the first character of a section name, return false
     // otherwise we can start searching
-    if (!iswalpha(lexer->lookahead)) {
-        return false;
-    }
-    // would love to just use strchr here, but wasm doesn't have support for it
-    else if (memchr("stcbplrhki", towlower(lexer->lookahead), 11) == NULL) {
+    // would love to just use strchr here, but wasm with wasi-sdk doesn't have support for it
+    if (!iswalpha(lexer->lookahead) ||
+        memchr("stcbplrhki", towlower(lexer->lookahead), 11) == NULL)
+    {
         return false;
     }
 
@@ -263,50 +289,161 @@ static inline bool scan_maybe_section_header(Scanner *scanner, TSLexer *lexer, c
 
     // choose the search length or set target term based on first character
     // s [6,11,14], c [11,12,14,21,28,29], b [18,19], p [6,7], l [6,7], r [8,9]: all have multiple options for header
+callable:
     switch (towlower(lexer->lookahead)) {
     case 's':
-        search_lengths[0] = 14;
-        search_lengths[1] = 11;
-        search_lengths[2] = 6;
+        if (is_prefix_search) {
+            if (valid_symbols[REGEX_HEADER_PREFIX] ||
+                valid_symbols[COMMANDLIST_HEADER_PREFIX])
+            {
+                for (int i = 0; i < 6; i++) {
+                    array_push(&scanner->word, lexer->lookahead);
+                    consume(lexer);
+                }
+                array_push(&scanner->word, '\0'); // NUL term char array before comparison
+
+                if (!strcmp(strlwr(scanner->word.contents), "shader")) {
+                    if (towlower(lexer->lookahead) == 'r') {
+                        lexer->result_symbol = REGEX_HEADER_PREFIX;
+                        target_term = "shaderregex";
+                        search_lengths[0] = 11; // ShaderRegex
+                    }
+                    else if (towlower(lexer->lookahead) == 'o') {
+                        lexer->result_symbol = COMMANDLIST_HEADER_PREFIX;
+                        target_term = "shaderoverride";
+                        search_lengths[0] = 14; // ShaderOverride
+                    }
+                    else {
+                        return false;
+                    }
+                    array_pop(&scanner->word); // remove the null terminator before proceeding
+                }
+                else {
+                    return false;
+                }
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            search_lengths[0] = 14; // ShaderOverride
+            search_lengths[1] = 11; // ShaderRegex
+            search_lengths[2] = 6;  // System
+        }
         break;
     case 't':
+        if (is_prefix_search) lexer->result_symbol = COMMANDLIST_HEADER_PREFIX;
         target_term = "textureoverride";
         search_lengths[0] = 15;
         break;
     case 'c':
-        search_lengths[0] = 29;
-        search_lengths[1] = 28;
-        search_lengths[2] = 21;
-        search_lengths[3] = 14;
-        search_lengths[4] = 12;
-        search_lengths[5] = 11;
+        if (is_prefix_search) {
+            if (valid_symbols[CUSTOMSHADER_CALLABLE_PREFIX] ||
+                valid_symbols[COMMANDLIST_CALLABLE_PREFIX])
+            {
+                array_push(&scanner->word, lexer->lookahead);
+                consume(lexer); // consume the 'c'
+                if (towlower(lexer->lookahead) == 'u') {
+                    lexer->result_symbol = CUSTOMSHADER_CALLABLE_PREFIX;
+                    target_term = "customshader";
+                    search_lengths[0] = 12; // CustomShader
+                }
+                else if (towlower(lexer->lookahead) == 'o') {
+                    lexer->result_symbol = COMMANDLIST_CALLABLE_PREFIX;
+                    target_term = "commandlist";
+                    search_lengths[0] = 11; // CommandList
+                }
+                else {
+                    return false;
+                }
+            }
+            else if (valid_symbols[COMMANDLIST_HEADER_PREFIX]) {
+                lexer->result_symbol = COMMANDLIST_HEADER_PREFIX;
+                search_lengths[0] = 12; // CustomShader
+                search_lengths[1] = 11; // CommandList
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            search_lengths[0] = 29; // ClearUnorderedAccessViewFloat
+            search_lengths[1] = 28; // ClearUnorderedAccessViewUint
+            search_lengths[2] = 21; // ClearRenderTargetView / ClearDepthStencilView
+            search_lengths[3] = 14; // ConvergenceMap
+            search_lengths[4] = 12; // CustomShader
+            search_lengths[5] = 11; // CommandList
+        }
         break;
     case 'b':
-        search_lengths[0] = 19;
-        search_lengths[1] = 18;
+        if (is_prefix_search) {
+            for (int i = 0; i < 7; i++) {
+                array_push(&scanner->word, lexer->lookahead);
+                consume(lexer);
+            }
+            array_push(&scanner->word, '\0'); // NUL term char array before comparison
+
+            if (!strcmp(strlwr(scanner->word.contents), "builtin")) {
+                reset(scanner);
+                goto callable;
+            }
+            else {
+                return false;
+            }
+        }
+        else {
+            search_lengths[0] = 19; // BuiltInCustomShader
+            search_lengths[1] = 18; // BuiltInCommandList
+        }
         break;
     case 'p':
+        if (is_prefix_search) {
+            lexer->result_symbol = PRESET_HEADER_PREFIX;
+            target_term = "preset";
+            search_lengths[0] = 6;
+        }
+        else {
+            search_lengths[0] = 7;
+            search_lengths[1] = 6;
+        }
+        break;
     case 'l':
+        // There are no prefixes that start with 'l'
+        if (is_prefix_search) return false;
         search_lengths[0] = 7;
         search_lengths[1] = 6;
         break;
     case 'd':
+        // There are no prefixes that start with 'd'
+        if (is_prefix_search) return false;
         target_term = "device";
         search_lengths[0] = 6;
         break;
     case 'r':
-        search_lengths[0] = 9;
-        search_lengths[1] = 8;
+        if (is_prefix_search) {
+            lexer->result_symbol = CUSTOMRESOURCE_HEADER_PREFIX;
+            target_term = "resource";
+            search_lengths[0] = 8;
+        }
+        else {
+            search_lengths[0] = 9;
+            search_lengths[1] = 8;
+        }
         break;
     case 'h':
+        // There are no prefixes that start with 'h'
+        if (is_prefix_search) return false;
         target_term = "hunting";
         search_lengths[0] = 7;
         break;
     case 'k':
+        if (is_prefix_search) lexer->result_symbol = KEY_HEADER_PREFIX;
         target_term = "key";
         search_lengths[0] = 3;
         break;
     case 'i':
+        if (is_prefix_search) lexer->result_symbol = INCLUDE_HEADER_PREFIX;
         target_term = "include";
         search_lengths[0] = 7;
         break;
@@ -317,10 +454,6 @@ static inline bool scan_maybe_section_header(Scanner *scanner, TSLexer *lexer, c
     char lookahead = lexer->lookahead;
 
     do {
-        array_push(&scanner->word, lookahead);
-        consume(lexer);
-        lookahead = lexer->lookahead;
-
         // if we hit whitespace or non-alphabetical before collecting the correct number of characters
         // if we see a terminal before collecting the correct number of characters
         if (iswspace(lookahead) || !iswalpha(lookahead) ||
@@ -329,7 +462,17 @@ static inline bool scan_maybe_section_header(Scanner *scanner, TSLexer *lexer, c
             reset(scanner);
             return false;
         }
+
+        array_push(&scanner->word, lookahead);
+        consume(lexer);
+        // Should only happen with the COMMANDLIST_HEADER_PREFIX 'c' situation
+        if (!target_term && scanner->word.size == search_lengths[1] && is_prefix_search) {
+            lexer->mark_end(lexer);
+        }
+        lookahead = lexer->lookahead;
     } while (scanner->word.size < search_lengths[0]);
+
+    if (is_prefix_search && target_term) lexer->mark_end(lexer);
 
     array_push(&scanner->word, '\0'); // NUL term char array before comparison
 
@@ -338,14 +481,20 @@ static inline bool scan_maybe_section_header(Scanner *scanner, TSLexer *lexer, c
         return true;
     }
     else if (!target_term) {
-        bool ismatch = false;
-
-        for (int i = 0; !ismatch && search_lengths[i]; i++) {
-            ismatch = is_terminating_section_name_l(scanner->word.contents, search_lengths[i], SECTION_NAMES);
+        int match_idx = 0;
+        match_idx =
+            is_section_name_l(
+                scanner->word.contents,
+                search_lengths,
+                is_prefix_search ? SECTION_PREFIX_NAMES : SECTION_NAMES
+            );
+        
+        if (match_idx && match_idx == 1 && is_prefix_search) {
+            lexer->mark_end(lexer);
         }
 
         reset(scanner);
-        return ismatch;
+        return match_idx;
     }
 
     reset(scanner);
@@ -394,7 +543,7 @@ static inline bool scan_line(Scanner *scanner, TSLexer *lexer, const bool *valid
 
             lexer->mark_end(lexer); // tell the lexer to not add the next characters to the token
 
-            if (scan_maybe_section_header(scanner, lexer, valid_symbols)) {
+            if (scan_maybe_section_header(scanner, lexer, valid_symbols, false)) {
                 // if this was an $._external_line search, return false so we don't accidentally mark this as the wrong type of regex section
                 if (valid_symbols[EXTERNAL_LINE]) {
                     lexer->result_symbol = EXTERNAL_LINE;
@@ -667,6 +816,16 @@ bool tree_sitter_migoto_external_scanner_scan(void *payload, TSLexer *lexer, con
     }
 
     Scanner *scanner = (Scanner*) payload;
+    bool is_prefix_search = (
+        valid_symbols[KEY_HEADER_PREFIX] || valid_symbols[PRESET_HEADER_PREFIX] ||
+        valid_symbols[INCLUDE_HEADER_PREFIX] || valid_symbols[COMMANDLIST_HEADER_PREFIX] ||
+        valid_symbols[COMMANDLIST_CALLABLE_PREFIX] || valid_symbols[CUSTOMSHADER_CALLABLE_PREFIX] ||
+        valid_symbols[CUSTOMRESOURCE_HEADER_PREFIX]
+    );
+
+    if (is_prefix_search) {
+        return scan_section_header_prefix(scanner, lexer, valid_symbols, is_prefix_search);
+    }
 
     if (valid_symbols[REGEX_COMMANDLIST_HEADER] || valid_symbols[REGEX_DECLARATIONS_HEADER] ||
         valid_symbols[REGEX_PATTERN_HEADER] || valid_symbols[REGEX_REPLACE_HEADER])

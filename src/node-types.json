@@ -4,6 +4,14 @@
     "named": true,
     "subtypes": [
       {
+        "type": "buffer_variable",
+        "named": true
+      },
+      {
+        "type": "custom_resource",
+        "named": true
+      },
+      {
         "type": "ini_parameter",
         "named": true
       },
@@ -16,11 +24,19 @@
         "named": true
       },
       {
+        "type": "resource_identifier",
+        "named": true
+      },
+      {
         "type": "scissor_rectangle",
         "named": true
       },
       {
         "type": "shader_identifier",
+        "named": true
+      },
+      {
+        "type": "shader_variable",
         "named": true
       }
     ]
@@ -100,6 +116,28 @@
     ]
   },
   {
+    "type": "list_expression",
+    "named": true,
+    "subtypes": [
+      {
+        "type": "blend_expression",
+        "named": true
+      },
+      {
+        "type": "frame_analysis_option_list",
+        "named": true
+      },
+      {
+        "type": "resource_data_array_expression",
+        "named": true
+      },
+      {
+        "type": "resource_usage_expression",
+        "named": true
+      }
+    ]
+  },
+  {
     "type": "operational_expression",
     "named": true,
     "subtypes": [
@@ -155,28 +193,6 @@
       },
       {
         "type": "local_initialisation",
-        "named": true
-      }
-    ]
-  },
-  {
-    "type": "resource_operational_expression",
-    "named": true,
-    "subtypes": [
-      {
-        "type": "numeric_constant",
-        "named": true
-      },
-      {
-        "type": "parenthesized_resource_comparison_expression",
-        "named": true
-      },
-      {
-        "type": "resource_comparison_expression",
-        "named": true
-      },
-      {
-        "type": "resource_operand",
         "named": true
       }
     ]
@@ -256,36 +272,19 @@
   {
     "type": "analysis_instruction",
     "named": true,
-    "fields": {
-      "fixed_value": {
-        "multiple": true,
-        "required": true,
-        "types": [
-          {
-            "type": "frame_analysis_option",
-            "named": true
-          }
-        ]
-      },
-      "modifier": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "post",
-            "named": false
-          },
-          {
-            "type": "pre",
-            "named": false
-          }
-        ]
-      }
-    },
+    "fields": {},
     "children": {
-      "multiple": false,
+      "multiple": true,
       "required": true,
       "types": [
+        {
+          "type": "execution_modifier",
+          "named": true
+        },
+        {
+          "type": "frame_analysis_option_list",
+          "named": true
+        },
         {
           "type": "instruction",
           "named": true
@@ -299,7 +298,7 @@
     "fields": {
       "expression": {
         "multiple": false,
-        "required": false,
+        "required": true,
         "types": [
           {
             "type": "operational_expression",
@@ -313,8 +312,16 @@
       },
       "name": {
         "multiple": false,
-        "required": false,
+        "required": true,
         "types": [
+          {
+            "type": "buffer_variable",
+            "named": true
+          },
+          {
+            "type": "custom_resource",
+            "named": true
+          },
           {
             "type": "ini_parameter",
             "named": true
@@ -324,39 +331,25 @@
             "named": true
           },
           {
-            "type": "resource_operand",
-            "named": true
-          }
-        ]
-      },
-      "value": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "language_constant",
+            "type": "resource_identifier",
             "named": true
           },
           {
-            "type": "numeric_constant",
-            "named": true
-          },
-          {
-            "type": "override_parameter",
-            "named": true
-          }
-        ]
-      },
-      "variable": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "named_variable",
+            "type": "shader_variable",
             "named": true
           }
         ]
       }
+    },
+    "children": {
+      "multiple": false,
+      "required": false,
+      "types": [
+        {
+          "type": "execution_modifier",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -553,32 +546,37 @@
   {
     "type": "check_texture_override_instruction",
     "named": true,
-    "fields": {
-      "modifier": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "post",
-            "named": false
-          },
-          {
-            "type": "pre",
-            "named": false
-          }
-        ]
-      }
-    },
+    "fields": {},
     "children": {
       "multiple": true,
       "required": true,
       "types": [
         {
+          "type": "buffer_variable",
+          "named": true
+        },
+        {
+          "type": "custom_resource",
+          "named": true
+        },
+        {
+          "type": "execution_modifier",
+          "named": true
+        },
+        {
           "type": "instruction",
           "named": true
         },
         {
-          "type": "resource_operand",
+          "type": "resource_identifier",
+          "named": true
+        },
+        {
+          "type": "shader_identifier",
+          "named": true
+        },
+        {
+          "type": "shader_variable",
           "named": true
         }
       ]
@@ -597,26 +595,24 @@
             "named": true
           }
         ]
-      },
-      "modifier": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "post",
-            "named": false
-          },
-          {
-            "type": "pre",
-            "named": false
-          }
-        ]
       }
     },
     "children": {
       "multiple": true,
       "required": true,
       "types": [
+        {
+          "type": "buffer_variable",
+          "named": true
+        },
+        {
+          "type": "custom_resource",
+          "named": true
+        },
+        {
+          "type": "execution_modifier",
+          "named": true
+        },
         {
           "type": "hex_integer",
           "named": true
@@ -638,7 +634,15 @@
           "named": true
         },
         {
-          "type": "resource_operand",
+          "type": "resource_identifier",
+          "named": true
+        },
+        {
+          "type": "shader_identifier",
+          "named": true
+        },
+        {
+          "type": "shader_variable",
           "named": true
         }
       ]
@@ -796,6 +800,10 @@
           "named": true
         },
         {
+          "type": "global_initialisation",
+          "named": true
+        },
+        {
           "type": "primary_statement",
           "named": true
         }
@@ -853,26 +861,16 @@
             "named": true
           }
         ]
-      },
-      "modifier": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "post",
-            "named": false
-          },
-          {
-            "type": "pre",
-            "named": false
-          }
-        ]
       }
     },
     "children": {
-      "multiple": false,
+      "multiple": true,
       "required": true,
       "types": [
+        {
+          "type": "execution_modifier",
+          "named": true
+        },
         {
           "type": "instruction",
           "named": true
@@ -913,26 +911,16 @@
             "named": true
           }
         ]
-      },
-      "modifier": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "post",
-            "named": false
-          },
-          {
-            "type": "pre",
-            "named": false
-          }
-        ]
       }
     },
     "children": {
       "multiple": true,
       "required": true,
       "types": [
+        {
+          "type": "execution_modifier",
+          "named": true
+        },
         {
           "type": "instruction",
           "named": true
@@ -947,26 +935,15 @@
   {
     "type": "drawauto_instruction",
     "named": true,
-    "fields": {
-      "modifier": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "post",
-            "named": false
-          },
-          {
-            "type": "pre",
-            "named": false
-          }
-        ]
-      }
-    },
+    "fields": {},
     "children": {
-      "multiple": false,
+      "multiple": true,
       "required": true,
       "types": [
+        {
+          "type": "execution_modifier",
+          "named": true
+        },
         {
           "type": "instruction",
           "named": true
@@ -987,26 +964,16 @@
             "named": true
           }
         ]
-      },
-      "modifier": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "post",
-            "named": false
-          },
-          {
-            "type": "pre",
-            "named": false
-          }
-        ]
       }
     },
     "children": {
       "multiple": true,
       "required": true,
       "types": [
+        {
+          "type": "execution_modifier",
+          "named": true
+        },
         {
           "type": "instruction",
           "named": true
@@ -1021,26 +988,15 @@
   {
     "type": "drawindirect_instruction",
     "named": true,
-    "fields": {
-      "modifier": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "post",
-            "named": false
-          },
-          {
-            "type": "pre",
-            "named": false
-          }
-        ]
-      }
-    },
+    "fields": {},
     "children": {
       "multiple": true,
       "required": true,
       "types": [
+        {
+          "type": "execution_modifier",
+          "named": true
+        },
         {
           "type": "instruction",
           "named": true
@@ -1055,26 +1011,15 @@
   {
     "type": "drawinstanced_dispatch_instruction",
     "named": true,
-    "fields": {
-      "modifier": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "post",
-            "named": false
-          },
-          {
-            "type": "pre",
-            "named": false
-          }
-        ]
-      }
-    },
+    "fields": {},
     "children": {
       "multiple": true,
       "required": true,
       "types": [
+        {
+          "type": "execution_modifier",
+          "named": true
+        },
         {
           "type": "instruction",
           "named": true
@@ -1089,36 +1034,56 @@
   {
     "type": "dump_instruction",
     "named": true,
-    "fields": {
-      "modifier": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "post",
-            "named": false
-          },
-          {
-            "type": "pre",
-            "named": false
-          }
-        ]
-      }
-    },
+    "fields": {},
     "children": {
       "multiple": true,
       "required": true,
       "types": [
         {
-          "type": "frame_analysis_option",
+          "type": "dump_instruction_value_list",
+          "named": true
+        },
+        {
+          "type": "execution_modifier",
           "named": true
         },
         {
           "type": "instruction",
           "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "dump_instruction_value_list",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "buffer_variable",
+          "named": true
         },
         {
-          "type": "resource_operand",
+          "type": "custom_resource",
+          "named": true
+        },
+        {
+          "type": "frame_analysis_option",
+          "named": true
+        },
+        {
+          "type": "resource_identifier",
+          "named": true
+        },
+        {
+          "type": "shader_identifier",
+          "named": true
+        },
+        {
+          "type": "shader_variable",
           "named": true
         }
       ]
@@ -1151,10 +1116,6 @@
           {
             "type": "operational_expression",
             "named": true
-          },
-          {
-            "type": "resource_operational_expression",
-            "named": true
           }
         ]
       },
@@ -1169,6 +1130,11 @@
         ]
       }
     }
+  },
+  {
+    "type": "execution_modifier",
+    "named": true,
+    "fields": {}
   },
   {
     "type": "field_expression",
@@ -1197,59 +1163,15 @@
     }
   },
   {
-    "type": "fixed_key_value",
+    "type": "frame_analysis_option_list",
     "named": true,
     "fields": {},
     "children": {
-      "multiple": false,
+      "multiple": true,
       "required": true,
       "types": [
         {
-          "type": "custom_shader_key_value",
-          "named": true
-        },
-        {
-          "type": "device_key_value",
-          "named": true
-        },
-        {
-          "type": "fuzzy_match_key_value",
-          "named": true
-        },
-        {
-          "type": "hunting_key_value",
-          "named": true
-        },
-        {
-          "type": "key_binding_modifier",
-          "named": true
-        },
-        {
-          "type": "multi_key_value",
-          "named": true
-        },
-        {
-          "type": "override_key_value",
-          "named": true
-        },
-        {
-          "type": "rendering_key_value",
-          "named": true
-        },
-        {
-          "type": "resource_format",
-          "named": true
-        },
-        {
-          "type": "resource_key_value",
-          "named": true
-        },
-        {
-          "type": "resource_type",
-          "named": true
-        },
-        {
-          "type": "system_key_value",
+          "type": "frame_analysis_option",
           "named": true
         }
       ]
@@ -1291,7 +1213,7 @@
     "fields": {
       "variable": {
         "multiple": false,
-        "required": false,
+        "required": true,
         "types": [
           {
             "type": "named_variable",
@@ -1299,16 +1221,40 @@
           }
         ]
       }
-    },
-    "children": {
-      "multiple": false,
-      "required": false,
-      "types": [
-        {
-          "type": "assignment_statement",
-          "named": true
-        }
-      ]
+    }
+  },
+  {
+    "type": "global_initialisation",
+    "named": true,
+    "fields": {
+      "value": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "language_constant",
+            "named": true
+          },
+          {
+            "type": "numeric_constant",
+            "named": true
+          },
+          {
+            "type": "override_parameter",
+            "named": true
+          }
+        ]
+      },
+      "variable": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "named_variable",
+            "named": true
+          }
+        ]
+      }
     }
   },
   {
@@ -1324,26 +1270,16 @@
             "named": true
           }
         ]
-      },
-      "modifier": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "post",
-            "named": false
-          },
-          {
-            "type": "pre",
-            "named": false
-          }
-        ]
       }
     },
     "children": {
-      "multiple": false,
+      "multiple": true,
       "required": true,
       "types": [
+        {
+          "type": "execution_modifier",
+          "named": true
+        },
         {
           "type": "instruction",
           "named": true
@@ -1361,10 +1297,6 @@
         "types": [
           {
             "type": "operational_expression",
-            "named": true
-          },
-          {
-            "type": "resource_operational_expression",
             "named": true
           }
         ]
@@ -1417,6 +1349,29 @@
     }
   },
   {
+    "type": "key_binding_expression",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "exception_character",
+          "named": true
+        },
+        {
+          "type": "free_text",
+          "named": true
+        },
+        {
+          "type": "key_binding_modifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "key_condition_statement",
     "named": true,
     "fields": {
@@ -1437,25 +1392,6 @@
       "types": [
         {
           "type": "operational_expression",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "key_fixed_key_value",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": false,
-      "required": true,
-      "types": [
-        {
-          "type": "key_key_value",
-          "named": true
-        },
-        {
-          "type": "transition_type_key_value",
           "named": true
         }
       ]
@@ -1557,34 +1493,22 @@
     "named": true,
     "fields": {
       "fixed_value": {
-        "multiple": true,
+        "multiple": false,
         "required": false,
         "types": [
           {
-            "type": "key_binding_modifier",
-            "named": true
-          },
-          {
-            "type": "key_fixed_key_value",
+            "type": "fixed_key_key_value",
             "named": true
           }
         ]
       }
     },
     "children": {
-      "multiple": true,
+      "multiple": false,
       "required": false,
       "types": [
         {
           "type": "boolean_value",
-          "named": true
-        },
-        {
-          "type": "exception_character",
-          "named": true
-        },
-        {
-          "type": "free_text",
           "named": true
         },
         {
@@ -1620,6 +1544,18 @@
         "multiple": false,
         "required": true,
         "types": [
+          {
+            "type": "exception_character",
+            "named": true
+          },
+          {
+            "type": "free_text",
+            "named": true
+          },
+          {
+            "type": "key_binding_expression",
+            "named": true
+          },
           {
             "type": "key_section_value",
             "named": true
@@ -1729,40 +1665,6 @@
     }
   },
   {
-    "type": "parenthesized_resource_comparison_expression",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": false,
-      "required": true,
-      "types": [
-        {
-          "type": "resource_operational_expression",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "path_value",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": false,
-      "required": true,
-      "types": [
-        {
-          "type": "file_key_value",
-          "named": true
-        },
-        {
-          "type": "path_key_value",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
     "type": "preamble",
     "named": true,
     "fields": {},
@@ -1841,26 +1743,15 @@
   {
     "type": "preset_instruction",
     "named": true,
-    "fields": {
-      "modifier": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "post",
-            "named": false
-          },
-          {
-            "type": "pre",
-            "named": false
-          }
-        ]
-      }
-    },
+    "fields": {},
     "children": {
       "multiple": true,
       "required": true,
       "types": [
+        {
+          "type": "execution_modifier",
+          "named": true
+        },
         {
           "type": "instruction",
           "named": true
@@ -1995,22 +1886,18 @@
         "required": false,
         "types": [
           {
-            "type": "transition_type_key_value",
+            "type": "fixed_preset_key_value",
             "named": true
           }
         ]
       }
     },
     "children": {
-      "multiple": true,
+      "multiple": false,
       "required": false,
       "types": [
         {
           "type": "boolean_value",
-          "named": true
-        },
-        {
-          "type": "free_text",
           "named": true
         },
         {
@@ -2085,28 +1972,25 @@
   {
     "type": "reset_instruction",
     "named": true,
-    "fields": {
-      "modifier": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "post",
-            "named": false
-          },
-          {
-            "type": "pre",
-            "named": false
-          }
-        ]
-      }
-    },
+    "fields": {},
     "children": {
       "multiple": true,
       "required": true,
       "types": [
         {
+          "type": "buffer_variable",
+          "named": true
+        },
+        {
           "type": "callable_customshader",
+          "named": true
+        },
+        {
+          "type": "custom_resource",
+          "named": true
+        },
+        {
+          "type": "execution_modifier",
           "named": true
         },
         {
@@ -2114,82 +1998,37 @@
           "named": true
         },
         {
-          "type": "resource_operand",
+          "type": "resource_identifier",
+          "named": true
+        },
+        {
+          "type": "shader_identifier",
+          "named": true
+        },
+        {
+          "type": "shader_variable",
           "named": true
         }
       ]
     }
   },
   {
-    "type": "resource_comparison_expression",
+    "type": "resource_data_array_expression",
     "named": true,
-    "fields": {
-      "left": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "resource_operational_expression",
-            "named": true
-          }
-        ]
-      },
-      "operator": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "!=",
-            "named": false
-          },
-          {
-            "type": "!==",
-            "named": false
-          },
-          {
-            "type": "&&",
-            "named": false
-          },
-          {
-            "type": "<",
-            "named": false
-          },
-          {
-            "type": "<=",
-            "named": false
-          },
-          {
-            "type": "==",
-            "named": false
-          },
-          {
-            "type": "===",
-            "named": false
-          },
-          {
-            "type": ">",
-            "named": false
-          },
-          {
-            "type": ">=",
-            "named": false
-          },
-          {
-            "type": "||",
-            "named": false
-          }
-        ]
-      },
-      "right": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "resource_operational_expression",
-            "named": true
-          }
-        ]
-      }
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "numeric_constant",
+          "named": true
+        },
+        {
+          "type": "resource_format",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -2239,11 +2078,11 @@
     }
   },
   {
-    "type": "resource_operand",
+    "type": "resource_usage_expression",
     "named": true,
     "fields": {},
     "children": {
-      "multiple": false,
+      "multiple": true,
       "required": true,
       "types": [
         {
@@ -2259,6 +2098,10 @@
           "named": true
         },
         {
+          "type": "resource_modifier",
+          "named": true
+        },
+        {
           "type": "shader_identifier",
           "named": true
         },
@@ -2270,43 +2113,9 @@
     }
   },
   {
-    "type": "resource_usage_expression",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "resource_modifier",
-          "named": true
-        },
-        {
-          "type": "resource_operand",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
     "type": "run_instruction",
     "named": true,
-    "fields": {
-      "modifier": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "post",
-            "named": false
-          },
-          {
-            "type": "pre",
-            "named": false
-          }
-        ]
-      }
-    },
+    "fields": {},
     "children": {
       "multiple": true,
       "required": true,
@@ -2317,6 +2126,10 @@
         },
         {
           "type": "callable_customshader",
+          "named": true
+        },
+        {
+          "type": "execution_modifier",
           "named": true
         },
         {
@@ -2395,10 +2208,6 @@
         "required": true,
         "types": [
           {
-            "type": "custom_shader_setting_key",
-            "named": true
-          },
-          {
             "type": "setting_statement_key",
             "named": true
           }
@@ -2417,113 +2226,34 @@
     }
   },
   {
-    "type": "setting_statement_key",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": false,
-      "required": true,
-      "types": [
-        {
-          "type": "custom_shader_key",
-          "named": true
-        },
-        {
-          "type": "custom_shader_state_key",
-          "named": true
-        },
-        {
-          "type": "device_section_key",
-          "named": true
-        },
-        {
-          "type": "hunting_section_key",
-          "named": true
-        },
-        {
-          "type": "include_section_key",
-          "named": true
-        },
-        {
-          "type": "loader_section_key",
-          "named": true
-        },
-        {
-          "type": "logging_section_key",
-          "named": true
-        },
-        {
-          "type": "multi_section_key",
-          "named": true
-        },
-        {
-          "type": "rendering_section_key",
-          "named": true
-        },
-        {
-          "type": "resource_section_key",
-          "named": true
-        },
-        {
-          "type": "shader_override_key",
-          "named": true
-        },
-        {
-          "type": "stereo_section_key",
-          "named": true
-        },
-        {
-          "type": "system_section_key",
-          "named": true
-        },
-        {
-          "type": "texov_draw_match_key",
-          "named": true
-        },
-        {
-          "type": "texov_fuzzy_match_key",
-          "named": true
-        },
-        {
-          "type": "texov_resouce_match_key",
-          "named": true
-        },
-        {
-          "type": "texov_vertex_limit_key",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
     "type": "setting_statement_value",
     "named": true,
     "fields": {
       "fixed_value": {
-        "multiple": true,
+        "multiple": false,
         "required": false,
         "types": [
           {
-            "type": "fixed_key_value",
+            "type": "fixed_setting_key_value",
             "named": true
           }
         ]
       }
     },
     "children": {
-      "multiple": true,
+      "multiple": false,
       "required": false,
       "types": [
-        {
-          "type": "blend_expression",
-          "named": true
-        },
         {
           "type": "boolean_value",
           "named": true
         },
         {
-          "type": "frame_analysis_option",
+          "type": "exception_character",
+          "named": true
+        },
+        {
+          "type": "file_key_value",
           "named": true
         },
         {
@@ -2535,6 +2265,14 @@
           "named": true
         },
         {
+          "type": "key_binding_expression",
+          "named": true
+        },
+        {
+          "type": "list_expression",
+          "named": true
+        },
+        {
           "type": "null",
           "named": true
         },
@@ -2543,7 +2281,15 @@
           "named": true
         },
         {
-          "type": "path_value",
+          "type": "path_key_value",
+          "named": true
+        },
+        {
+          "type": "resource_format",
+          "named": true
+        },
+        {
+          "type": "resource_type",
           "named": true
         },
         {
@@ -2845,26 +2591,16 @@
             "named": true
           }
         ]
-      },
-      "modifier": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "post",
-            "named": false
-          },
-          {
-            "type": "pre",
-            "named": false
-          }
-        ]
       }
     },
     "children": {
-      "multiple": false,
+      "multiple": true,
       "required": true,
       "types": [
+        {
+          "type": "execution_modifier",
+          "named": true
+        },
         {
           "type": "instruction",
           "named": true
@@ -3029,26 +2765,15 @@
   {
     "type": "stereo_instruction",
     "named": true,
-    "fields": {
-      "modifier": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "post",
-            "named": false
-          },
-          {
-            "type": "pre",
-            "named": false
-          }
-        ]
-      }
-    },
+    "fields": {},
     "children": {
       "multiple": true,
       "required": true,
       "types": [
+        {
+          "type": "execution_modifier",
+          "named": true
+        },
         {
           "type": "instruction",
           "named": true
@@ -3071,26 +2796,15 @@
   {
     "type": "store_instruction",
     "named": true,
-    "fields": {
-      "modifier": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "post",
-            "named": false
-          },
-          {
-            "type": "pre",
-            "named": false
-          }
-        ]
-      }
-    },
+    "fields": {},
     "children": {
       "multiple": true,
       "required": true,
       "types": [
+        {
+          "type": "execution_modifier",
+          "named": true
+        },
         {
           "type": "instruction",
           "named": true
@@ -3218,10 +2932,6 @@
     "named": false
   },
   {
-    "type": ";",
-    "named": false
-  },
-  {
     "type": "<",
     "named": false
   },
@@ -3299,30 +3009,6 @@
     "named": true
   },
   {
-    "type": "custom_shader_key",
-    "named": true
-  },
-  {
-    "type": "custom_shader_key_value",
-    "named": true
-  },
-  {
-    "type": "custom_shader_setting_key",
-    "named": true
-  },
-  {
-    "type": "custom_shader_state_key",
-    "named": true
-  },
-  {
-    "type": "device_key_value",
-    "named": true
-  },
-  {
-    "type": "device_section_key",
-    "named": true
-  },
-  {
     "type": "dme_instruction_key_value",
     "named": true
   },
@@ -3363,15 +3049,23 @@
     "named": true
   },
   {
+    "type": "fixed_key_key_value",
+    "named": true
+  },
+  {
+    "type": "fixed_preset_key_value",
+    "named": true
+  },
+  {
+    "type": "fixed_setting_key_value",
+    "named": true
+  },
+  {
     "type": "frame_analysis_option",
     "named": true
   },
   {
     "type": "free_text",
-    "named": true
-  },
-  {
-    "type": "fuzzy_match_key_value",
     "named": true
   },
   {
@@ -3399,20 +3093,8 @@
     "named": true
   },
   {
-    "type": "hunting_key_value",
-    "named": true
-  },
-  {
-    "type": "hunting_section_key",
-    "named": true
-  },
-  {
     "type": "if",
     "named": false
-  },
-  {
-    "type": "include_section_key",
-    "named": true
   },
   {
     "type": "instruction",
@@ -3427,10 +3109,6 @@
     "named": true
   },
   {
-    "type": "key_key_value",
-    "named": true
-  },
-  {
     "type": "key_section_key",
     "named": true
   },
@@ -3439,24 +3117,8 @@
     "named": true
   },
   {
-    "type": "loader_section_key",
-    "named": true
-  },
-  {
     "type": "local",
     "named": false
-  },
-  {
-    "type": "logging_section_key",
-    "named": true
-  },
-  {
-    "type": "multi_key_value",
-    "named": true
-  },
-  {
-    "type": "multi_section_key",
-    "named": true
   },
   {
     "type": "namespace",
@@ -3468,10 +3130,6 @@
   },
   {
     "type": "null",
-    "named": true
-  },
-  {
-    "type": "override_key_value",
     "named": true
   },
   {
@@ -3507,19 +3165,7 @@
     "named": true
   },
   {
-    "type": "rendering_key_value",
-    "named": true
-  },
-  {
-    "type": "rendering_section_key",
-    "named": true
-  },
-  {
     "type": "resource_format",
-    "named": true
-  },
-  {
-    "type": "resource_key_value",
     "named": true
   },
   {
@@ -3528,10 +3174,6 @@
   },
   {
     "type": "resource_prefix",
-    "named": true
-  },
-  {
-    "type": "resource_section_key",
     "named": true
   },
   {
@@ -3547,7 +3189,7 @@
     "named": true
   },
   {
-    "type": "shader_override_key",
+    "type": "setting_statement_key",
     "named": true
   },
   {
@@ -3560,38 +3202,6 @@
   },
   {
     "type": "special_instruction_key_value",
-    "named": true
-  },
-  {
-    "type": "stereo_section_key",
-    "named": true
-  },
-  {
-    "type": "system_key_value",
-    "named": true
-  },
-  {
-    "type": "system_section_key",
-    "named": true
-  },
-  {
-    "type": "texov_draw_match_key",
-    "named": true
-  },
-  {
-    "type": "texov_fuzzy_match_key",
-    "named": true
-  },
-  {
-    "type": "texov_resouce_match_key",
-    "named": true
-  },
-  {
-    "type": "texov_vertex_limit_key",
-    "named": true
-  },
-  {
-    "type": "transition_type_key_value",
     "named": true
   },
   {
