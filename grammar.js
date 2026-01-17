@@ -12,7 +12,7 @@ const PREC = {
   OR: 1, // ||
   AND: 2, // &&
   COMPARE: 3, // < > <= >=
-  RELATION: 4, // @not-implemented (e.g. `in` or `instanceof` in javascript) ~
+  RELATION: 4, // @not-implemented ~ (e.g. `in` or `instanceof` in javascript)
   EQUALITY: 5, // == === != !==
   BIT_OR: 6, // @not-implemented |
   BIT_NOT: 7, // @not-implemented ^
@@ -39,17 +39,15 @@ const custom_shader_state_keys = new RustRegex(`(?xi)(
 
 const custom_shader_keys_with_brackets = new RustRegex(`(?xi)(blend_factor\\[[0-3]\\]|(?:blend|alpha|mask)(?:\\[[0-7]\\])?)`)
 
-const custom_shader_key_values = new RustRegex(`(?xi)(
-  front|back|wireframe|solid|
-  undefined|(point|line|triangle)_list|(line|triangle)_strip|(line|triangle)_(list|strip)_adj|[123]?\d_control_point_patch_list|
-  debug|skip_(validation|optimization)|pack_matrix_(row_major|column_major)|partial_precision|force_[vp]s_software_no_opt|no_preshader|(avoid|prefer)_flow_control|enable_(strictness|backwards_compatibility|unbounded_descriptor_tables)|ieee_strictness|optimization_level[0123]|warnings_are_errors|resources_may_alias|all_resources_bound
+const setting_section_key_binding_keys = new RustRegex(`(?xi)(
+  (?:done_|toggle_)hunting | next_marking_mode | mark_snapshot |
+  (?:previous|next|mark)_(?:pixel|vertex|compute|geometry|domain|hull)shader |
+  (?:previous|next|mark)_(?:index|vertex)buffer |
+  (?:previous|next|mark)_rendertarget |
+  take_screenshot | reload_fixes | (?:reload|wipe_user)_config | show_original |
+  monitor_performance | freeze_performance_monitor | tune[123]_(?:up|down) |
+  analyse_frame | toggle_full_screen | force_full_screen_on_key
 )`)
-
-const setting_section_key_binding_keys = /((?:done_|toggle_)hunting|next_marking_mode|mark_snapshot|(?:previous|next|mark)_(?:pixel|vertex|compute|geometry|domain|hull)shader|(?:previous|next|mark)_(?:index|vertex)buffer|(?:previous|next|mark)_rendertarget|take_screenshot|reload_fixes|(?:reload|wipe_user)_config|show_original|monitor_performance|freeze_performance_monitor|tune[123]_(?:up|down)|analyse_frame|toggle_full_screen|force_full_screen_on_key)/i
-const hunting_section_keys = /((?:done_|toggle_)?hunting|(?:next_)?marking_mode|marking_actions|mark_snapshot|(?:previous|next|mark)_(?:pixel|vertex|compute|geometry|domain|hull)shader|(?:previous|next|mark)_(?:index|vertex)buffer|(?:previous|next|mark)_rendertarget|take_screenshot|reload_fixes|(?:reload|wipe_user)_config|show_original|monitor_performance(?:_interval)?|repeat_rate|freeze_performance_monitor|verbose_overlay|tune_(?:enable|step)|tune[123]_(?:up|down)|analyse_frame|analyse_options|kill_deferred)/i
-const system_section_keys = /(proxy_d3d(?:9|11)|load_library_redirect|check_foreground_window|hook|allow_(?:check_interface|create_device|platform_update)|skip_early_includes_load|config_initialization_delay|settings_auto_save_interval|dll_initialization_delay|screen_(?:width|height)|dump_path)/i
-const device_section_keys = /(upscaling|upscale_mode|(?:filter_)?refresh_rate|(?:toggle_)?full_screen|force_full_screen_on_key|force_stereo|allow_windowcommands|get_resolution_from|hide_cursor|cursor_upscaling_bypass)/i
-const rendering_section_keys = /(shader_hash|texture_hash|(?:override|cache|storage)_directory|cache_shaders|rasterizer_disable_scissor|track_texture_updates|(?:stereo|ini)_params|assemble_signature_comments|disassemble_undecipherable_custom_data|patch_assembly_cb_offsets|recursive_include|export_(?:fixed|shaders|hlsl|binary)|dump_usage|fix_(?:sv_position|ZRepair_.+|BackProjectionTransform\d|ObjectPosition\d(?:Multiplier)?|MatrixOperand\d(?:Multiplier)?)|recompile_all_vs)/i
 
 const resource_type_values = new RustRegex(`(?xi)(
   (?:RW)?(?:Append|Consume)?StructuredBuffer|(?:RW)?(?:ByteAddress)?Buffer|(?:RW)?Texture[123]D|TextureCube
@@ -182,7 +180,6 @@ export default grammar({
     $.primary_statement,
     $.instruction_statement,
     $.list_expression,
-    // $.resource_operational_expression,
     $.operational_expression,
     $.static_operational_expression,
     $.identifier,
@@ -252,7 +249,6 @@ export default grammar({
 
     key_section_header: $ => seq(
       '[',
-      // alias(/Key/i, $.header_prefix),
       alias($._key_header_prefix, $.header_prefix),
       alias($._suffixed_key_header, $.header_identifier),
       optional(']'),
@@ -296,11 +292,6 @@ export default grammar({
       $._static_value
     ),
 
-    // key_fixed_key_value: $ => choice(
-    //   alias(/(hold|activate|toggle|cycle)/i, $.key_key_value),
-    //   alias(/(linear|cosine)/i, $.transition_type_key_value),
-    // ),
-
     key_run_instruction: $ => seq(
       alias(/run/i, $.instruction),
       '=',
@@ -331,7 +322,6 @@ export default grammar({
 
     preset_section_header: $ => seq(
       '[',
-      // alias(/Preset/i, $.header_prefix),
       alias($._preset_header_prefix, $.header_prefix),
       alias($._suffixed_preset_header, $.header_identifier),
       optional(']'),
@@ -358,10 +348,6 @@ export default grammar({
     ),
 
     _preset_section_key: $ => alias($.fixed_value, $.preset_section_key),
-
-    // preset_section_key: _ => token(
-    //   /(separation|convergence|(?:release_)?transition|(?:release_)?transition_type|unique_triggers_required)/i
-    // ),
 
     preset_section_value: $ => choice(
       field('fixed_value', alias($.fixed_value, $.fixed_preset_key_value)),
@@ -407,7 +393,6 @@ export default grammar({
     shader_regex_pattern_header: $ => seq(
       '[',
       seq(
-        // alias(/ShaderRegex/i, $.header_prefix),
         alias($._regex_header_prefix, $.header_prefix),
         alias($._regex_pattern_header, $.header_identifier)
       ),
@@ -429,7 +414,6 @@ export default grammar({
     shader_regex_replace_header: $ => seq(
       '[',
       seq(
-        // alias(/ShaderRegex/i, $.header_prefix),
         alias($._regex_header_prefix, $.header_prefix),
         alias($._regex_replace_header, $.header_identifier)
       ),
@@ -452,7 +436,6 @@ export default grammar({
     shader_regex_declarations_header: $ => seq(
       '[',
       seq(
-        // alias(/ShaderRegex/i, $.header_prefix),
         alias($._regex_header_prefix, $.header_prefix),
         alias($._regex_declarations_header, $.header_identifier)
       ),
@@ -474,7 +457,6 @@ export default grammar({
     shader_regex_commandlist_header: $ => seq(
       '[',
       seq(
-        // alias(/ShaderRegex/i, $.header_prefix),
         alias($._regex_header_prefix, $.header_prefix),
         alias($._regex_commandlist_header, $.header_identifier)
       ),
@@ -516,8 +498,6 @@ export default grammar({
       '[',
       choice(
         alias(/(Logging|System|Device|Stereo|Rendering|Hunting|Profile|ConvergenceMap|Loader)/i, $.header_identifier),
-        // seq(alias(/Resource/i, $.header_prefix), alias($._suffixed_resource_header, $.header_identifier)),
-        // seq(alias(/Include/i, $.header_prefix), alias($._suffixed_include_header, $.header_identifier)),
         choice(
           seq(
             alias($._customresource_header_prefix, $.header_prefix),
@@ -585,26 +565,6 @@ export default grammar({
 
     _setting_statement_key: $ => alias($.fixed_value, $.setting_statement_key),
 
-    // setting_statement_key: $ => choice(
-    //   alias(/(hash|filter_index|match_priority|format|(?:width|height)(?:_multiply)?)/i, $.multi_section_key),
-    //   alias(/(type|filename|data|max_copies_per_frame|mode|(?:bind|misc)_flags|depth|mips|array|msaa(?:_quality)?|byte_width|stride)/i, $.resource_section_key),
-    //   alias(/(stereomode|expand_region_copy|deny_cpu_read|iteration)/i, $.texov_resouce_match_key),
-    //   alias(/((?:override_|uav_)?byte_stride|override_vertex_count)/i, $.texov_vertex_limit_key),
-    //   alias(/(match_(?:first_(?:vertex|index|instance)|(?:vertex_|index_|instance_)count))/i, $.texov_draw_match_key),
-    //   alias(/(match_(?:type|usage|(?:bind|cpu_access|misc)_flags|(?:byte_)?width|height|stride|mips|format|depth|array|msaa(?:_quality)?))/i, $.texov_fuzzy_match_key),
-    //   alias(/(flags|max_executions_per_frame|topology|sampler)/i, $.custom_shader_key),
-    //   alias(custom_shader_state_keys, $.custom_shader_state_key),
-    //   alias(/(allow_duplicate_hash|depth_filter|partner|model|disable_scissor)/i, $.shader_override_key),
-    //   alias(/((?:in|ex)clude(?:_recursive)?|user_config)/i, $.include_section_key),
-    //   alias(/(separation|convergence|calls|input|debug(?:_locks)?|unbuffered|force_cpu_affinity|wait_for_debugger|crash|dump_all_profiles|show_warnings)/i, $.logging_section_key),
-    //   alias(hunting_section_keys, $.hunting_section_key),
-    //   alias(system_section_keys, $.system_section_key),
-    //   alias(/(target|module|require_admin|launch|delay|loader|check_version|entry_point|hook_proc|wait_for_target)/i, $.loader_section_key),
-    //   alias(device_section_keys, $.device_section_key),
-    //   alias(/(automatic_mode|unlock_(?:separation|convergence)|create_profile|surface(?:_square)?_createmode|force_no_nvapi)/i, $.stereo_section_key),
-    //   alias(rendering_section_keys, $.rendering_section_key)
-    // ),
-
     setting_statement_value: $ => choice(
       alias(dxgi_types_regex, $.resource_format),
       alias(resource_type_values, $.resource_type),
@@ -617,27 +577,11 @@ export default grammar({
       $.list_expression,
     ),
 
-    // fixed_setting_key_value: $ => choice(
-    //   alias(/(mono|none)/i, $.multi_key_value),
-    //   alias(/(overrule|depth_(?:(?:in)?active))/i, $.override_key_value),
-    //   alias(custom_shader_key_values, $.custom_shader_key_value),
-    //   alias(/(default|immutable|dynamic|staging)/i, $.fuzzy_match_key_value),
-    //   alias(resource_type_values, $.resource_type),
-    //   alias(resource_key_values, $.resource_key_value),
-    //   alias(dxgi_types_regex, $.resource_format),
-    //   alias(/(deferred_contexts|(?:immediate_)?context|device|all|recommended|except_set_(?:shader_resources|sampler|rasterizer_state)|skip_dxgi_(?:factory|device))/i, $.system_key_value),
-    //   alias(/(depth_stencil|swap_chain)/i, $.device_key_value),
-    //   alias(/(3dmigoto|embedded|bytecode)/i, $.rendering_key_value),
-    //   alias(/(skip|original|pink|hlsl|asm|assembly|regex|ShaderRegex|clipboard|mono_snapshot|stereo_snapshot|snapshot_if_pink)/i, $.hunting_key_value),
-    //   alias(/(?:(?:no_)?(?:vk_)?(?:ctrl|alt|shift|windows)|no_modifiers)/i, $.key_binding_modifier)
-    // ),
-
     commandlist_section_header: $ => seq(
       '[',
       choice(
         alias(/(Present|Clear(?:RenderTarget|DepthStencil)View|ClearUnorderedAccessView(?:Uint|Float))/i, $.header_identifier),
         seq(
-          // alias(/(ShaderOverride|TextureOverride|(?:BuiltIn)?(?:CommandList|CustomShader))/i, $.header_prefix),
           alias($._commandlist_header_prefix, $.header_prefix),
           alias($._suffixed_commandlist_header, $.header_identifier)
         ),
@@ -833,7 +777,6 @@ export default grammar({
       optional($.execution_modifier),
       alias(/handling/i, $.instruction),
       '=',
-      // field('fixed_value', alias(/(skip|abort)/i, $.handling_key_value)),
       field('fixed_value', alias($.fixed_value, $.handling_key_value)),
       $._newline
     ),
@@ -856,8 +799,7 @@ export default grammar({
       repeat1(choice(
         $._resource_operand,
         alias(/0x[a-f0-9]+/i, $.hex_integer),
-        $._static_value, // numeric constant + inf and NaN
-        // field('fixed_value', alias(/(int|depth|stencil)/i, $.clear_instruction_key_value))
+        $._static_value,
         field('fixed_value', alias($.fixed_value, $.clear_instruction_key_value))
       )),
       $._newline
@@ -867,7 +809,7 @@ export default grammar({
       optional($.execution_modifier),
       alias(/(?:separation|convergence)/i, $.instruction),
       '=',
-      $._static_value, // numeric constant + inf and NaN
+      $._static_value,
       $._newline
     ),
 
@@ -875,7 +817,6 @@ export default grammar({
       optional($.execution_modifier),
       alias(/direct_mode_eye/i, $.instruction),
       '=',
-      // field('fixed_value', alias(/(mono|left|right)/i, $.dme_instruction_key_value)),
       field('fixed_value', alias($.fixed_value, $.dme_instruction_key_value)),
       $._newline
     ),
@@ -900,10 +841,6 @@ export default grammar({
       optional($.execution_modifier),
       alias(/special/i, $.instruction),
       '=',
-      // field('fixed_value', alias(
-      //   /(upscaling_switch_bb|draw_3dmigoto_overlay)/i,
-      //   $.special_instruction_key_value
-      // )),
       field('fixed_value', alias($.fixed_value, $.special_instruction_key_value)),
       $._newline
     ),
@@ -925,7 +862,6 @@ export default grammar({
       alias(/draw/i, $.instruction),
       '=',
       choice(
-        // field('fixed_value', alias(/(auto|from_caller)/i, $.draw_instruction_key_value)),
         field('fixed_value', alias($.fixed_value, $.draw_instruction_key_value)),
         list_seq($.operational_expression, ',')
       ),
@@ -937,7 +873,6 @@ export default grammar({
       alias(/drawindexed(?:instanced)?/i, $.instruction),
       '=',
       choice(
-        // field('fixed_value', alias(/auto/i, $.draw_instruction_key_value)),
         field('fixed_value', alias($.fixed_value, $.draw_instruction_key_value)),
         list_seq($.operational_expression, ',')
       ),
@@ -1001,49 +936,11 @@ export default grammar({
       repeat1($.numeric_constant)
     ),
 
-    // resource_operational_expression: $ => choice(
-    //   prec(2, $.numeric_constant),
-    //   $._resource_operand,
-    //   $.resource_comparison_expression,
-    //   $.parenthesized_resource_comparison_expression
-    // ),
-
     resource_usage_expression: $ => seq(
       repeat($.resource_modifier),
       $._resource_operand,
       repeat($.resource_modifier)
     ),
-
-    // resource_comparison_expression: $ => choice(
-    //   ...[
-    //     ['||', PREC.OR],
-    //     ['&&', PREC.AND],
-    //     ['<', PREC.COMPARE],
-    //     ['<=', PREC.COMPARE],
-    //     ['>=', PREC.COMPARE],
-    //     ['>', PREC.COMPARE],
-    //     ['===', PREC.EQUALITY],
-    //     ['==', PREC.EQUALITY],
-    //     ['!==', PREC.EQUALITY],
-    //     ['!=', PREC.EQUALITY],
-    //   ].map(([operator, precedence]) =>
-    //     prec.left(
-    //       precedence,
-    //       seq(
-    //         field('left', $.resource_operational_expression),
-    //         // @ts-ignore
-    //         field('operator', operator),
-    //         field('right', $.resource_operational_expression)
-    //       )
-    //     )
-    //   )
-    // ),
-
-    // parenthesized_resource_comparison_expression: $ => seq(
-    //   '(',
-    //   $.resource_operational_expression,
-    //   ')'
-    // ),
 
     resource_modifier: _ => /(copy(?:_desc(?:ription)?)?|ref(?:erence)?|raw|stereo|mono|stereo2mono|set_viewport|no_view_cache|resolve_msaa|unless_null)/i,
 
@@ -1158,7 +1055,6 @@ export default grammar({
     ),
 
     custom_resource: $ => seq(
-      // alias(/Resource/i, $.resource_prefix),
       alias($._customresource_header_prefix, $.resource_prefix),
       seq(
         optional(seq(
@@ -1207,19 +1103,16 @@ export default grammar({
     ),
 
     callable_commandlist: $ => seq(
-      // alias(/(?:BuiltIn)?CommandList/i, $.callable_prefix),
       alias($._commandlist_callable_prefix, $.callable_prefix),
       $._useable_section_identifier
     ),
 
     callable_customshader: $ => seq(
-      // alias(/(?:BuiltIn)?CustomShader/i, $.callable_prefix),
       alias($._customshader_callable_prefix, $.callable_prefix),
       $._useable_section_identifier
     ),
 
     preset_section_identifier: $ => seq(
-      // alias(/Preset/i, $.preset_prefix),
       alias($._preset_header_prefix, $.preset_prefix),
       $._useable_section_identifier
     ),

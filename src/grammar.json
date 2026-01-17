@@ -1627,8 +1627,7 @@
                 "type": "ALIAS",
                 "content": {
                   "type": "PATTERN",
-                  "value": "((?:done_|toggle_)hunting|next_marking_mode|mark_snapshot|(?:previous|next|mark)_(?:pixel|vertex|compute|geometry|domain|hull)shader|(?:previous|next|mark)_(?:index|vertex)buffer|(?:previous|next|mark)_rendertarget|take_screenshot|reload_fixes|(?:reload|wipe_user)_config|show_original|monitor_performance|freeze_performance_monitor|tune[123]_(?:up|down)|analyse_frame|toggle_full_screen|force_full_screen_on_key)",
-                  "flags": "i"
+                  "value": "(?xi)(\n  (?:done_|toggle_)hunting | next_marking_mode | mark_snapshot |\n  (?:previous|next|mark)_(?:pixel|vertex|compute|geometry|domain|hull)shader |\n  (?:previous|next|mark)_(?:index|vertex)buffer |\n  (?:previous|next|mark)_rendertarget |\n  take_screenshot | reload_fixes | (?:reload|wipe_user)_config | show_original |\n  monitor_performance | freeze_performance_monitor | tune[123]_(?:up|down) |\n  analyse_frame | toggle_full_screen | force_full_screen_on_key\n)"
                 },
                 "named": true,
                 "value": "setting_statement_key"

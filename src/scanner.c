@@ -146,7 +146,7 @@ static inline void consume(TSLexer *lexer) { lexer->advance(lexer, false); }
 
 static inline void skip(TSLexer *lexer) { lexer->advance(lexer, true); }
 
-/// Lowercase a string
+/// Lowercase a string in place
 static inline char *_tolower_str(char *_Str) {
     size_t i = 0;
 
@@ -158,7 +158,8 @@ static inline char *_tolower_str(char *_Str) {
     return _Str;
 }
 
-/// Determines if search_term exactly matches one of the section names in search_arr up to length `size` of search_term
+/// Determines if search_term exactly matches one of the section names in search_arr, using multiple sizes to test multiple options
+/// @returns An integer representing the 1-indexed position in the sizes array of a match, and 0 otherwise.
 static inline int is_section_name_l(char *search_term, uint8_t *sizes, const char **search_arr) {
     strlwr(search_term); // mutates search_term
     for(int i = 0; search_arr[i]; i++) {
@@ -255,7 +256,12 @@ static inline bool scan_maybe_section_header(Scanner *scanner, TSLexer *lexer, c
     }
 
     // consume all the leading whitespace
-    while (iswspace(lexer->lookahead) && lexer->lookahead != ']' && lexer->lookahead != '\n' && !lexer->eof(lexer)) {
+    while (iswspace(lexer->lookahead) &&
+            lexer->lookahead != ']' &&
+            lexer->lookahead != '\n' &&
+            !lexer->eof(lexer))
+    {
+        // if it's a prefix search we should skip the leading whitespace and not include it in the final token
         if (is_prefix_search && (
             valid_symbols[COMMANDLIST_CALLABLE_PREFIX] ||
             valid_symbols[CUSTOMSHADER_CALLABLE_PREFIX] ||
@@ -264,7 +270,8 @@ static inline bool scan_maybe_section_header(Scanner *scanner, TSLexer *lexer, c
         {
             skip(lexer);
         }
-        else {
+        else
+        {
             consume(lexer);
         }
     }
@@ -293,9 +300,12 @@ callable:
     switch (towlower(lexer->lookahead)) {
     case 's':
         if (is_prefix_search) {
+            // If we see 's' and it's a prefix search, it could be "ShaderRegex" or "ShaderOverride"
             if (valid_symbols[REGEX_HEADER_PREFIX] ||
                 valid_symbols[COMMANDLIST_HEADER_PREFIX])
             {
+                // we need to perform lookahead to the difference in possibilities
+                // and be sure to collect what we consume in the scanner word
                 for (int i = 0; i < 6; i++) {
                     array_push(&scanner->word, lexer->lookahead);
                     consume(lexer);
@@ -327,21 +337,25 @@ callable:
             }
         }
         else {
+            // it's not a prefix search, just go through the possibilities as normal
             search_lengths[0] = 14; // ShaderOverride
             search_lengths[1] = 11; // ShaderRegex
             search_lengths[2] = 6;  // System
         }
         break;
     case 't':
+        // only TextureOverride starts with 't' of the prefixed headers
         if (is_prefix_search) lexer->result_symbol = COMMANDLIST_HEADER_PREFIX;
         target_term = "textureoverride";
         search_lengths[0] = 15;
         break;
     case 'c':
         if (is_prefix_search) {
+            // If we see 'c' and it's a prefix search, it could be "CommandList" or "CustomShader"
             if (valid_symbols[CUSTOMSHADER_CALLABLE_PREFIX] ||
                 valid_symbols[COMMANDLIST_CALLABLE_PREFIX])
             {
+                // If we are looking for the callables, we need to perform an extra lookahead
                 array_push(&scanner->word, lexer->lookahead);
                 consume(lexer); // consume the 'c'
                 if (towlower(lexer->lookahead) == 'u') {
@@ -377,6 +391,8 @@ callable:
         }
         break;
     case 'b':
+        // This is just the 'c' case but we need to confirm and consume the "BuiltIn" part first
+        // Only really necessary for a prefix search, prefixed-header search can just proceed as normal
         if (is_prefix_search) {
             for (int i = 0; i < 7; i++) {
                 array_push(&scanner->word, lexer->lookahead);
@@ -489,6 +505,8 @@ callable:
                 is_prefix_search ? SECTION_PREFIX_NAMES : SECTION_NAMES
             );
         
+        // if we had the COMMANDLIST_HEADER_PREFIX 'c' situation and the shorter name did not match, but the longer did
+        // be sure to include that 1 extra character in the token
         if (match_idx && match_idx == 1 && is_prefix_search) {
             lexer->mark_end(lexer);
         }
@@ -687,16 +705,12 @@ static inline bool scan_for_regex_suffix(Scanner *scanner, TSLexer *lexer, const
 
                 strlwr(scanner->word.contents);
 
-                // fprintf(stderr, "Lykare[LINE]: word contains '%s' before comparison\n", scanner->word.contents);
-
                 if (!strcmp(scanner->word.contents, search_target)) {
                     reset(scanner);
                     if (!valid_symbols[result]) return false;
                     lexer->result_symbol = result;
                     return true;
                 }
-
-                // fprintf(stderr, "Lykare[LINE]: word did not match '%s'\n", search_target);
 
                 ss = NOTSEARCHING;
                 reset(scanner);
