@@ -119,7 +119,7 @@
 
 (ini_parameter) @variable.special
 
-(regex_replacement) @variable
+(regex_replacement) @variable.special
 
 ; Constants and Terminals
 (_

@@ -119,7 +119,7 @@
 
 (ini_parameter) @variable.parameter.builtin
 
-(regex_replacement) @variable
+(regex_replacement) @variable.parameter
 
 ; Constants and Terminals
 (_
