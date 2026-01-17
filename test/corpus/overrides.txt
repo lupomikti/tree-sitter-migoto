@@ -20,18 +20,15 @@ $count2 = $count2 + 1
       (header_identifier))
     (commandlist_section_body
       (setting_statement
-        (setting_statement_key
-          (multi_section_key))
+        (setting_statement_key)
         (setting_statement_value
-          (free_text)))
+          (fixed_setting_key_value)))
       (setting_statement
-        (setting_statement_key
-          (shader_override_key))
+        (setting_statement_key)
         (setting_statement_value
           (boolean_value)))
       (setting_statement
-        (setting_statement_key
-          (multi_section_key))
+        (setting_statement_key)
         (setting_statement_value
           (numeric_constant)))
       (conditional_statement
@@ -41,8 +38,7 @@ $count2 = $count2 + 1
           (block
             (check_texture_override_instruction
               (instruction)
-              (resource_operand
-                (shader_variable))))))
+              (shader_variable)))))
       (assignment_statement
         (named_variable
           (variable_identifier))
@@ -109,36 +105,30 @@ endif
       (header_identifier))
     (commandlist_section_body
       (setting_statement
-        (setting_statement_key
-          (multi_section_key))
+        (setting_statement_key)
         (setting_statement_value
-          (free_text)))
+          (fixed_setting_key_value)))
       (assignment_statement
-        (resource_operand
-          (buffer_variable))
+        (buffer_variable)
         (resource_usage_expression
-          (resource_operand
-            (custom_resource
-              (resource_prefix)
-              (section_identifier)))))))
+          (custom_resource
+            (resource_prefix)
+            (section_identifier))))))
   (commandlist_section
     (commandlist_section_header
       (header_prefix)
       (header_identifier))
     (commandlist_section_body
       (setting_statement
-        (setting_statement_key
-          (multi_section_key))
+        (setting_statement_key)
         (setting_statement_value
-          (free_text)))
+          (fixed_setting_key_value)))
       (setting_statement
-        (setting_statement_key
-          (texov_vertex_limit_key))
+        (setting_statement_key)
         (setting_statement_value
           (numeric_constant)))
       (setting_statement
-        (setting_statement_key
-          (texov_vertex_limit_key))
+        (setting_statement_key)
         (setting_statement_value
           (numeric_constant)))))
   (commandlist_section
@@ -147,10 +137,9 @@ endif
       (header_identifier))
     (commandlist_section_body
       (setting_statement
-        (setting_statement_key
-          (multi_section_key))
+        (setting_statement_key)
         (setting_statement_value
-          (free_text)))
+          (fixed_setting_key_value)))
       (handling_instruction
         (instruction)
         (handling_key_value))))
@@ -160,59 +149,49 @@ endif
       (header_identifier))
     (commandlist_section_body
       (setting_statement
-        (setting_statement_key
-          (multi_section_key))
+        (setting_statement_key)
         (setting_statement_value
-          (free_text)))
+          (fixed_setting_key_value)))
       (setting_statement
-        (setting_statement_key
-          (texov_draw_match_key))
+        (setting_statement_key)
         (setting_statement_value
           (numeric_constant)))
       (assignment_statement
-        (resource_operand
-          (buffer_variable))
+        (buffer_variable)
         (resource_usage_expression
-          (resource_operand
-            (custom_resource
-              (resource_prefix)
-              (section_identifier)))))
-      (assignment_statement
-        (resource_operand
           (custom_resource
             (resource_prefix)
-            (namespace)
-            (section_identifier)))
+            (section_identifier))))
+      (assignment_statement
+        (custom_resource
+          (resource_prefix)
+          (namespace)
+          (section_identifier))
         (resource_usage_expression
           (resource_modifier)
-          (resource_operand
-            (custom_resource
-              (resource_prefix)
-              (section_identifier)))))
-      (assignment_statement
-        (resource_operand
           (custom_resource
             (resource_prefix)
-            (namespace)
-            (section_identifier)))
+            (section_identifier))))
+      (assignment_statement
+        (custom_resource
+          (resource_prefix)
+          (namespace)
+          (section_identifier))
         (resource_usage_expression
           (resource_modifier)
-          (resource_operand
-            (custom_resource
-              (resource_prefix)
-              (section_identifier)))))
-      (assignment_statement
-        (resource_operand
           (custom_resource
             (resource_prefix)
-            (namespace)
-            (section_identifier)))
+            (section_identifier))))
+      (assignment_statement
+        (custom_resource
+          (resource_prefix)
+          (namespace)
+          (section_identifier))
         (resource_usage_expression
           (resource_modifier)
-          (resource_operand
-            (custom_resource
-              (resource_prefix)
-              (section_identifier)))))
+          (custom_resource
+            (resource_prefix)
+            (section_identifier))))
       (conditional_statement
         (if_statement
           (binary_expression
@@ -221,17 +200,15 @@ endif
             (numeric_constant))
           (block
             (assignment_statement
-              (resource_operand
-                (custom_resource
-                  (resource_prefix)
-                  (namespace)
-                  (section_identifier)))
+              (custom_resource
+                (resource_prefix)
+                (namespace)
+                (section_identifier))
               (resource_usage_expression
                 (resource_modifier)
-                (resource_operand
-                  (custom_resource
-                    (resource_prefix)
-                    (section_identifier))))))))
+                (custom_resource
+                  (resource_prefix)
+                  (section_identifier)))))))
       (conditional_statement
         (if_statement
           (binary_expression
@@ -247,17 +224,15 @@ endif
                   (numeric_constant))
                 (block
                   (assignment_statement
-                    (resource_operand
-                      (custom_resource
-                        (resource_prefix)
-                        (namespace)
-                        (section_identifier)))
+                    (custom_resource
+                      (resource_prefix)
+                      (namespace)
+                      (section_identifier))
                     (resource_usage_expression
                       (resource_modifier)
-                      (resource_operand
-                        (custom_resource
-                          (resource_prefix)
-                          (section_identifier)))))))
+                      (custom_resource
+                        (resource_prefix)
+                        (section_identifier))))))
               (elseif_statement
                 (binary_expression
                   (named_variable
@@ -265,17 +240,15 @@ endif
                   (numeric_constant))
                 (block
                   (assignment_statement
-                    (resource_operand
-                      (custom_resource
-                        (resource_prefix)
-                        (namespace)
-                        (section_identifier)))
+                    (custom_resource
+                      (resource_prefix)
+                      (namespace)
+                      (section_identifier))
                     (resource_usage_expression
                       (resource_modifier)
-                      (resource_operand
-                        (custom_resource
-                          (resource_prefix)
-                          (section_identifier)))))))))))
+                      (custom_resource
+                        (resource_prefix)
+                        (section_identifier))))))))))
       (run_instruction
         (instruction)
         (callable_commandlist
@@ -329,8 +302,7 @@ endif
       (header_identifier))
     (commandlist_section_body
       (setting_statement
-        (setting_statement_key
-          (multi_section_key))
+        (setting_statement_key)
         (setting_statement_value
           (numeric_constant)))
       (conditional_statement
@@ -341,14 +313,11 @@ endif
             (numeric_constant))
           (block
             (setting_statement
-              (setting_statement_key
-                (texov_draw_match_key))
+              (setting_statement_key)
               (setting_statement_value
                 (numeric_constant)))
             (assignment_statement
-              (resource_operand
-                (buffer_variable))
+              (buffer_variable)
               (resource_usage_expression
-                (resource_operand
-                  (resource_identifier
-                    (null)))))))))))
+                (resource_identifier
+                  (null))))))))))

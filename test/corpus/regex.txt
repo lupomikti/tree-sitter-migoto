@@ -41,9 +41,8 @@ endif
         (free_text))
       (conditional_statement
         (if_statement
-          (resource_comparison_expression
-            (resource_operand
-              (shader_variable))
+          (binary_expression
+            (shader_variable)
             (numeric_constant))
           (block
             (run_instruction
@@ -52,26 +51,21 @@ endif
                 (callable_prefix)
                 (section_identifier)))
             (assignment_statement
-              (resource_operand
-                (shader_variable))
+              (shader_variable)
               (resource_usage_expression
-                (resource_operand
-                  (resource_identifier
-                    (null))))))))
+                (resource_identifier
+                  (null)))))))
       (conditional_statement
         (if_statement
-          (resource_comparison_expression
-            (resource_operand
-              (shader_variable))
+          (binary_expression
+            (shader_variable)
             (numeric_constant))
           (block
             (assignment_statement
-              (resource_operand
-                (shader_variable))
+              (shader_variable)
               (resource_usage_expression
-                (resource_operand
-                  (resource_identifier
-                    (null)))))))))))
+                (resource_identifier
+                  (null))))))))))
 
 =====
 Shader Regex Pattern
@@ -261,11 +255,9 @@ dcl_sampler s15, mode_default
       (header_identifier))
     (setting_section_body
       (setting_statement
-        (setting_statement_key
-          (resource_section_key))
+        (setting_statement_key)
         (setting_statement_value
-          (path_value
-            (file_key_value))))))
+          (file_key_value)))))
   (shader_regex_replace_section
     (shader_regex_replace_header
       (header_prefix)

@@ -22,21 +22,18 @@ persist global $var5 = -.2
       (global_declaration
         variable: (named_variable
           (variable_identifier)))
-      (global_declaration
-        (assignment_statement
-          variable: (named_variable
-            (variable_identifier))
-          value: (numeric_constant)))
-      (global_declaration
-        (assignment_statement
-          variable: (named_variable
-            (variable_identifier))
-          value: (numeric_constant)))
-      (global_declaration
-        (assignment_statement
-          variable: (named_variable
-            (variable_identifier))
-          value: (numeric_constant))))))
+      (global_initialisation
+        variable: (named_variable
+          (variable_identifier))
+        value: (numeric_constant))
+      (global_initialisation
+        variable: (named_variable
+          (variable_identifier))
+        value: (numeric_constant))
+      (global_initialisation
+        variable: (named_variable
+          (variable_identifier))
+        value: (numeric_constant)))))
 
 =====
 Constants With Statements
@@ -58,16 +55,14 @@ endif
     header: (constants_section_header
       (header_identifier))
     body: (constants_section_body
-      (global_declaration
-        (assignment_statement
-          variable: (named_variable
-            (variable_identifier))
-          value: (numeric_constant)))
-      (global_declaration
-        (assignment_statement
-          variable: (named_variable
-            (variable_identifier))
-          value: (numeric_constant)))
+      (global_initialisation
+        variable: (named_variable
+          (variable_identifier))
+        value: (numeric_constant))
+      (global_initialisation
+        variable: (named_variable
+          (variable_identifier))
+        value: (numeric_constant))
       (comment)
       (conditional_statement
         (if_statement

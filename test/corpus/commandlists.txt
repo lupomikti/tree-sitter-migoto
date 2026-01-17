@@ -168,29 +168,24 @@ endif
           (block
             (check_texture_override_instruction
               (instruction)
-              (resource_operand
-                (shader_variable)))
+              (shader_variable))
             (check_texture_override_instruction
               (instruction)
-              (resource_operand
-                (buffer_variable)))
+              (buffer_variable))
             (check_texture_override_instruction
               (instruction)
-              (resource_operand
-                (buffer_variable)))
+              (buffer_variable))
             (check_texture_override_instruction
               (instruction)
-              (resource_operand
-                (buffer_variable)))
+              (buffer_variable))
             (check_texture_override_instruction
               (instruction)
-              (resource_operand
-                (buffer_variable)))
+              (buffer_variable))
             (check_texture_override_instruction
               (instruction)
-              (resource_operand
-                (buffer_variable)))
+              (buffer_variable))
             (run_instruction
+              (execution_modifier)
               (instruction)
               (callable_commandlist
                 (callable_prefix)
@@ -232,73 +227,60 @@ endif
           (block
             (check_texture_override_instruction
               (instruction)
-              (resource_operand
-                (shader_variable)))
+              (shader_variable))
             (conditional_statement
               (if_statement
-                (parenthesized_resource_comparison_expression
-                  (resource_comparison_expression
-                    (resource_comparison_expression
-                      (resource_operand
-                        (custom_resource
-                          (resource_prefix)
-                          (section_identifier)))
-                      (resource_operand
-                        (resource_identifier
-                          (null))))
-                    (resource_comparison_expression
-                      (resource_operand
-                        (custom_resource
-                          (resource_prefix)
-                          (section_identifier)))
-                      (resource_operand
-                        (resource_identifier
-                          (null))))))
+                (parenthesized_expression
+                  (binary_expression
+                    (binary_expression
+                      (custom_resource
+                        (resource_prefix)
+                        (section_identifier))
+                      (resource_identifier
+                        (null)))
+                    (binary_expression
+                      (custom_resource
+                        (resource_prefix)
+                        (section_identifier))
+                      (resource_identifier
+                        (null)))))
                 (block
                   (handling_instruction
                     (instruction)
                     (handling_key_value))
                   (assignment_statement
-                    (resource_operand
-                      (shader_variable))
+                    (shader_variable)
                     (resource_usage_expression
                       (resource_modifier)
-                      (resource_operand
-                        (custom_resource
-                          (resource_prefix)
-                          (section_identifier)))))
+                      (custom_resource
+                        (resource_prefix)
+                        (section_identifier))))
                   (assignment_statement
-                    (resource_operand
-                      (shader_variable))
+                    (shader_variable)
                     (resource_usage_expression
                       (resource_modifier)
-                      (resource_operand
-                        (custom_resource
-                          (resource_prefix)
-                          (section_identifier)))))
+                      (custom_resource
+                        (resource_prefix)
+                        (section_identifier))))
                   (run_instruction
                     (instruction)
                     (callable_customshader
                       (callable_prefix)
                       (section_identifier)))
                   (assignment_statement
-                    (resource_operand
-                      (custom_resource
-                        (resource_prefix)
-                        (section_identifier)))
+                    (custom_resource
+                      (resource_prefix)
+                      (section_identifier))
                     (resource_usage_expression
-                      (resource_operand
-                        (resource_identifier
-                          (null)))))
+                      (resource_identifier
+                        (null))))
                   (assignment_statement
-                    (resource_operand
-                      (custom_resource
-                        (resource_prefix)
-                        (section_identifier)))
+                    (custom_resource
+                      (resource_prefix)
+                      (section_identifier))
                     (resource_usage_expression
-                      (resource_operand
-                        (resource_identifier
-                          (null))))))))))))))
+                      (resource_identifier
+                        (null)))))))))))))
 
 =====
 Present Section
@@ -321,6 +303,7 @@ endif
       (header_identifier))
     (commandlist_section_body
       (assignment_statement
+        (execution_modifier)
         (named_variable
           (namespace)
           (variable_identifier))
@@ -331,6 +314,7 @@ endif
           (named_variable
             (variable_identifier))))
       (run_instruction
+        (execution_modifier)
         (instruction)
         (callable_commandlist
           (callable_prefix)
@@ -349,10 +333,12 @@ endif
             (numeric_constant))
           (block
             (assignment_statement
+              (execution_modifier)
               (named_variable
                 (variable_identifier))
               (numeric_constant))
             (run_instruction
+              (execution_modifier)
               (instruction)
               (callable_commandlist
                 (callable_prefix)

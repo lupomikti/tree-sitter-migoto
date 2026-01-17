@@ -15,7 +15,7 @@ format = DXGI_FORMAT_R32_UINT
 filename = LegsA.ib
 
 [ResourceCharacterBlackRedADiffuse]
-filename = BlackRedADiffuse.dds
+filename = 8.dds
 
 [ResourceCreditInfo]
 type = Buffer
@@ -34,70 +34,54 @@ data = "A string to be displayed on screen"
       (header_identifier))
     (setting_section_body
       (setting_statement
-        (setting_statement_key
-          (resource_section_key))
+        (setting_statement_key)
         (setting_statement_value
-          (fixed_key_value
-            (resource_type))))
+          (resource_type)))
       (setting_statement
-        (setting_statement_key
-          (resource_section_key))
+        (setting_statement_key)
         (setting_statement_value
           (numeric_constant)))
       (setting_statement
-        (setting_statement_key
-          (resource_section_key))
+        (setting_statement_key)
         (setting_statement_value
-          (path_value
-            (file_key_value))))))
+          (file_key_value)))))
   (setting_section
     (setting_section_header
       (header_prefix)
       (header_identifier))
     (setting_section_body
       (setting_statement
-        (setting_statement_key
-          (resource_section_key))
+        (setting_statement_key)
         (setting_statement_value
-          (fixed_key_value
-            (resource_type))))
+          (resource_type)))
       (setting_statement
-        (setting_statement_key
-          (multi_section_key))
+        (setting_statement_key)
         (setting_statement_value
-          (fixed_key_value
-            (resource_format))))
+          (resource_format)))
       (setting_statement
-        (setting_statement_key
-          (resource_section_key))
+        (setting_statement_key)
         (setting_statement_value
-          (path_value
-            (file_key_value))))))
+          (file_key_value)))))
   (setting_section
     (setting_section_header
       (header_prefix)
       (header_identifier))
     (setting_section_body
       (setting_statement
-        (setting_statement_key
-          (resource_section_key))
+        (setting_statement_key)
         (setting_statement_value
-          (path_value
-            (file_key_value))))))
+          (file_key_value)))))
   (setting_section
     (setting_section_header
       (header_prefix)
       (header_identifier))
     (setting_section_body
       (setting_statement
-        (setting_statement_key
-          (resource_section_key))
+        (setting_statement_key)
         (setting_statement_value
-          (fixed_key_value
-            (resource_type))))
+          (resource_type)))
       (setting_statement
-        (setting_statement_key
-          (resource_section_key))
+        (setting_statement_key)
         (setting_statement_value
           (string))))))
 
@@ -119,37 +103,33 @@ data = R32_FLOAT  -0.25 +0.90 +0.25 +0.80   1.00 1.00 1.00 1.00   0.00 0.00 0.00
       (header_identifier))
     (setting_section_body
       (setting_statement
-        (setting_statement_key
-          (resource_section_key))
+        (setting_statement_key)
         (setting_statement_value
-          (fixed_key_value
-            (resource_type))))
+          (resource_type)))
       (setting_statement
-        (setting_statement_key
-          (resource_section_key))
+        (setting_statement_key)
         (setting_statement_value
           (numeric_constant)))
       (setting_statement
-        (setting_statement_key
-          (resource_section_key))
+        (setting_statement_key)
         (setting_statement_value
-          (fixed_key_value
-            (resource_format))
-          (numeric_constant)
-          (numeric_constant)
-          (numeric_constant)
-          (numeric_constant)
-          (numeric_constant)
-          (numeric_constant)
-          (numeric_constant)
-          (numeric_constant)
-          (numeric_constant)
-          (numeric_constant)
-          (numeric_constant)
-          (numeric_constant)
-          (numeric_constant)
-          (numeric_constant)
-          (numeric_constant)
-          (numeric_constant)
-          (numeric_constant)
-          (numeric_constant))))))
+          (resource_data_array_expression
+            (resource_format)
+            (numeric_constant)
+            (numeric_constant)
+            (numeric_constant)
+            (numeric_constant)
+            (numeric_constant)
+            (numeric_constant)
+            (numeric_constant)
+            (numeric_constant)
+            (numeric_constant)
+            (numeric_constant)
+            (numeric_constant)
+            (numeric_constant)
+            (numeric_constant)
+            (numeric_constant)
+            (numeric_constant)
+            (numeric_constant)
+            (numeric_constant)
+            (numeric_constant)))))))
