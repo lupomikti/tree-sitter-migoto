@@ -3539,6 +3539,10 @@
         {
           "type": "SYMBOL",
           "name": "frame_analysis_option_list"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "marking_actions_option_list"
         }
       ]
     },
@@ -3867,6 +3871,13 @@
       "type": "PATTERN",
       "value": "(zero|one|(?:inv_)?(?:src1?|dest)_(?:color|alpha)|src_alpha_sat|(?:inv_)?blend_factor)",
       "flags": "i"
+    },
+    "marking_actions_option_list": {
+      "type": "REPEAT1",
+      "content": {
+        "type": "SYMBOL",
+        "name": "marking_actions_option"
+      }
     },
     "frame_analysis_option_list": {
       "type": "REPEAT1",
@@ -5714,6 +5725,11 @@
     "frame_analysis_option": {
       "type": "PATTERN",
       "value": "(?xi)(\n      hold|stereo|mono|\n      dump_(?:rt|depth|tex|[cvi]b)|jp(?:s|e?g)|(?:jp(?:s|e?g)_)?dds|buf|txt|desc|clear_rt|persist|\n      filename_(?:reg|handle)|log|dump_on_(?:unmap|update)|deferred_ctx_(?:immediate|accurate)|\n      share_dupes|symlink|dump_(?:rt|depth|tex)_(?:jps|dds)|dump_[cvi]b_txt)"
+    },
+    "marking_actions_option": {
+      "type": "PATTERN",
+      "value": "(clipboard|hlsl|asm|regex|mono_snapshot|stereo_snapshot|snapshot_if_pink)",
+      "flags": "i"
     },
     "regex_replacement": {
       "type": "CHOICE",

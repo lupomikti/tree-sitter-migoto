@@ -128,6 +128,10 @@
         "named": true
       },
       {
+        "type": "marking_actions_option_list",
+        "named": true
+      },
+      {
         "type": "resource_data_array_expression",
         "named": true
       },
@@ -1604,6 +1608,21 @@
           }
         ]
       }
+    }
+  },
+  {
+    "type": "marking_actions_option_list",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "marking_actions_option",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -3119,6 +3138,10 @@
   {
     "type": "local",
     "named": false
+  },
+  {
+    "type": "marking_actions_option",
+    "named": true
   },
   {
     "type": "namespace",

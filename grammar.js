@@ -31,12 +31,6 @@ const namespace_regex = /[^\s>\\|\/<?:*="$][^>\\|\/<?:*=$\r\n]+(?:[\\\/][^>\\|\/
 const path_regex = /(?:(?:(?:[a-z]:|\.[\.]?)[\\\/])?(?:\.\.|[^\s>\\|\/<?:*="$][^>\\|\/<?:*="$\r\n]+)(?:[\\\/](?:\.\.|[^\s>\\|\/<?:*="$][^>\\|\/<?:*="$\r\n]+))+)/i
 const file_regex = /[^\s>\\|\/<?:*="$\r\n][^>\\|\/<?:*="$\r\n]*\.[a-z\-]+/i // intentionally choosing to not support numerals in file extensions
 
-const custom_shader_state_keys = new RustRegex(`(?xi)(
-  blend_factor\\[[0-3]\\]|(?:blend|alpha|mask)(?:\\[[0-7]\\])?|alpha_to_coverage|sample_mask|blend_state_merge|
-  depth_(?:enable|write_mask|func|stencil_state_merge)|stencil_(?:enable|(?:read|write)_mask|front|back|ref)|
-  fill|cull|front|depth_(?:bias(?:_clamp)?|clip_enable)|slope_scaled_depth_bias|(?:scissor|multisample|antialiased_line)_enable|rasterizer_state_merge
-)`)
-
 const custom_shader_keys_with_brackets = new RustRegex(`(?xi)(blend_factor\\[[0-3]\\]|(?:blend|alpha|mask)(?:\\[[0-7]\\])?)`)
 
 const setting_section_key_binding_keys = new RustRegex(`(?xi)(
@@ -51,12 +45,6 @@ const setting_section_key_binding_keys = new RustRegex(`(?xi)(
 
 const resource_type_values = new RustRegex(`(?xi)(
   (?:RW)?(?:Append|Consume)?StructuredBuffer|(?:RW)?(?:ByteAddress)?Buffer|(?:RW)?Texture[123]D|TextureCube
-)`)
-
-const resource_key_values = new RustRegex(`(?xi)(
-  auto|stereo|
-  (?:vertex|index|constant)_buffer|shader_resource|stream_output|render_target|unordered_access|decoder|video_encoder|
-  texturecube|generate_mips|shared|drawindirect_args|buffer_(?:allow_raw_views|structured)|resource_clamp|shared_(?:keymutex|nthandle)|gdi_compatible|restricted_content|restrict_shared_resource(?:_driver)?|guarded|tile_pool|tiled|hw_protected
 )`)
 
 const dxgi_types_regex = new RustRegex(`(?xi)(?:DXGI_FORMAT_)?(UNKNOWN|R32G32B32A32_TYPELESS|R32G32B32A32_FLOAT|R32G32B32A32_UINT|R32G32B32A32_SINT|R32G32B32_TYPELESS|R32G32B32_FLOAT|R32G32B32_UINT|R32G32B32_SINT|R16G16B16A16_TYPELESS|R16G16B16A16_FLOAT|R16G16B16A16_UNORM|R16G16B16A16_UINT|R16G16B16A16_SNORM|R16G16B16A16_SINT
@@ -907,7 +895,8 @@ export default grammar({
       $.resource_usage_expression,
       $.resource_data_array_expression,
       $.blend_expression,
-      $.frame_analysis_option_list
+      $.frame_analysis_option_list,
+      $.marking_actions_option_list
     ),
 
     // written to guarantee 2 or more desired nodes
@@ -980,6 +969,8 @@ export default grammar({
     ),
 
     blend_factor: _ => /(zero|one|(?:inv_)?(?:src1?|dest)_(?:color|alpha)|src_alpha_sat|(?:inv_)?blend_factor)/i,
+
+    marking_actions_option_list: $ => repeat1($.marking_actions_option),
 
     frame_analysis_option_list: $ => repeat1($.frame_analysis_option),
 
@@ -1158,6 +1149,8 @@ export default grammar({
       filename_(?:reg|handle)|log|dump_on_(?:unmap|update)|deferred_ctx_(?:immediate|accurate)|
       share_dupes|symlink|dump_(?:rt|depth|tex)_(?:jps|dds)|dump_[cvi]b_txt)`
     ),
+
+    marking_actions_option: _ => /(clipboard|hlsl|asm|regex|mono_snapshot|stereo_snapshot|snapshot_if_pink)/i,
 
     regex_replacement: _ => choice(
       seq('${', /\w+/i, '}'), // ${identifier}

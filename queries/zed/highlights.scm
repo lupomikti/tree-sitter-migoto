@@ -133,7 +133,10 @@
 
 (blend_factor) @keyword
 
-(frame_analysis_option) @constant
+[
+  (frame_analysis_option)
+  (marking_actions_option)
+] @constant
 
 (boolean_value) @boolean
 
