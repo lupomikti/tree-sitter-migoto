@@ -470,11 +470,8 @@ callable:
     char lookahead = lexer->lookahead;
 
     do {
-        // if we hit whitespace or non-alphabetical before collecting the correct number of characters
         // if we see a terminal before collecting the correct number of characters
-        if (iswspace(lookahead) || !iswalpha(lookahead) ||
-            lookahead == ']' || lookahead == '\n' || lexer->eof(lexer))
-        {
+        if (lookahead == ']' || lookahead == '\n' || lexer->eof(lexer)) {
             reset(scanner);
             return false;
         }
