@@ -23,6 +23,7 @@
   (key_setting_statement)
   (key_condition_statement)
   (key_assignment_statement)
+  (key_run_instruction)
   (preset_setting_statement)
   (preset_assignment_statement)
   (instruction_statement)
