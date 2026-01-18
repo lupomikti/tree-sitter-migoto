@@ -516,6 +516,13 @@ export default grammar({
         field('value', $.setting_statement_value),
         $._newline
       ),
+      // the hash key needs to take free_text, which would normally conflict with fixed_text here
+      seq(
+        field('key', alias(/hash/i, $.setting_statement_key)),
+        '=',
+        field('value', alias($._hash_value, $.setting_statement_value)),
+        $._newline
+      ),
       // the shader name keys used in custom shader sections which can be a path or null
       seq(
         field('key', alias(/[vhdgpc]s/i, $.setting_statement_key)),
@@ -539,6 +546,8 @@ export default grammar({
       )
     ),
 
+    _hash_value: $ => $.free_text,
+
     _specific_custom_shader_value: $ => choice($.null, $._path_value),
 
     _specific_key_binding_value: $ => choice($.free_text, $._exception_character, $.key_binding_expression),
@@ -556,13 +565,13 @@ export default grammar({
     setting_statement_value: $ => choice(
       alias(dxgi_types_regex, $.resource_format),
       alias(resource_type_values, $.resource_type),
-      field('fixed_value', alias($.fixed_value, $.fixed_setting_key_value)),
       $.numeric_constant,
       $.boolean_value,
       $.string,
       $._path_value,
       $.fuzzy_match_expression,
       $.list_expression,
+      field('fixed_value', alias($.fixed_value, $.fixed_setting_key_value)),
     ),
 
     commandlist_section_header: $ => seq(

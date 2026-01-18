@@ -22,7 +22,7 @@ $count2 = $count2 + 1
       (setting_statement
         (setting_statement_key)
         (setting_statement_value
-          (fixed_setting_key_value)))
+          (free_text)))
       (setting_statement
         (setting_statement_key)
         (setting_statement_value
@@ -107,7 +107,7 @@ endif
       (setting_statement
         (setting_statement_key)
         (setting_statement_value
-          (fixed_setting_key_value)))
+          (free_text)))
       (assignment_statement
         (buffer_variable)
         (resource_usage_expression
@@ -122,7 +122,7 @@ endif
       (setting_statement
         (setting_statement_key)
         (setting_statement_value
-          (fixed_setting_key_value)))
+          (free_text)))
       (setting_statement
         (setting_statement_key)
         (setting_statement_value
@@ -139,7 +139,7 @@ endif
       (setting_statement
         (setting_statement_key)
         (setting_statement_value
-          (fixed_setting_key_value)))
+          (free_text)))
       (handling_instruction
         (instruction)
         (handling_key_value))))
@@ -151,7 +151,7 @@ endif
       (setting_statement
         (setting_statement_key)
         (setting_statement_value
-          (fixed_setting_key_value)))
+          (free_text)))
       (setting_statement
         (setting_statement_key)
         (setting_statement_value
@@ -304,7 +304,7 @@ endif
       (setting_statement
         (setting_statement_key)
         (setting_statement_value
-          (numeric_constant)))
+          (free_text)))
       (conditional_statement
         (if_statement
           (binary_expression

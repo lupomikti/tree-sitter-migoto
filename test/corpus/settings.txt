@@ -531,7 +531,8 @@ analyse_options = dump_rt dump_tex dump_cb dump_vb dump_ib buf txt
       (setting_statement
         (setting_statement_key)
         (setting_statement_value
-          (fixed_setting_key_value)))
+          (marking_actions_option_list
+            (marking_actions_option))))
       (comment)
       (setting_statement
         (setting_statement_key)
