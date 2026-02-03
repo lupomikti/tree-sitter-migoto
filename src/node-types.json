@@ -1545,11 +1545,19 @@
         ]
       },
       "value": {
-        "multiple": false,
+        "multiple": true,
         "required": true,
         "types": [
           {
+            "type": ",",
+            "named": false
+          },
+          {
             "type": "exception_character",
+            "named": true
+          },
+          {
+            "type": "fixed_key_key_value",
             "named": true
           },
           {
@@ -1562,6 +1570,10 @@
           },
           {
             "type": "key_section_value",
+            "named": true
+          },
+          {
+            "type": "numeric_constant",
             "named": true
           }
         ]

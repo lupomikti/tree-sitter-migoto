@@ -257,3 +257,76 @@ run = CommandListEffect1, CommandListEffect2, CommandListCleanUp
         (callable_commandlist
           (callable_prefix)
           (section_identifier))))))
+
+=====
+Extra Listables
+=====
+
+[KeyE]
+condition = $active == 1 && $var1, $active == 1 && $var2, $active == 0
+key = n
+back = p
+type = cycle
+separation = 1, 2, 0
+convergence = 2, 1, 0
+transition = 2, 3, 0
+transition_type = linear, cosine, linear
+
+---
+
+(document
+  (key_section
+    (key_section_header
+      (header_prefix)
+      (header_identifier))
+    (key_section_body
+      (key_condition_statement
+        (condition_key)
+        (binary_expression
+          (binary_expression
+            (named_variable
+              (variable_identifier))
+            (numeric_constant))
+          (named_variable
+            (variable_identifier)))
+        (binary_expression
+          (binary_expression
+            (named_variable
+              (variable_identifier))
+            (numeric_constant))
+          (named_variable
+            (variable_identifier)))
+        (binary_expression
+          (named_variable
+            (variable_identifier))
+          (numeric_constant)))
+      (key_setting_statement
+        (key_section_key)
+        (free_text))
+      (key_setting_statement
+        (key_section_key)
+        (free_text))
+      (key_setting_statement
+        (key_section_key)
+        (key_section_value
+          (fixed_key_key_value)))
+      (key_setting_statement
+        (key_section_key)
+        (numeric_constant)
+        (numeric_constant)
+        (numeric_constant))
+      (key_setting_statement
+        (key_section_key)
+        (numeric_constant)
+        (numeric_constant)
+        (numeric_constant))
+      (key_setting_statement
+        (key_section_key)
+        (numeric_constant)
+        (numeric_constant)
+        (numeric_constant))
+      (key_setting_statement
+        (key_section_key)
+        (fixed_key_key_value)
+        (fixed_key_key_value)
+        (fixed_key_key_value)))))

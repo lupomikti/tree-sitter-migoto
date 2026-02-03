@@ -15,9 +15,9 @@ const PREC = {
   RELATION: 4, // @not-implemented ~ (e.g. `in` or `instanceof` in javascript)
   EQUALITY: 5, // == === != !==
   BIT_OR: 6, // @not-implemented |
-  BIT_NOT: 7, // @not-implemented ^
-  BIT_AND: 8, // @not-implemented &
-  BIT_SHIFT: 9, // @not-implemented >> <<
+  BIT_AND: 7, // @not-implemented &
+  BIT_SHIFT: 8, // @not-implemented >> <<
+  BIT_NOT: 9, // @not-implemented ^
   CONCAT: 10, // @not-implemented ..
   PLUS: 11, // + -
   MULTI: 12, // * / // %
@@ -86,10 +86,10 @@ const _generate_binary_expr_rule = (rule) => choice(
       ['>=', PREC.COMPARE],
       ['>', PREC.COMPARE],
       // ['|', PREC.BIT_OR],
-      // ['^', PREC.BIT_NOT],
       // ['&', PREC.BIT_AND],
       // ['>>', PREC.BIT_SHIFT],
       // ['<<', PREC.BIT_SHIFT],
+      // ['^', PREC.BIT_NOT],
       ['+', PREC.PLUS],
       ['-', PREC.PLUS],
       ['*', PREC.MULTI],
@@ -263,6 +263,12 @@ export default grammar({
         $._newline
       ),
       seq(
+        field('key', alias($._key_section_listable_key, $.key_section_key)),
+        "=",
+        field('value', choice(list_seq($.numeric_constant, ","), list_seq(alias($.fixed_value, $.fixed_key_key_value), ","))),
+        $._newline
+      ),
+      seq(
         field('key', alias($._key_section_key_binding_key, $.key_section_key)),
         "=",
         field('value', choice($.free_text, $._exception_character, $.key_binding_expression)),
@@ -273,6 +279,8 @@ export default grammar({
     _key_section_key: $ => alias($.fixed_value, $.key_section_key),
 
     _key_section_key_binding_key: _ => token(/key|back/i),
+
+    _key_section_listable_key: _ => token(/separation|convergence|(release_)?transition(_type)?/i),
 
     key_section_value: $ => choice(
       field('fixed_value', alias($.fixed_value, $.fixed_key_key_value)),
