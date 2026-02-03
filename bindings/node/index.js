@@ -14,10 +14,10 @@ try {
 } catch { }
 
 const queries = [
-  ["HIGHLIGHTS_QUERY", `${root}/queries/highlights.scm`],
-  ["INJECTIONS_QUERY", `${root}/queries/injections.scm`],
-  ["LOCALS_QUERY", `${root}/queries/locals.scm`],
-  ["TAGS_QUERY", `${root}/queries/tags.scm`],
+  ["HIGHLIGHTS_QUERY", `${root}/queries/helix/highlights.scm`],
+  ["INJECTIONS_QUERY", `${root}/queries/helix/injections.scm`],
+  ["LOCALS_QUERY", `${root}/queries/helix/locals.scm`],
+  ["TAGS_QUERY", `${root}/queries/helix/tags.scm`],
 ];
 
 for (const [prop, path] of queries) {

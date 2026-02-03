@@ -7,20 +7,22 @@
       "title": "Migoto",
       "scope": "source.migoto",
       "file-types": [
-        "ini"
+        "ini",
+        "3dm",
+        "migoto"
       ],
-      "highlights": "queries/highlights.scm",
-      "tags": "queries/tags.scm",
-      "injections": "queries/injections.scm",
-      "locals": "queries/locals.scm",
+      "highlights": "queries/helix/highlights.scm",
+      "tags": "queries/helix/tags.scm",
+      "injections": "queries/helix/injections.scm",
+      "locals": "queries/helix/locals.scm",
       "injection-regex": "^migoto$",
       "class-name": "TreeSitterMigoto"
     }
   ],
   "metadata": {
-    "version": "0.5.3",
+    "version": "0.5.4",
     "license": "MIT",
-    "description": "DSL for the INI files used by 3Dmigoto",
+    "description": "A tree-sitter parser for the DSL of the INI files used by 3Dmigoto",
     "authors": [
       {
         "name": "LupoMikti",

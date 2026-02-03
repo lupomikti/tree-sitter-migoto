@@ -38,19 +38,19 @@ fn main() {
     c_config.compile("tree-sitter-migoto");
 
     println!("cargo:rustc-check-cfg=cfg(with_highlights_query)");
-    if !"queries/highlights.scm".is_empty() && std::path::Path::new("queries/highlights.scm").exists() {
+    if !"queries/helix/highlights.scm".is_empty() && std::path::Path::new("queries/helix/highlights.scm").exists() {
         println!("cargo:rustc-cfg=with_highlights_query");
     }
     println!("cargo:rustc-check-cfg=cfg(with_injections_query)");
-    if !"queries/injections.scm".is_empty() && std::path::Path::new("queries/injections.scm").exists() {
+    if !"queries/helix/injections.scm".is_empty() && std::path::Path::new("queries/helix/injections.scm").exists() {
         println!("cargo:rustc-cfg=with_injections_query");
     }
     println!("cargo:rustc-check-cfg=cfg(with_locals_query)");
-    if !"queries/locals.scm".is_empty() && std::path::Path::new("queries/locals.scm").exists() {
+    if !"queries/helix/locals.scm".is_empty() && std::path::Path::new("queries/helix/locals.scm").exists() {
         println!("cargo:rustc-cfg=with_locals_query");
     }
     println!("cargo:rustc-check-cfg=cfg(with_tags_query)");
-    if !"queries/tags.scm".is_empty() && std::path::Path::new("queries/tags.scm").exists() {
+    if !"queries/helix/tags.scm".is_empty() && std::path::Path::new("queries/helix/tags.scm").exists() {
         println!("cargo:rustc-cfg=with_tags_query");
     }
 }
