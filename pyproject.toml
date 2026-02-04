@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "tree-sitter-migoto"
 description = "A tree-sitter parser for the DSL of the INI files used by 3Dmigoto"
-version = "0.5.4"
+version = "0.5.5"
 keywords = ["incremental", "parsing", "tree-sitter", "migoto"]
 classifiers = [
   "Intended Audience :: Developers",
@@ -15,7 +15,7 @@ classifiers = [
 ]
 authors = [{ name = "LupoMikti", email = "lykare@proton.me" }]
 requires-python = ">=3.10"
-license.text = "MIT"
+license = "MIT"
 readme = "README.md"
 
 [project.urls]
