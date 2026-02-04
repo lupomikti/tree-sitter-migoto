@@ -717,6 +717,12 @@
     }
   },
   {
+    "type": "comment",
+    "named": true,
+    "extra": true,
+    "fields": {}
+  },
+  {
     "type": "conditional_include_statement",
     "named": true,
     "fields": {},
@@ -3029,11 +3035,6 @@
   {
     "type": "clear_instruction_key_value",
     "named": true
-  },
-  {
-    "type": "comment",
-    "named": true,
-    "extra": true
   },
   {
     "type": "condition_key",

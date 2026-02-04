@@ -86,7 +86,6 @@ ret
       (header_identifier))
     (shader_regex_pattern_body
       (regex_pattern)
-      (regex_pattern)
       (comment)
       (regex_pattern)
       (regex_pattern))))
@@ -242,7 +241,6 @@ dcl_sampler s15, mode_default
       (header_prefix)
       (header_identifier))
     (shader_regex_pattern_body
-      (regex_pattern)
       (regex_pattern)
       (comment)
       (regex_pattern)

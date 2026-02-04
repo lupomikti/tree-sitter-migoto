@@ -546,11 +546,16 @@ static inline bool scan_line(Scanner *scanner, TSLexer *lexer, const bool *valid
             // if we haven't seen any text yet, the first we see is a semicolon
             // this is not an external line, it's a comment
 
-            if (valid_symbols[EXTERNAL_LINE]) result = EXTERNAL_LINE;
-            else if (is_guard) result = SECTION_HEADER_GUARD;
+            if (valid_symbols[EXTERNAL_LINE]) {
+                lexer->result_symbol = EXTERNAL_LINE;
+                return false;
+            }
+            else if (is_guard) {
+                result = SECTION_HEADER_GUARD;
+            }
 
-            // return zero-width true if this was looking for an external line or section header guard
-            // so the comment doesn't escape the whole section
+            // return zero-width true if this was looking for a section header guard
+            // so that it can continue to process the rest of the regex body
             break;
         }
         else if (!saw_text && lexer->lookahead == '[') {

@@ -1180,10 +1180,13 @@ export default grammar({
 
     fixed_value: _ => token(prec(-1, /[a-z0-9][a-z0-9_]+/i)),
 
-    comment: $ => token(seq(
-      field('start', ';'),
-      field('content', alias(/[^\r\n]*/, $.comment_content))
-    )),
+    comment: $ => seq(
+      token(seq(
+        field('start', ';'),
+        field('content', alias(/[^\r\n]*/, $.comment_content))
+      )),
+      $._newline
+    ),
 
     null: _ => /null/i,
 
