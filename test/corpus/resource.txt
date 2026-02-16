@@ -21,6 +21,12 @@ filename = 8.dds
 type = Buffer
 data = "A string to be displayed on screen"
 
+[ResourceWithPath]
+filename = Buffer/somethingdumb withspaces and=sign.buf
+
+[ResourceWithEqualinPath]
+filename = HasAn = Sign/somefile.buf
+
 ---
 
 (document
@@ -83,7 +89,25 @@ data = "A string to be displayed on screen"
       (setting_statement
         (setting_statement_key)
         (setting_statement_value
-          (string))))))
+          (string)))))
+  (setting_section
+    (setting_section_header
+      (header_prefix)
+      (header_identifier))
+    (setting_section_body
+      (setting_statement
+        (setting_statement_key)
+        (setting_statement_value
+          (path_key_value)))))
+  (setting_section
+    (setting_section_header
+      (header_prefix)
+      (header_identifier))
+    (setting_section_body
+      (setting_statement
+        (setting_statement_key)
+        (setting_statement_value
+          (path_key_value))))))
 
 =====
 Resource Array data
