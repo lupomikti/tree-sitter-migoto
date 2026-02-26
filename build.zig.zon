@@ -1,7 +1,7 @@
 .{
     .name = .tree_sitter_migoto,
     .fingerprint = 0x2b810519de2c72a2,
-    .version = "0.5.7",
+    .version = "0.5.8",
     .dependencies = .{
         .tree_sitter = .{
             .url = "git+https://github.com/tree-sitter/zig-tree-sitter#b4b72c903e69998fc88e27e154a5e3cc9166551b",
