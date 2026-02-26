@@ -65,7 +65,7 @@ local $THREAD_GROUP_COUNT_X = THREAD_GROUP_COUNT_X
 ; Replace CB with new pair of offset, count (Keeps multiplier)
 run = CommandList\LUPOMIv1\ShapeKeyCBOverride
 ; Loads shader and unbind unused slots
-cs = Shaders/ShapeKeyApply.hlsl
+cs = s/ShapeKeyApply.hlsl
 vs = null
 ps = null
 hs = null
@@ -179,9 +179,9 @@ Custom Shader 2
 
 [CustomShaderRenderText]
 ; The vertex shader passes draw indexes to the geometry shader:
-vs = Shaders/TextPrinter.hlsl
+vs = ./Shaders/TextPrinter.hlsl
 ; The geometry shader generates the text for a given draw index:
-gs = Shaders/TextPrinter.hlsl
+gs = .\Shaders/TextPrinter.hlsl
 ; The pixel shader draws the font:
 ps = Shaders/TextPrinter.hlsl
 hs = null

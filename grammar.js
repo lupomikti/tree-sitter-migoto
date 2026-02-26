@@ -28,8 +28,8 @@ const PREC = {
 const custom_section_name = /[^\-+*\/&% !>|<=$,\r\n]+/i
 const custom_resource_section_name = /[^\/& !>|<=$,\r\n]+/i
 const namespace_regex = /[^\s>\\|\/<?:*="$][^>\\|\/<?:*=$\r\n]+(?:[\\\/][^>\\|\/<?:*=$\r\n]+)*/i
-const path_regex = /(?:(?:(?:[a-z]:|\.[\.]?)[\\\/])?(?:\.\.|[^\s>\\|\/<?:*"$][^>\\|\/<?:*"$\r\n]+)(?:[\\\/](?:\.\.|[^\s>\\|\/<?:*"$][^>\\|\/<?:*"$\r\n]+))+)/i
-const file_regex = /[^\s>\\|\/<?:*"$\r\n][^>\\|\/<?:*"$\r\n]*\.[a-z\-]+/i // intentionally choosing to not support numerals in file extensions
+const path_regex = /(?:(?:(?:[a-z]:|\.[\.]?)[\\\/])?(?:\.\.|[^\s>\\|\/<?:*"$][^>\\|\/<?:*"$\r\n]*)(?:[\\\/](?:\.\.|[^\s>\\|\/<?:*"$][^>\\|\/<?:*"$\r\n]*))+)/i
+const file_regex = /[^\s>\\|\/<?:*"$\r\n][^>\\|\/<?:*"$\r\n]*\.[a-z0-9_\-]+/i
 
 const custom_shader_keys_with_brackets = new RustRegex(`(?xi)(blend_factor\\[[0-3]\\]|(?:blend|alpha|mask)(?:\\[[0-7]\\])?)`)
 
@@ -101,7 +101,7 @@ const _generate_binary_expr_rule = (rule) => choice(
         precedence,
         seq(
           field('left', rule),
-          // @ts-ignore
+          // @ts-ignore:
           field('operator', operator),
           field('right', rule)
         )
@@ -114,7 +114,7 @@ const _generate_binary_expr_rule = (rule) => choice(
         precedence,
         seq(
           field('left', rule),
-          // @ts-ignore
+          // @ts-ignore:
           field('operator', operator),
           field('right', rule)
         )
