@@ -29,7 +29,7 @@ const custom_section_name = /[^\-+*\/&% !>|<=$,\r\n]+/i
 const custom_resource_section_name = /[^\/& !>|<=$,\r\n]+/i
 const namespace_regex = /[^\s>\\|\/<?:*="$][^>\\|\/<?:*=$\r\n]+(?:[\\\/][^>\\|\/<?:*=$\r\n]+)*/i
 const path_regex = /(?:(?:(?:[a-z]:|\.[\.]?)[\\\/])?(?:\.\.|[^\s>\\|\/<?:*"$][^>\\|\/<?:*"$\r\n]*)(?:[\\\/](?:\.\.|[^\s>\\|\/<?:*"$][^>\\|\/<?:*"$\r\n]*))+)/i
-const file_regex = /[^\s>\\|\/<?:*"$\r\n][^>\\|\/<?:*"$\r\n]*\.[a-z0-9_\-]+/i
+const file_regex = /[^\s>\\|\/<?:*"$\r\n][^>\\|\/<?:*"$\r\n]*\.[a-z_\-]+/i // numbers in file extensions are excluded so that lists of floats as setting values are allowed
 
 const custom_shader_keys_with_brackets = new RustRegex(`(?xi)(blend_factor\\[[0-3]\\]|(?:blend|alpha|mask)(?:\\[[0-7]\\])?)`)
 
@@ -171,6 +171,10 @@ export default grammar({
     $.operational_expression,
     $.static_operational_expression,
     $.identifier,
+  ],
+
+  conflicts: $ => [
+    [$._frame_analysis_option_list, $.analysis_instruction]
   ],
 
   rules: {
@@ -551,10 +555,20 @@ export default grammar({
         '=',
         field('value', alias($._specific_directory_value, $.setting_statement_value)),
         $._newline
-      )
-    ),
+      ),
+      // the analyse_options key has a value that conflicts with the value of the marking_actions key
+      // so unfortunately, because there is no backtracking and `mono_snapshot` is longer than `mono`
+      // we need to do special handling for this key and increase the size of the lexing function
+      seq(
+        field('key', alias(/analyse_options/i, $.setting_statement_key)),
+        '=',
+        field('value', alias($._frame_analysis_option_list, $.setting_statement_value)),
+        $._newline
+      )    ),
 
     _hash_value: $ => $.free_text,
+
+    _frame_analysis_option_list: $ => $.frame_analysis_option_list,
 
     _specific_custom_shader_value: $ => choice($.null, $._path_value),
 

@@ -1832,12 +1832,56 @@
               "name": "_newline"
             }
           ]
+        },
+        {
+          "type": "SEQ",
+          "members": [
+            {
+              "type": "FIELD",
+              "name": "key",
+              "content": {
+                "type": "ALIAS",
+                "content": {
+                  "type": "PATTERN",
+                  "value": "analyse_options",
+                  "flags": "i"
+                },
+                "named": true,
+                "value": "setting_statement_key"
+              }
+            },
+            {
+              "type": "STRING",
+              "value": "="
+            },
+            {
+              "type": "FIELD",
+              "name": "value",
+              "content": {
+                "type": "ALIAS",
+                "content": {
+                  "type": "SYMBOL",
+                  "name": "_frame_analysis_option_list"
+                },
+                "named": true,
+                "value": "setting_statement_value"
+              }
+            },
+            {
+              "type": "SYMBOL",
+              "name": "_newline"
+            }
+          ]
         }
       ]
     },
     "_hash_value": {
       "type": "SYMBOL",
       "name": "free_text"
+    },
+    "_frame_analysis_option_list": {
+      "type": "SYMBOL",
+      "name": "frame_analysis_option_list"
     },
     "_specific_custom_shader_value": {
       "type": "CHOICE",
@@ -5861,7 +5905,7 @@
           "type": "ALIAS",
           "content": {
             "type": "PATTERN",
-            "value": "[^\\s>\\\\|\\/<?:*\"$\\r\\n][^>\\\\|\\/<?:*\"$\\r\\n]*\\.[a-z0-9_\\-]+",
+            "value": "[^\\s>\\\\|\\/<?:*\"$\\r\\n][^>\\\\|\\/<?:*\"$\\r\\n]*\\.[a-z_\\-]+",
             "flags": "i"
           },
           "named": true,
@@ -6043,7 +6087,12 @@
       "name": "comment"
     }
   ],
-  "conflicts": [],
+  "conflicts": [
+    [
+      "_frame_analysis_option_list",
+      "analysis_instruction"
+    ]
+  ],
   "precedences": [],
   "externals": [
     {

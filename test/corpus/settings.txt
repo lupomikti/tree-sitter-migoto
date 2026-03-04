@@ -444,6 +444,7 @@ hunting = 0
 marking_mode = skip
 next_marking_mode = no_modifiers VK_DECIMAL VK_NUMPAD0
 marking_actions = clipboard
+marking_actions = mono_snapshot clipboard
 
 ; rotate through all VISIBLE pixel shaders at the current scene.
 previous_pixelshader = no_modifiers NO_VK_DECIMAL VK_NUMPAD1
@@ -505,6 +506,7 @@ repeat_rate = 6
 verbose_overlay = 1
 analyse_frame = no_modifiers VK_F8
 analyse_options = dump_rt dump_tex dump_cb dump_vb dump_ib buf txt
+analyse_options = mono
 
 ---
 
@@ -532,6 +534,12 @@ analyse_options = dump_rt dump_tex dump_cb dump_vb dump_ib buf txt
         (setting_statement_key)
         (setting_statement_value
           (marking_actions_option_list
+            (marking_actions_option))))
+      (setting_statement
+        (setting_statement_key)
+        (setting_statement_value
+          (marking_actions_option_list
+            (marking_actions_option)
             (marking_actions_option))))
       (comment)
       (setting_statement
@@ -803,4 +811,9 @@ analyse_options = dump_rt dump_tex dump_cb dump_vb dump_ib buf txt
             (frame_analysis_option)
             (frame_analysis_option)
             (frame_analysis_option)
+            (frame_analysis_option))))
+      (setting_statement
+        (setting_statement_key)
+        (setting_statement_value
+          (frame_analysis_option_list
             (frame_analysis_option)))))))
