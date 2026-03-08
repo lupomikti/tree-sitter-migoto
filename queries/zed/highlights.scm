@@ -123,7 +123,7 @@
 
 ; Constants and Terminals
 (_
-  fixed_value: (_) @constant)
+  fixed_value: (_) @enum)
 
 (key_binding_modifier) @keyword
 
@@ -136,7 +136,7 @@
 [
   (frame_analysis_option)
   (marking_actions_option)
-] @constant
+] @enum
 
 (boolean_value) @boolean
 
