@@ -1,0 +1,40 @@
+=====================
+No Space Before Var in IFs
+:error
+=====================
+
+[CommandListConditionalErrorVariable]
+if$var == 0
+  $var = 1
+endif
+
+---
+
+=====================
+No Space Before Shader in IFs
+:error
+=====================
+
+[CommandListConditionalErrorShader]
+if $var == 0
+  $var = 1
+else ifcs === 0
+  $var = 2
+endif
+
+---
+
+=====================
+No Space Before Slot in IFs
+:error
+=====================
+
+[CommandListConditionalErrorSlot]
+if $var == 0
+  $var = 1
+elifps-t0 === 0
+  $var = 2
+endif
+
+---
+

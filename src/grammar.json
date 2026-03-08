@@ -2610,6 +2610,10 @@
           "value": "if"
         },
         {
+          "type": "SYMBOL",
+          "name": "_significant_ws"
+        },
+        {
           "type": "FIELD",
           "name": "condition",
           "content": {
@@ -2669,6 +2673,10 @@
               "value": "else if"
             }
           ]
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_significant_ws"
         },
         {
           "type": "FIELD",
@@ -6075,6 +6083,11 @@
       "type": "PATTERN",
       "value": "post",
       "flags": "i"
+    },
+    "_significant_ws": {
+      "type": "PATTERN",
+      "value": "[ \\t]+",
+      "flags": "i"
     }
   },
   "extras": [
@@ -6085,6 +6098,10 @@
     {
       "type": "SYMBOL",
       "name": "comment"
+    },
+    {
+      "type": "SYMBOL",
+      "name": "_significant_ws"
     }
   ],
   "conflicts": [

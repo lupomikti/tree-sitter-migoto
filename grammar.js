@@ -125,7 +125,7 @@ const _generate_binary_expr_rule = (rule) => choice(
 export default grammar({
   name: 'migoto',
 
-  extras: $ => [/[\s\f\uFEFF\u2060\u200B]|\r?\n/, $.comment],
+  extras: $ => [/[\s\f\uFEFF\u2060\u200B]|\r?\n/, $.comment, $._significant_ws],
 
   word: $ => $.fixed_value,
 
@@ -720,6 +720,7 @@ export default grammar({
 
     if_statement: $ => seq(
       alias($._if, 'if'),
+      $._significant_ws,
       field('condition', $.operational_expression),
       $._newline,
       field('consequence', alias(optional($._block), $.block))
@@ -728,6 +729,7 @@ export default grammar({
     // adapted from tree-sitter-lua
     elseif_statement: $ => seq(
       choice(alias($._elif, 'elif'), alias($._elseif, 'else if')),
+      $._significant_ws,
       field('condition', $.operational_expression),
       $._newline,
       field('consequence', alias(optional($._block), $.block))
@@ -1223,5 +1225,7 @@ export default grammar({
     _pre: _ => /pre/i,
 
     _post: _ => /post/i,
+
+    _significant_ws: _ => /[ \t]+/i,
   }
 });
