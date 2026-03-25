@@ -33,10 +33,15 @@ const file_regex = /[^\s>\\|\/<?:*"$\r\n][^>\\|\/<?:*"$\r\n]*\.[a-z_\-]+/i // nu
 
 const custom_shader_keys_with_brackets = new RustRegex(`(?xi)(blend_factor\\[[0-3]\\]|(?:blend|alpha|mask)(?:\\[[0-7]\\])?)`)
 
+const setting_section_directory_value_keys = new RustRegex(`(?xi)(
+  (override|cache|storage)_directory|include(_recursive)? |
+  exclude_recursive
+)`)
+
 const setting_section_key_binding_keys = new RustRegex(`(?xi)(
   (?:done_|toggle_)hunting | next_marking_mode | mark_snapshot |
   (?:previous|next|mark)_(?:pixel|vertex|compute|geometry|domain|hull)shader |
-  (?:previous|next|mark)_(?:index|vertex)buffer |
+  (?:previous|next|mark)_(?:index|vertex)buffer | (?:previous|next)_(?:index|vertex)buffer_slot |
   (?:previous|next|mark)_rendertarget |
   take_screenshot | reload_fixes | (?:reload|wipe_user)_config | show_original |
   monitor_performance | freeze_performance_monitor | tune[123]_(?:up|down) |
@@ -578,7 +583,7 @@ export default grammar({
 
     _directory_setting_statement_key: $ =>
       // path/file only keys:
-      alias(token(prec(-1, /(override|cache|storage)_directory|include(_recursive)?|exclude_recursive/i)), $.setting_statement_key),
+      alias(token(prec(-1, setting_section_directory_value_keys)), $.setting_statement_key),
 
     _bracketed_setting_statement_key: $ => alias(custom_shader_keys_with_brackets, $.setting_statement_key),
 
@@ -987,10 +992,17 @@ export default grammar({
     ),
 
     field_expression: $ => seq(
-      field('field_name', alias(/((?:res_)?(?:width|height)|depth|array)/i, $.field)),
-      optional(seq('*', $.integer)),
-      optional(seq('/', $.integer))
+      $.match_expression_field,
+      choice(
+        seq('*', $.match_expression_field),
+        seq(
+          optional(seq('*', $.integer)),
+          optional(seq('/', $.integer))      
+        )
+      ),
     ),
+
+    match_expression_field: _ => field('field_name', /((?:res_)?(?:width|height)|depth|array)/i),
 
     blend_expression: $ => choice(
       field('operator', alias(/disable/i, $.blend_operator)),

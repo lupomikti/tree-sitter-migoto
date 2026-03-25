@@ -1770,7 +1770,7 @@
                 "type": "ALIAS",
                 "content": {
                   "type": "PATTERN",
-                  "value": "(?xi)(\n  (?:done_|toggle_)hunting | next_marking_mode | mark_snapshot |\n  (?:previous|next|mark)_(?:pixel|vertex|compute|geometry|domain|hull)shader |\n  (?:previous|next|mark)_(?:index|vertex)buffer |\n  (?:previous|next|mark)_rendertarget |\n  take_screenshot | reload_fixes | (?:reload|wipe_user)_config | show_original |\n  monitor_performance | freeze_performance_monitor | tune[123]_(?:up|down) |\n  analyse_frame | toggle_full_screen | force_full_screen_on_key\n)"
+                  "value": "(?xi)(\n  (?:done_|toggle_)hunting | next_marking_mode | mark_snapshot |\n  (?:previous|next|mark)_(?:pixel|vertex|compute|geometry|domain|hull)shader |\n  (?:previous|next|mark)_(?:index|vertex)buffer | (?:previous|next)_(?:index|vertex)buffer_slot |\n  (?:previous|next|mark)_rendertarget |\n  take_screenshot | reload_fixes | (?:reload|wipe_user)_config | show_original |\n  monitor_performance | freeze_performance_monitor | tune[123]_(?:up|down) |\n  analyse_frame | toggle_full_screen | force_full_screen_on_key\n)"
                 },
                 "named": true,
                 "value": "setting_statement_key"
@@ -1940,8 +1940,7 @@
           "value": -1,
           "content": {
             "type": "PATTERN",
-            "value": "(override|cache|storage)_directory|include(_recursive)?|exclude_recursive",
-            "flags": "i"
+            "value": "(?xi)(\n  (override|cache|storage)_directory|include(_recursive)? |\n  exclude_recursive\n)"
           }
         }
       },
@@ -3963,18 +3962,8 @@
       "type": "SEQ",
       "members": [
         {
-          "type": "FIELD",
-          "name": "field_name",
-          "content": {
-            "type": "ALIAS",
-            "content": {
-              "type": "PATTERN",
-              "value": "((?:res_)?(?:width|height)|depth|array)",
-              "flags": "i"
-            },
-            "named": true,
-            "value": "field"
-          }
+          "type": "SYMBOL",
+          "name": "match_expression_field"
         },
         {
           "type": "CHOICE",
@@ -3988,37 +3977,69 @@
                 },
                 {
                   "type": "SYMBOL",
-                  "name": "integer"
+                  "name": "match_expression_field"
                 }
               ]
             },
-            {
-              "type": "BLANK"
-            }
-          ]
-        },
-        {
-          "type": "CHOICE",
-          "members": [
             {
               "type": "SEQ",
               "members": [
                 {
-                  "type": "STRING",
-                  "value": "/"
+                  "type": "CHOICE",
+                  "members": [
+                    {
+                      "type": "SEQ",
+                      "members": [
+                        {
+                          "type": "STRING",
+                          "value": "*"
+                        },
+                        {
+                          "type": "SYMBOL",
+                          "name": "integer"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "BLANK"
+                    }
+                  ]
                 },
                 {
-                  "type": "SYMBOL",
-                  "name": "integer"
+                  "type": "CHOICE",
+                  "members": [
+                    {
+                      "type": "SEQ",
+                      "members": [
+                        {
+                          "type": "STRING",
+                          "value": "/"
+                        },
+                        {
+                          "type": "SYMBOL",
+                          "name": "integer"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "BLANK"
+                    }
+                  ]
                 }
               ]
-            },
-            {
-              "type": "BLANK"
             }
           ]
         }
       ]
+    },
+    "match_expression_field": {
+      "type": "FIELD",
+      "name": "field_name",
+      "content": {
+        "type": "PATTERN",
+        "value": "((?:res_)?(?:width|height)|depth|array)",
+        "flags": "i"
+      }
     },
     "blend_expression": {
       "type": "CHOICE",

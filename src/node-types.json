@@ -1149,24 +1149,17 @@
   {
     "type": "field_expression",
     "named": true,
-    "fields": {
-      "field_name": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "field",
-            "named": true
-          }
-        ]
-      }
-    },
+    "fields": {},
     "children": {
       "multiple": true,
-      "required": false,
+      "required": true,
       "types": [
         {
           "type": "integer",
+          "named": true
+        },
+        {
+          "type": "match_expression_field",
           "named": true
         }
       ]
@@ -1642,6 +1635,11 @@
         }
       ]
     }
+  },
+  {
+    "type": "match_expression_field",
+    "named": true,
+    "fields": {}
   },
   {
     "type": "named_variable",
@@ -3070,10 +3068,6 @@
   },
   {
     "type": "exception_character",
-    "named": true
-  },
-  {
-    "type": "field",
     "named": true
   },
   {
