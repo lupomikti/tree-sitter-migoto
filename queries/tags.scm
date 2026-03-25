@@ -24,8 +24,8 @@
   (shader_regex_commandlist_section)
 ] @definition.section
 
-((callable_commandlist) @name) @reference.call
+(callable_commandlist) @reference.call
 
-((callable_customshader) @name) @reference.call
+(callable_customshader) @reference.call
 
-((custom_resource) @name) @reference.class
+(custom_resource) @reference.class
