@@ -1,6 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/ribru17/ts_query_ls/refs/heads/master/schemas/config.json",
-  "parser_install_directories": ["${HOME}/.config/helix/runtime/grammars"],
+  "parser_install_directories": ["${HELIX_RUNTIME}/grammars"],
   "parser_aliases": {
     "ecma": "javascript"
   },
@@ -76,9 +76,12 @@
       "comment.todo": "[Nvim]: todo-type comments",
       "comment.note": "[Nvim]: note-type comments",
       "variable": "Variables",
+      "variable.mutable": "",
       "variable.builtin": "Reserved language variables (`self`, `this`, `super`, etc.)",
+      "variable.builtin.mutable": "",
       "variable.parameter": "Function parameters",
-      "variable.parameter.builtin": "[Nvim]: special parameters (e.g. `_`, `it`",
+      "variable.parameter.mutable": "",
+      "variable.parameter.builtin": "[Nvim]: special parameters (e.g. `_`, `it`)",
       "variable.other": "",
       "variable.other.member": "Fields of composite data types (e.g. structs, unions)",
       "variable.other.member.private": "Private fields that use a unique syntax (currently just ECMAScript-based languages)",
@@ -226,6 +229,19 @@
       ],
       "description": "Asserts that a capture does not have a given property",
       "not": false
+    },
+    "any-of": {
+      "parameters": [
+        {
+          "type": "capture",
+          "arity": "required"
+        },
+        {
+          "type": "string",
+          "arity": "variadic"
+        }
+      ],
+      "description": "Checks for equality between multiple strings"
     }
   }
 }
