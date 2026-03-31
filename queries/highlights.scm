@@ -80,7 +80,7 @@
 
 ; Key Expression Values
 (field_expression
-  field_name: (field) @variable.other.member)
+  (match_expression_field) @type.enum.variant)
 
 ; Variables
 (custom_resource
