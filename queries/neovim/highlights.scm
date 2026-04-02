@@ -3,19 +3,19 @@
   [
     "global"
     "persist"
-  ] @keyword.type)
+  ] @keyword.modifier)
 
 (global_initialisation
   [
     "global"
     "persist"
-  ] @keyword.type)
+  ] @keyword.modifier)
 
 (local_declaration
-  "local" @keyword.type)
+  "local" @keyword.modifier)
 
 (local_initialisation
-  "local" @keyword.type)
+  "local" @keyword.modifier)
 
 (execution_modifier) @keyword.modifier
 
@@ -79,8 +79,9 @@
   key: (_) @property)
 
 ; Key Expression Values
+; apparently nvim doesn't have a specific enum variant highlight and @constant gets used instead
 (field_expression
-  field_name: (field) @property)
+  (match_expression_field) @constant)
 
 ; Variables
 (custom_resource
@@ -122,8 +123,9 @@
 (regex_replacement) @variable.parameter
 
 ; Constants and Terminals
+; I'd rather this be enum colored like with helix, but no enum capture exists yet
 (_
-  fixed_value: (_) @type.enum.variant)
+  fixed_value: (_) @constant)
 
 (key_binding_modifier) @keyword.modifier
 
@@ -133,10 +135,11 @@
 
 (blend_factor) @keyword
 
+; same note here about enum highlights
 [
   (frame_analysis_option)
   (marking_actions_option)
-] @type.enum.variant
+] @constant
 
 (boolean_value) @boolean
 
