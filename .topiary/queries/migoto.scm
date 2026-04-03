@@ -1,7 +1,7 @@
 ; header
 (_
   header: (_
-    (_) @prepend_antispace @append_antispace) @prepend_antispace @append_antispace)
+    (_) @prepend_antispace @append_antispace) @prepend_antispace @append_empty_softline)
 
 ; sections
 (
@@ -15,9 +15,12 @@
   "=" @prepend_space @append_space)
 
 ; statements
-[
+([
   (setting_statement)
-  (primary_statement)
+  ; (primary_statement)
+  (local_declaration)
+  (local_initialisation)
+  (assignment_statement)
   (global_declaration)
   (global_initialisation)
   (key_setting_statement)
@@ -27,12 +30,20 @@
   (preset_setting_statement)
   (preset_assignment_statement)
   (instruction_statement)
+  (namespace_declaration)
+  (conditional_include_statement)
+] @prepend_empty_softline (#query_name! "statements"))
+
+[
   (if_statement)
   (elseif_statement)
   (else_statement)
-  (namespace_declaration)
-  (conditional_include_statement)
 ] @prepend_empty_softline
+
+(conditional_statement) @allow_blank_line_before
+
+(_
+  condition: (operational_expression) @append_empty_softline)
 
 (key_setting_statement
   value: (key_binding_expression
@@ -130,7 +141,9 @@
   (resource_format)
 ] @upper_case
 
-(comment) @leaf @prepend_empty_softline @allow_blank_line_before
+(comment) @leaf @allow_blank_line_before
+
+(comment) @prepend_empty_softline @append_empty_softline
 
 (string) @leaf
 
