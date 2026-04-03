@@ -524,7 +524,6 @@ callable:
 static inline bool scan_line(Scanner *scanner, TSLexer *lexer, const bool *valid_symbols) {    
     bool saw_text = false, is_guard = valid_symbols[SECTION_HEADER_GUARD];
     TokenType result = ERROR_SENTINEL;
-    fprintf(stderr, "[Lykare]: scanning for external line\n");
 
     // IF the very first characters are \r\n
     // THEN skip them and continue as normal
@@ -544,18 +543,14 @@ static inline bool scan_line(Scanner *scanner, TSLexer *lexer, const bool *valid
     // THEN we will return true for SECTION_HEADER_START with a zero-width token
 
     for (;;) {
-        fprintf(stderr, "[Lykare]: starting loop\n");
         bool is_wspace = iswspace(lexer->lookahead);
         if (lexer->lookahead == '\r' || lexer->lookahead == '\n' || lexer->eof(lexer)) {
-            fprintf(stderr, "[Lykare]: \\r, \\n, or EOF found\n");
             result = EXTERNAL_LINE;
             if (saw_text) {
-                fprintf(stderr, "[Lykare]: saw text, mark end and break\n");
                 lexer->mark_end(lexer);
                 break;
             }
             else {
-                fprintf(stderr, "[Lykare]: only ws, return false\n");
                 lexer->result_symbol = result;
                 return false;
             }
