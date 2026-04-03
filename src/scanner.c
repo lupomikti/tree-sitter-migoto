@@ -174,11 +174,13 @@ static inline int is_section_name_l(char *search_term, uint8_t *sizes, const cha
 
 static inline bool scan_end_of_line(TSLexer *lexer) {
     bool found_end_of_line = false;
+    lexer->mark_end(lexer);
 
     for (;;) {
         if (lexer->lookahead == '\n') {
             found_end_of_line = true;
             skip(lexer);
+            break;
         }
         else if (iswspace(lexer->lookahead) && lexer->lookahead != '\n') {
             skip(lexer);
@@ -188,6 +190,7 @@ static inline bool scan_end_of_line(TSLexer *lexer) {
             break;
         }
         else {
+            lexer->mark_end(lexer);
             break;
         }
     }
@@ -196,6 +199,7 @@ static inline bool scan_end_of_line(TSLexer *lexer) {
         lexer->result_symbol = NEWLINE;
         return true;
     }
+
 
     return false;
 }
@@ -250,17 +254,18 @@ static inline bool scan_namespace_res_content(TSLexer *lexer) {
     }
 }
 
-static inline bool scan_maybe_section_header(Scanner *scanner, TSLexer *lexer, const bool *valid_symbols, bool is_prefix_search) { 
+static inline bool scan_maybe_section_header(Scanner *scanner, TSLexer *lexer, const bool *valid_symbols, bool is_prefix_search) {
     if (!is_prefix_search) {
         consume(lexer); // consume the '[' that starts
     }
 
+    // There should only be one starting newline if the prefix starts a line
+    if (is_prefix_search && lexer->lookahead == '\n') {
+        skip(lexer);
+    }
+
     // consume all the leading whitespace
-    while (iswspace(lexer->lookahead) &&
-            lexer->lookahead != ']' &&
-            lexer->lookahead != '\n' &&
-            !lexer->eof(lexer))
-    {
+    while (iswspace(lexer->lookahead) && !lexer->eof(lexer)) {
         // if it's a prefix search we should skip the leading whitespace and not include it in the final token
         if (is_prefix_search && (
             valid_symbols[COMMANDLIST_CALLABLE_PREFIX] ||

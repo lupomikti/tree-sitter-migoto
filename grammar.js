@@ -130,7 +130,11 @@ const _generate_binary_expr_rule = (rule) => choice(
 export default grammar({
   name: 'migoto',
 
-  extras: $ => [/[\s\f\uFEFF\u2060\u200B]|\r?\n/, $.comment, $._significant_ws],
+  extras: $ => [
+    /[\s\f\uFEFF\u2060\u200B]|\r?\n/,
+    $.comment,
+    $._significant_ws
+  ],
 
   word: $ => $.fixed_value,
 
@@ -280,7 +284,7 @@ export default grammar({
       seq(
         field('key', alias($._key_section_key_binding_key, $.key_section_key)),
         "=",
-        field('value', choice($.free_text, $._exception_character, $.key_binding_expression)),
+        field('value', $._specific_key_binding_value),
         $._newline
       )
     ),
@@ -577,7 +581,7 @@ export default grammar({
 
     _specific_custom_shader_value: $ => choice($.null, $._path_value),
 
-    _specific_key_binding_value: $ => choice($.free_text, $._exception_character, $.key_binding_expression),
+    _specific_key_binding_value: $ => choice($.free_text, $.exception_character, $.key_binding_expression),
 
     _specific_directory_value: $ => choice(alias($.free_text, $.path_key_value), $._path_value),
 
@@ -941,19 +945,19 @@ export default grammar({
     key_binding_expression: $ => seq(
       choice(
         $.key_binding_modifier,
-        $._exception_character,
+        $.exception_character,
         $.free_text
       ),
       repeat1(
         choice(
           $.key_binding_modifier,
-          $._exception_character,
+          $.exception_character,
           $.free_text
         )
       )
     ),
 
-    _exception_character: $ => alias(token(prec(1, choice(';', '=', '/', '\\'))), $.exception_character),
+    exception_character: $ => token.immediate(prec(1, choice(';', '=', '/', '\\'))),
 
     key_binding_modifier: _ => /(?:(?:no_)?(?:vk_)?(?:ctrl|alt|shift|windows)|no_modifiers)/i,
 

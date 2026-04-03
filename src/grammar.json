@@ -503,21 +503,8 @@
               "type": "FIELD",
               "name": "value",
               "content": {
-                "type": "CHOICE",
-                "members": [
-                  {
-                    "type": "SYMBOL",
-                    "name": "free_text"
-                  },
-                  {
-                    "type": "SYMBOL",
-                    "name": "_exception_character"
-                  },
-                  {
-                    "type": "SYMBOL",
-                    "name": "key_binding_expression"
-                  }
-                ]
+                "type": "SYMBOL",
+                "name": "_specific_key_binding_value"
               }
             },
             {
@@ -1905,7 +1892,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "_exception_character"
+          "name": "exception_character"
         },
         {
           "type": "SYMBOL",
@@ -3756,7 +3743,7 @@
             },
             {
               "type": "SYMBOL",
-              "name": "_exception_character"
+              "name": "exception_character"
             },
             {
               "type": "SYMBOL",
@@ -3775,7 +3762,7 @@
               },
               {
                 "type": "SYMBOL",
-                "name": "_exception_character"
+                "name": "exception_character"
               },
               {
                 "type": "SYMBOL",
@@ -3786,38 +3773,33 @@
         }
       ]
     },
-    "_exception_character": {
-      "type": "ALIAS",
+    "exception_character": {
+      "type": "IMMEDIATE_TOKEN",
       "content": {
-        "type": "TOKEN",
+        "type": "PREC",
+        "value": 1,
         "content": {
-          "type": "PREC",
-          "value": 1,
-          "content": {
-            "type": "CHOICE",
-            "members": [
-              {
-                "type": "STRING",
-                "value": ";"
-              },
-              {
-                "type": "STRING",
-                "value": "="
-              },
-              {
-                "type": "STRING",
-                "value": "/"
-              },
-              {
-                "type": "STRING",
-                "value": "\\"
-              }
-            ]
-          }
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "STRING",
+              "value": ";"
+            },
+            {
+              "type": "STRING",
+              "value": "="
+            },
+            {
+              "type": "STRING",
+              "value": "/"
+            },
+            {
+              "type": "STRING",
+              "value": "\\"
+            }
+          ]
         }
-      },
-      "named": true,
-      "value": "exception_character"
+      }
     },
     "key_binding_modifier": {
       "type": "PATTERN",
