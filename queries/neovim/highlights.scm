@@ -54,7 +54,8 @@
   "," @punctuation.delimiter)
 
 (key_assignment_statement
-  expression: (_ "," @punctuation.delimiter))
+  expression: (_
+    "," @punctuation.delimiter))
 
 ; Preamble
 (namespace_declaration
@@ -72,7 +73,8 @@
 
 (commandlist_section
   header: _ @function
-  (#match? @function "^\\[\\s*[Cc]([Oo][Mm][Mm][Aa][Nn][Dd][Ll][Ii][Ss][Tt]|[Uu][Ss][Tt][Oo][Mm][Ss][Hh][Aa][Dd][Ee][Rr]).+"))
+  (#match? @function
+    "^\\[\\s*[Cc]([Oo][Mm][Mm][Aa][Nn][Dd][Ll][Ii][Ss][Tt]|[Uu][Ss][Tt][Oo][Mm][Ss][Hh][Aa][Dd][Ee][Rr]).+"))
 
 ; Keys
 (_
