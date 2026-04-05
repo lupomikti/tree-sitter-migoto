@@ -1858,6 +1858,10 @@
         },
         {
           "type": "SYMBOL",
+          "name": "key_binding_modifier"
+        },
+        {
+          "type": "SYMBOL",
           "name": "key_binding_expression"
         }
       ]
@@ -5639,9 +5643,16 @@
       "type": "CHOICE",
       "members": [
         {
-          "type": "PATTERN",
-          "value": "[xyzw]",
-          "flags": "i"
+          "type": "TOKEN",
+          "content": {
+            "type": "PREC",
+            "value": -2,
+            "content": {
+              "type": "PATTERN",
+              "value": "[xyzw]",
+              "flags": "i"
+            }
+          }
         },
         {
           "type": "PATTERN",

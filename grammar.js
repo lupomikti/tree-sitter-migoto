@@ -580,7 +580,7 @@ export default grammar({
 
     _specific_custom_shader_value: $ => choice($.null, $._path_value),
 
-    _specific_key_binding_value: $ => choice($.free_text, $.exception_character, $.key_binding_expression),
+    _specific_key_binding_value: $ => choice($.free_text, $.exception_character, $.key_binding_modifier, $.key_binding_expression),
 
     _specific_directory_value: $ => choice(alias($.free_text, $.path_key_value), $._path_value),
 
@@ -1123,7 +1123,7 @@ export default grammar({
 
     // Oh the BS I have to do to deal with tree-sitter's regex restrictions
     ini_parameter: _ => choice(
-      /[xyzw]/i,
+      token(prec(-2, /[xyzw]/i)),
       /[xyzw]\d/i,
       /[xyzw]\d\d/i,
       /[xyzw]\d\d\d/i,

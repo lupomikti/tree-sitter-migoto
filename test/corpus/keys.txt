@@ -105,6 +105,12 @@ back = shift ; no_alt
 key = =
 back = minus no_modifiers
 
+[KeyModifierOnly]
+key = VK_ALT
+condition = $active
+type = hold
+$var = 4
+
 ---
 
 (document
@@ -144,7 +150,28 @@ back = minus no_modifiers
         (key_section_key)
         (key_binding_expression
           (free_text)
-          (key_binding_modifier))))))
+          (key_binding_modifier)))))
+  (key_section
+    (key_section_header
+      (header_prefix)
+      (header_identifier))
+    (key_section_body
+      (key_setting_statement
+        (key_section_key)
+        (key_binding_modifier))
+      (key_condition_statement
+        (condition_key)
+        (named_variable
+          (variable_identifier)))
+      (key_setting_statement
+        (key_section_key)
+        (key_section_value
+          (fixed_key_key_value)))
+      (key_assignment_statement
+        (named_variable
+          (variable_identifier))
+        (static_list_expression
+          (numeric_constant))))))
 
 =====
 Run Toggles
@@ -267,10 +294,12 @@ condition = $active == 1 && $var1, $active == 1 && $var2, $active == 0
 key = n
 back = p
 type = cycle
+wrap = true
 separation = 1, 2, 0
 convergence = 2, 1, 0
 transition = 2, 3, 0
 transition_type = linear, cosine, linear
+w = 9, 2, 6
 
 ---
 
@@ -312,6 +341,10 @@ transition_type = linear, cosine, linear
           (fixed_key_key_value)))
       (key_setting_statement
         (key_section_key)
+        (key_section_value
+          (boolean_value)))
+      (key_setting_statement
+        (key_section_key)
         (numeric_constant)
         (numeric_constant)
         (numeric_constant))
@@ -329,4 +362,10 @@ transition_type = linear, cosine, linear
         (key_section_key)
         (fixed_key_key_value)
         (fixed_key_key_value)
-        (fixed_key_key_value)))))
+        (fixed_key_key_value))
+      (key_assignment_statement
+        (ini_parameter)
+        (static_list_expression
+          (numeric_constant)
+          (numeric_constant)
+          (numeric_constant))))))

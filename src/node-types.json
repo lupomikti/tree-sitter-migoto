@@ -1602,6 +1602,10 @@
             "named": true
           },
           {
+            "type": "key_binding_modifier",
+            "named": true
+          },
+          {
             "type": "key_section_value",
             "named": true
           },
@@ -2384,6 +2388,10 @@
         },
         {
           "type": "key_binding_expression",
+          "named": true
+        },
+        {
+          "type": "key_binding_modifier",
           "named": true
         },
         {
