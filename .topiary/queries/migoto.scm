@@ -73,7 +73,7 @@
 (setting_statement_value
   (resource_data_array_expression
     .
-    (resource_format)
+    (resource_format)?
     (numeric_constant)
     .
     (numeric_constant))) @leaf
