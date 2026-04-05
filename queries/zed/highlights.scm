@@ -139,6 +139,9 @@
 (setting_statement_value
   (fixed_value) @enum)
 
+(key_setting_statement
+  (fixed_key_key_value) @enum)
+
 (key_binding_modifier) @keyword
 
 (resource_type) @type.builtin

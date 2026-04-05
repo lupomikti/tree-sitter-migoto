@@ -73,8 +73,7 @@
 
 (commandlist_section
   header: _ @function
-  (#match? @function
-    "^\\[\\s*[Cc]([Oo][Mm][Mm][Aa][Nn][Dd][Ll][Ii][Ss][Tt]|[Uu][Ss][Tt][Oo][Mm][Ss][Hh][Aa][Dd][Ee][Rr]).+"))
+  (#match? @function "^\\c\\[\\s*c(ommandlist|ustomshader).+"))
 
 ; Keys
 (_
@@ -138,6 +137,12 @@
 ; I'd rather this be enum colored like with helix, but no enum capture exists yet
 (_
   fixed_value: (_) @constant)
+
+(setting_statement_value
+  (fixed_value) @constant)
+
+(key_setting_statement
+  (fixed_key_key_value) @constant)
 
 (key_binding_modifier) @keyword.modifier
 
