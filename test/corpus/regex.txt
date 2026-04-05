@@ -135,10 +135,12 @@ if_z [ResourceSecondTestOfGuard]\n
       (header_identifier))
     (shader_regex_replace_body
       (regex_replace_line
-        (regex_replacement))
+        (regex_replacement
+          (replacement_identifier)))
       (regex_replace_line
         (free_text)
-        (regex_replacement)
+        (regex_replacement
+          (replacement_identifier))
         (free_text)
         (free_text)
         (free_text)
@@ -148,20 +150,22 @@ if_z [ResourceSecondTestOfGuard]\n
         (character_escape))
       (regex_replace_line
         (free_text)
-        (regex_replacement)
-        (free_text)
-        (character_escape))
-      (regex_replace_line
-        (character_escape)
-        (free_text)
-        (free_text)
-        (free_text)
+        (regex_replacement
+          (replacement_identifier))
         (free_text)
         (character_escape))
       (regex_replace_line
         (character_escape)
         (free_text)
-        (regex_replacement)
+        (free_text)
+        (free_text)
+        (free_text)
+        (character_escape))
+      (regex_replace_line
+        (character_escape)
+        (free_text)
+        (regex_replacement
+          (replacement_identifier))
         (free_text)
         (free_text)
         (free_text)
@@ -170,7 +174,8 @@ if_z [ResourceSecondTestOfGuard]\n
       (regex_replace_line
         (character_escape)
         (free_text)
-        (regex_replacement)
+        (regex_replacement
+          (replacement_identifier))
         (free_text)
         (character_escape))
       (regex_replace_line
@@ -262,23 +267,27 @@ dcl_sampler s15, mode_default
       (header_identifier))
     (shader_regex_replace_body
       (regex_replace_line
-        (regex_replacement))
+        (regex_replacement
+          (replacement_identifier)))
       (regex_replace_line
         (free_text)
-        (regex_replacement)
+        (regex_replacement
+          (replacement_identifier))
         (free_text)
         (free_text)
         (free_text)
         (character_escape))
       (regex_replace_line
         (free_text)
-        (regex_replacement)
+        (regex_replacement
+          (replacement_identifier))
         (free_text)
         (character_escape))
       (regex_replace_line
         (character_escape)
         (free_text)
-        (regex_replacement)
+        (regex_replacement
+          (replacement_identifier))
         (free_text)
         (free_text)
         (free_text)
@@ -287,7 +296,8 @@ dcl_sampler s15, mode_default
       (regex_replace_line
         (character_escape)
         (free_text)
-        (regex_replacement)
+        (regex_replacement
+          (replacement_identifier))
         (free_text)
         (character_escape))))
   (shader_regex_declarations_section

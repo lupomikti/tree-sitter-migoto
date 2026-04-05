@@ -81,7 +81,7 @@
 
 ; Key Expression Values
 (field_expression
-  (match_expression_field) @type.enum.variant)
+  (match_expression_field) @variable.other.member)
 
 ; Variables
 (custom_resource
@@ -122,9 +122,22 @@
 
 (regex_replacement) @variable.parameter
 
+(regex_replacement_conditional
+  "${" @punctuation.special
+  (replacement_identifier) @label
+  [
+    ":-"
+    ":+"
+  ] @operator
+  ":"? @operator
+  "}" @punctuation.special)
+
 ; Constants and Terminals
 (_
   fixed_value: (_) @type.enum.variant)
+
+(setting_statement_value
+  (fixed_value) @type.enum.variant)
 
 (key_binding_modifier) @keyword.control
 
@@ -193,5 +206,7 @@
 
 ; Extras
 (comment) @comment.line
+
+(doc_comment) @comment.line.documentation
 
 (ERROR) @error

@@ -25,8 +25,8 @@ const PREC = {
   POWER: 14, // **
 }
 
-const custom_section_name = /[^\-+*\/&% !>|<=$,\r\n]+/i
-const custom_resource_section_name = /[^\/& !>|<=$,\r\n]+/i
+const custom_section_name = /[^\/&!>|<=$,\r\n]+/i
+const custom_resource_section_name = /[^\/&!>|<= $,\r\n]+/i // spaces cannot be allowed in Custom Resource names because then modifiers would get captured too
 const namespace_regex = /[^\s>\\|\/<?:*="$][^>\\|\/<?:*=$\r\n]+(?:[\\\/][^>\\|\/<?:*=$\r\n]+)*/i
 const path_regex = /(?:(?:(?:[a-z]:|\.[\.]?)[\\\/])?(?:\.\.|[^\s>\\|\/<?:*"$][^>\\|\/<?:*"$\r\n]*)(?:[\\\/](?:\.\.|[^\s>\\|\/<?:*"$][^>\\|\/<?:*"$\r\n]*))+)/i
 const file_regex = /[^\s>\\|\/<?:*"$\r\n][^>\\|\/<?:*"$\r\n]*\.[a-z_\-]+/i // numbers in file extensions are excluded so that lists of floats as setting values are allowed
@@ -133,6 +133,7 @@ export default grammar({
   extras: $ => [
     /[\s\f\uFEFF\u2060\u200B]|\r?\n/,
     $.comment,
+    $.doc_comment,
     $._significant_ws
   ],
 
@@ -169,6 +170,7 @@ export default grammar({
     $._regex_pattern_header,
     $._regex_replace_header,
     $._newline,
+    $.doc_comment_content,
     $.error_sentinel
   ],
 
@@ -408,11 +410,9 @@ export default grammar({
       optional(']')
     ),
 
-    shader_regex_pattern_body: $ => repeat1(seq(
-      alias($._external_line, $.regex_pattern),
-      $._newline,
-      optional($._section_header_start)
-    )),
+    shader_regex_pattern_body: $ => repeat1(
+      alias($._external_line, $.regex_pattern)
+    ),
 
     shader_regex_pattern_section: $ => seq(
       field('header', $.shader_regex_pattern_header),
@@ -430,8 +430,8 @@ export default grammar({
     ),
 
     shader_regex_replace_body: $ => repeat1(seq(
-      $._section_header_guard,
-      alias(repeat1(choice($.regex_replacement, $.character_escape, $.free_text)), $.regex_replace_line),
+      $._section_header_guard, // searches the same as $._section_header_start, but returns true if it does NOT find a section header
+      alias(repeat1(choice($.regex_replacement, $.regex_replacement_conditional, $.character_escape, $.free_text)), $.regex_replace_line),
       $._newline,
       optional($._section_header_start)
     )),
@@ -451,11 +451,9 @@ export default grammar({
       optional(']')
     ),
 
-    shader_regex_declarations_body: $ => repeat1(seq(
-      alias($._external_line, $.dxbc_declaration),
-      $._newline,
-      optional($._section_header_start)
-    )),
+    shader_regex_declarations_body: $ => repeat1(
+      alias($._external_line, $.dxbc_declaration)
+    ),
 
     shader_regex_declarations_section: $ => seq(
       field('header', $.shader_regex_declarations_header),
@@ -573,7 +571,8 @@ export default grammar({
         '=',
         field('value', alias($._frame_analysis_option_list, $.setting_statement_value)),
         $._newline
-      )    ),
+      )
+    ),
 
     _hash_value: $ => $.free_text,
 
@@ -601,7 +600,7 @@ export default grammar({
       $.string,
       $._path_value,
       $.fuzzy_match_expression,
-      $.list_expression,
+      $._list_expression,
       field('fixed_value', alias($.fixed_value, $.fixed_setting_key_value)),
     ),
 
@@ -934,11 +933,15 @@ export default grammar({
     // EXPRESSIONS
 
     list_expression: $ => choice(
-      $.resource_usage_expression,
       $.resource_data_array_expression,
       $.blend_expression,
       $.frame_analysis_option_list,
       $.marking_actions_option_list
+    ),
+
+    _list_expression: $ => choice(
+      $.list_expression,
+      $._fixed_value_list
     ),
 
     // written to guarantee 2 or more desired nodes
@@ -957,7 +960,7 @@ export default grammar({
       )
     ),
 
-    exception_character: $ => token.immediate(prec(1, choice(';', '=', '/', '\\'))),
+    exception_character: _ => token.immediate(prec(2, choice(';', '=', '/', '\\'))),
 
     key_binding_modifier: _ => /(?:(?:no_)?(?:vk_)?(?:ctrl|alt|shift|windows)|no_modifiers)/i,
 
@@ -1024,6 +1027,8 @@ export default grammar({
     frame_analysis_option_list: $ => repeat1($.frame_analysis_option),
 
     dump_instruction_value_list: $ => repeat1(choice($._resource_operand, $.frame_analysis_option)),
+
+    _fixed_value_list: $ => seq($.fixed_value, repeat1($.fixed_value)),
 
     static_operational_expression: $ => choice(
       $._static_value,
@@ -1102,7 +1107,7 @@ export default grammar({
           alias($._namespace_resolution_content, $.namespace),
           alias($._namespace_resolution_end, '\\')
         )),
-        alias(custom_resource_section_name, $.section_identifier)
+        alias(token.immediate(custom_resource_section_name), $.section_identifier)
       )
     ),
 
@@ -1163,7 +1168,7 @@ export default grammar({
         alias($._namespace_resolution_content, $.namespace),
         alias($._namespace_resolution_end, '\\')
       )),
-      alias(custom_section_name, $.section_identifier)
+      alias(token.immediate(custom_section_name), $.section_identifier)
     ),
 
     _static_value: $ => choice(
@@ -1201,24 +1206,46 @@ export default grammar({
 
     marking_actions_option: _ => /(clipboard|hlsl|asm|regex|mono_snapshot|stereo_snapshot|snapshot_if_pink)/i,
 
-    regex_replacement: _ => choice(
-      seq('${', /\w+/i, '}'), // ${identifier}
-      seq('$', token.immediate(/\d+/)) // $1, $2, ...
+    _regex_replacement_content: $ => choice($.regex_replacement, $.regex_replacement_conditional, $.character_escape, alias($.free_text_no_colon, $.free_text)),
+
+    regex_replacement: $ => choice(
+      seq('${', alias(/\w+/i, $.replacement_identifier), '}'), // ${identifier}
+      seq('$<', alias(/\w+/i, $.replacement_identifier), '>'), // $<name>
+      seq('$', token.immediate(/\d+|[&$`'_+]/))
     ),
 
-    character_escape: _ => /\\[a-z\(\)\[\]${}]/i,
+    regex_replacement_conditional: $ => prec.right(choice(
+      seq('${', alias(/\w+/i, $.replacement_identifier), ':-', repeat1($._regex_replacement_content), '}'), // ${name:-string}
+      seq(
+        '${', alias(/\w+/i, $.replacement_identifier), ':+',
+        repeat1($._regex_replacement_content),
+        optional(seq(
+          ':',
+          repeat1($._regex_replacement_content)
+        )),
+        '}'
+      ), // ${name:+string1:string2}
+    )),
 
-    free_text: _ => /[^\\\/="${}\s]+/i,
+    character_escape: _ => /\\[a-z\(\)\[\]${}:]/i,
+
+    free_text: _ => /[^\\\/;="${}\s]+/i,
+
+    free_text_no_colon: _ => /[^\\\/;:="${}\s]+/i,
 
     fixed_value: _ => token(prec(-1, /[a-z0-9][a-z0-9_]+/i)),
 
-    comment: $ => seq(
-      token(seq(
-        field('start', ';'),
-        field('content', alias(/[^\r\n]*/, $.comment_content))
-      )),
+    // based on tree-sitter-zig github PR#10
+    doc_comment: $ => prec(3, seq(
+      field('start', ";;!"),
+      field('content', $.doc_comment_content)
+    )),
+
+    comment: $ => prec(1, seq(
+      field('start', ';'),
+      field('content', /[^\r\n]*/),
       $._newline
-    ),
+    )),
 
     null: _ => /null/i,
 

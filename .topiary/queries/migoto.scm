@@ -7,6 +7,9 @@
 ((section) @prepend_delimiter
   (#delimiter! "\n\n"))
 
+(section
+  body: (_) @prepend_empty_softline)
+
 ; operators
 (_
   "=" @prepend_space @append_space)
@@ -25,6 +28,7 @@
   (key_run_instruction)
   (preset_setting_statement)
   (preset_assignment_statement)
+  (shader_regex_setting_statement)
   (instruction_statement)
   (if_statement)
   (elseif_statement)
@@ -78,6 +82,11 @@
   (_) @append_space
   .
   (_))
+
+(shader_regex_setting_statement
+  (free_text) @append_space
+  .
+  (free_text))
 
 (binary_expression
   operator: _ @prepend_space @append_space)
@@ -140,6 +149,15 @@
 (comment) @leaf @allow_blank_line_before @prepend_empty_softline
 
 (string) @leaf
+
+(shader_regex_pattern_section
+  body: (_) @leaf)
+
+(shader_regex_replace_section
+  body: (_) @leaf)
+
+(shader_regex_declarations_section
+  body: (_) @leaf)
 
 ("," @append_space
   .

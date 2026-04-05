@@ -118,17 +118,30 @@
   (scissor_rectangle)
 ] @variable.special
 
-(ini_parameter) @variable.special
+(ini_parameter) @variable.parameter
 
-(regex_replacement) @variable.special
+(regex_replacement) @variable.parameter
+
+(regex_replacement_conditional
+  "${" @punctuation.special
+  (replacement_identifier) @label
+  [
+    ":-"
+    ":+"
+  ] @operator
+  ":"? @operator
+  "}" @punctuation.special)
 
 ; Constants and Terminals
 (_
   fixed_value: (_) @enum)
 
+(setting_statement_value
+  (fixed_value) @enum)
+
 (key_binding_modifier) @keyword
 
-(resource_type) @type
+(resource_type) @type.builtin
 
 (resource_format) @enum
 
@@ -141,7 +154,7 @@
 
 (boolean_value) @boolean
 
-(null) @constant
+(null) @constant.builtin
 
 (string) @string
 
@@ -152,9 +165,9 @@
 
 (numeric_constant) @number
 
-(language_constant) @constant
+(language_constant) @constant.builtin
 
-(override_parameter) @constant
+(override_parameter) @constant.builtin
 
 (integer) @number
 
@@ -193,5 +206,7 @@
 
 ; Extras
 (comment) @comment
+
+(doc_comment) @comment.doc
 
 (ERROR) @error

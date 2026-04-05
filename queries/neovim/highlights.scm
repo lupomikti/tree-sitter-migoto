@@ -124,6 +124,16 @@
 
 (regex_replacement) @variable.parameter
 
+(regex_replacement_conditional
+  "${" @punctuation.special
+  (replacement_identifier) @label
+  [
+    ":-"
+    ":+"
+  ] @operator
+  ":"? @operator
+  "}" @punctuation.special)
+
 ; Constants and Terminals
 ; I'd rather this be enum colored like with helix, but no enum capture exists yet
 (_
@@ -197,5 +207,7 @@
 
 ; Extras
 (comment) @comment
+
+(doc_comment) @comment.documentation
 
 (ERROR) @error

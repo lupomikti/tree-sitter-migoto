@@ -206,7 +206,7 @@ condition = $active == 1 && $var1, $active == 1 && $var2, $active == 0
 key = n
 back = p
 type = cycle
-run = CommandListEffect1, CommandListEffect2, CommandListCleanUp
+run = CommandList Effect 1, CommandList Effect 2, CommandList CleanUp
 
 ---
 
