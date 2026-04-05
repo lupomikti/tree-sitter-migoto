@@ -7,7 +7,7 @@ Basic Resources
 [ResourceCharacterLegsTexcoord]
 type = Buffer
 stride = 20
-filename = LegsTexcoord.buf
+filename = LegsTexcoord.vb0
 
 [ResourceCharacterLegsAIB]
 type = Buffer

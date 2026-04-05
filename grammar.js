@@ -25,11 +25,11 @@ const PREC = {
   POWER: 14, // **
 }
 
-const custom_section_name = /[^\/&!>|<=$,\r\n]+/i
+const custom_section_name = /[^=$,\r\n]+/i
 const custom_resource_section_name = /[^\/&!>|<= $,\r\n]+/i // spaces cannot be allowed in Custom Resource names because then modifiers would get captured too
 const namespace_regex = /[^\s>\\|\/<?:*="$][^>\\|\/<?:*=$\r\n]+(?:[\\\/][^>\\|\/<?:*=$\r\n]+)*/i
 const path_regex = /(?:(?:(?:[a-z]:|\.[\.]?)[\\\/])?(?:\.\.|[^\s>\\|\/<?:*"$][^>\\|\/<?:*"$\r\n]*)(?:[\\\/](?:\.\.|[^\s>\\|\/<?:*"$][^>\\|\/<?:*"$\r\n]*))+)/i
-const file_regex = /[^\s>\\|\/<?:*"$\r\n][^>\\|\/<?:*"$\r\n]*\.[a-z_\-]+/i // numbers in file extensions are excluded so that lists of floats as setting values are allowed
+const file_regex = /[^\s>\\|\/<?:*"$\r\n][^>\\|\/<?:*"$\r\n]*\.[a-z0-9_\-]*[a-z_\-][a-z0-9_\-]*/i // numbers in file extensions are excluded so that lists of floats as setting values are allowed
 
 const custom_shader_keys_with_brackets = new RustRegex(`(?xi)(blend_factor\\[[0-3]\\]|(?:blend|alpha|mask)(?:\\[[0-7]\\])?)`)
 

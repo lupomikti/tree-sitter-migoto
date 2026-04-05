@@ -141,7 +141,7 @@ endif
 CommandList With Modifier
 =====
 
-[CommandListSkin]
+[CommandList->Skin]
 if $costume_mods
 	checktextureoverride = ps-t0
 	checktextureoverride = vb0
@@ -206,7 +206,7 @@ if $costume_mods
     handling = skip
     cs-t100 = ref ResourceSKIdentity
     cs-u7 = ref ResourceSKMultipliers
-    run = CustomShaderSKDataGather
+    run = CustomShader->SKDataGather
     ResourceSKIdentity = null
     ResourceSKMultipliers = null
   endif
