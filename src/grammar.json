@@ -5839,7 +5839,7 @@
           "type": "TOKEN",
           "content": {
             "type": "PATTERN",
-            "value": "[+-]?\\d+(\\.\\d+)?",
+            "value": "[+-]?\\d+(\\.\\d+(e[-+]\\d+)?)?",
             "flags": "i"
           }
         },
@@ -5847,7 +5847,7 @@
           "type": "TOKEN",
           "content": {
             "type": "PATTERN",
-            "value": "-\\.\\d+",
+            "value": "-?\\.\\d+",
             "flags": "i"
           }
         }

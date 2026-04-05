@@ -8,6 +8,7 @@ global persist $var2
 global $var3 = 1
 global persist $var4 = 0.57
 persist global $var5 = -.2
+global persist $var6 = 3.09345765e-05
 
 ---
 
@@ -22,6 +23,10 @@ persist global $var5 = -.2
       (global_declaration
         variable: (named_variable
           (variable_identifier)))
+      (global_initialisation
+        variable: (named_variable
+          (variable_identifier))
+        value: (numeric_constant))
       (global_initialisation
         variable: (named_variable
           (variable_identifier))

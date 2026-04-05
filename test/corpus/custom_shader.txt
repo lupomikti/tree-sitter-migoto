@@ -4,10 +4,10 @@ Custom Shader Basic
 
 [CustomShaderTesting]
 blend = add blend_factor inv_blend_factor
-blend_factor[0] = 1.0
-blend_factor[1] = 1.0
-blend_factor[2] = 1.0
-blend_factor[3] = 0.0
+blend_factor[0] = .3
+blend_factor[1] = 0.3
+blend_factor[2] = .3
+blend_factor[3] = 0.3
 dispatch = $somevar + 3, ($anothervar % 2) // 1, 1
 
 ---

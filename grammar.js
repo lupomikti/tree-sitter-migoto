@@ -1178,8 +1178,8 @@ export default grammar({
     ),
 
     numeric_constant: _ => choice(
-      token(/[+-]?\d+(\.\d+)?/i),
-      token(/-\.\d+/i), // apparently 3dmigoto allows floats of the form -.56 and the like
+      token(/[+-]?\d+(\.\d+(e[-+]\d+)?)?/i),
+      token(/-?\.\d+/i), // apparently 3dmigoto allows floats of the form -.56 and the like
     ),
 
     integer: _ => token(/\d+/i),
