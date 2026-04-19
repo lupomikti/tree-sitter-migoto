@@ -3778,7 +3778,7 @@
     },
     "key_binding_modifier": {
       "type": "PATTERN",
-      "value": "(?:(?:no_)?(?:vk_)?(?:ctrl|alt|shift|windows)|no_modifiers)",
+      "value": "(?:(?:no_)?(?:vk_)?(?:ctrl|control|alt|shift|windows)|no_modifiers)",
       "flags": "i"
     },
     "resource_data_array_expression": {
@@ -5437,24 +5437,8 @@
       "type": "CHOICE",
       "members": [
         {
-          "type": "ALIAS",
-          "content": {
-            "type": "PATTERN",
-            "value": "(?:[vhdgpc]s-cb\\d\\d?|vb\\d|ib|(?:[rf]_)?bb)",
-            "flags": "i"
-          },
-          "named": true,
-          "value": "buffer_variable"
-        },
-        {
-          "type": "ALIAS",
-          "content": {
-            "type": "PATTERN",
-            "value": "(?:[pc]s-u\\d|s?o\\d|od|[vhdgpc]s(?:-t\\d\\d?\\d?))",
-            "flags": "i"
-          },
-          "named": true,
-          "value": "shader_variable"
+          "type": "SYMBOL",
+          "name": "_limited_language_variable"
         },
         {
           "type": "PREC",

@@ -29,7 +29,7 @@ const custom_section_name = /[^=$,\r\n]+/i
 const custom_resource_section_name = /[^\/&!>|<= $,\r\n]+/i // spaces cannot be allowed in Custom Resource names because then modifiers would get captured too
 const namespace_regex = /[^\s>\\|\/<?:*="$][^>\\|\/<?:*=$\r\n]+(?:[\\\/][^>\\|\/<?:*=$\r\n]+)*/i
 const path_regex = /(?:(?:(?:[a-z]:|\.[\.]?)[\\\/])?(?:\.\.|[^\s>\\|\/<?:*"$][^>\\|\/<?:*"$\r\n]*)(?:[\\\/](?:\.\.|[^\s>\\|\/<?:*"$][^>\\|\/<?:*"$\r\n]*))+)/i
-const file_regex = /[^\s>\\|\/<?:*"$\r\n][^>\\|\/<?:*"$\r\n]*\.[a-z0-9_\-]*[a-z_\-][a-z0-9_\-]*/i // numbers in file extensions are excluded so that lists of floats as setting values are allowed
+const file_regex = /[^\s>\\|\/<?:*"$\r\n][^>\\|\/<?:*"$\r\n]*\.[a-z0-9_\-]*[a-z_\-][a-z0-9_\-]*/i // numbers can be in file extensions only if there is at least one non-number present in it too
 
 const custom_shader_keys_with_brackets = new RustRegex(`(?xi)(blend_factor\\[[0-3]\\]|(?:blend|alpha|mask)(?:\\[[0-7]\\])?)`)
 
@@ -962,7 +962,7 @@ export default grammar({
 
     exception_character: _ => token.immediate(prec(2, choice(';', '=', '/', '\\'))),
 
-    key_binding_modifier: _ => /(?:(?:no_)?(?:vk_)?(?:ctrl|alt|shift|windows)|no_modifiers)/i,
+    key_binding_modifier: _ => /(?:(?:no_)?(?:vk_)?(?:ctrl|control|alt|shift|windows)|no_modifiers)/i,
 
     resource_data_array_expression: $ => seq(
       optional(alias(dxgi_types_regex, $.resource_format)),
@@ -1084,8 +1084,7 @@ export default grammar({
     ),
 
     _language_variable: $ => choice(
-      alias(/(?:[vhdgpc]s-cb\d\d?|vb\d|ib|(?:[rf]_)?bb)/i, $.buffer_variable),
-      alias(/(?:[pc]s-u\d|s?o\d|od|[vhdgpc]s(?:-t\d\d?\d?))/i, $.shader_variable),
+      $._limited_language_variable,
       prec(1, $.shader_identifier)
     ),
 
@@ -1215,7 +1214,9 @@ export default grammar({
     ),
 
     regex_replacement_conditional: $ => prec.right(choice(
-      seq('${', alias(/\w+/i, $.replacement_identifier), ':-', repeat1($._regex_replacement_content), '}'), // ${name:-string}
+      // ${name:-string}
+      seq('${', alias(/\w+/i, $.replacement_identifier), ':-', repeat1($._regex_replacement_content), '}'),
+      // ${name:+string1:string2}
       seq(
         '${', alias(/\w+/i, $.replacement_identifier), ':+',
         repeat1($._regex_replacement_content),
@@ -1224,7 +1225,7 @@ export default grammar({
           repeat1($._regex_replacement_content)
         )),
         '}'
-      ), // ${name:+string1:string2}
+      ),
     )),
 
     character_escape: _ => /\\[a-z\(\)\[\]${}:]/i,
@@ -1249,6 +1250,7 @@ export default grammar({
 
     null: _ => /null/i,
 
+    // TODO: inline these?
     _global: _ => /global/i,
 
     _persist: _ => /persist/i,
