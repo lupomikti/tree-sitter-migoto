@@ -10,6 +10,8 @@
 (section
   body: (_) @prepend_empty_softline)
 
+(preamble) @prepend_empty_softline
+
 ; operators
 (_
   "=" @prepend_space @append_space)
@@ -39,13 +41,13 @@
 
 (conditional_statement) @allow_blank_line_before
 
+; expressions
 (key_setting_statement
   value: (key_binding_expression
     (_) @append_space
     .
     (_)))
 
-; expressions
 (setting_statement_value
   (key_binding_expression
     (_) @append_space
@@ -59,6 +61,12 @@
     (_)))
 
 (setting_statement_value
+  (frame_analysis_option_list
+    (_) @append_space
+    .
+    (_)))
+
+(analysis_instruction
   (frame_analysis_option_list
     (_) @append_space
     .
