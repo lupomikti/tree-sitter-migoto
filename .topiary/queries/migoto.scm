@@ -66,6 +66,12 @@
     .
     (_)))
 
+(setting_statement_value
+  (marking_actions_option_list
+    (_) @append_space
+    .
+    (_)))
+
 (analysis_instruction
   (frame_analysis_option_list
     (_) @append_space
