@@ -31,10 +31,10 @@ const namespace_regex = /[^\s>\\|\/<?:*="$][^>\\|\/<?:*=$\r\n]+(?:[\\\/][^>\\|\/
 const path_regex = /(?:(?:(?:[a-z]:|\.[\.]?)[\\\/])?(?:\.\.|[^\s>\\|\/<?:*"$][^>\\|\/<?:*"$\r\n]*)(?:[\\\/](?:\.\.|[^\s>\\|\/<?:*"$][^>\\|\/<?:*"$\r\n]*))+)/i
 const file_regex = /[^\s>\\|\/<?:*"$\r\n][^>\\|\/<?:*"$\r\n]*\.[a-z0-9_\-]*[a-z_\-][a-z0-9_\-]*/i // numbers can be in file extensions only if there is at least one non-number present in it too
 
-const custom_shader_keys_with_brackets = new RustRegex(`(?xi)(blend_factor\\[[0-3]\\]|(?:blend|alpha|mask)(?:\\[[0-7]\\])?)`)
+const custom_shader_keys_with_brackets = new RustRegex(`(?xi)(blend_factor\\[[0-3]\\]|(?:blend|alpha|mask)\\[[0-7]\\])`)
 
 const setting_section_directory_value_keys = new RustRegex(`(?xi)(
-  (override|cache|storage)_directory|include(_recursive)? |
+  (?:override|cache|storage)_directory|include(?:_recursive)? |
   exclude_recursive
 )`)
 

@@ -1893,7 +1893,7 @@
           "value": -1,
           "content": {
             "type": "PATTERN",
-            "value": "(?xi)(\n  (override|cache|storage)_directory|include(_recursive)? |\n  exclude_recursive\n)"
+            "value": "(?xi)(\n  (?:override|cache|storage)_directory|include(?:_recursive)? |\n  exclude_recursive\n)"
           }
         }
       },
@@ -1904,7 +1904,7 @@
       "type": "ALIAS",
       "content": {
         "type": "PATTERN",
-        "value": "(?xi)(blend_factor\\[[0-3]\\]|(?:blend|alpha|mask)(?:\\[[0-7]\\])?)"
+        "value": "(?xi)(blend_factor\\[[0-3]\\]|(?:blend|alpha|mask)\\[[0-7]\\])"
       },
       "named": true,
       "value": "setting_statement_key"
