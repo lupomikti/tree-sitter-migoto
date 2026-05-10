@@ -964,10 +964,16 @@ export default grammar({
 
     key_binding_modifier: _ => /(?:(?:no_)?(?:vk_)?(?:ctrl|control|alt|shift|windows)|no_modifiers)/i,
 
-    resource_data_array_expression: $ => seq(
-      optional(alias(dxgi_types_regex, $.resource_format)),
-      $.numeric_constant,
-      repeat1($.numeric_constant)
+    resource_data_array_expression: $ => choice(
+      seq(
+        optional(alias(dxgi_types_regex, $.resource_format)),
+        $.numeric_constant,
+        repeat1($.numeric_constant)
+      ),
+      seq(
+        alias(dxgi_types_regex, $.resource_format),
+        $.numeric_constant
+      )
     ),
 
     resource_usage_expression: $ => seq(
