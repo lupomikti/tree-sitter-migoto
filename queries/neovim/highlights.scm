@@ -73,7 +73,7 @@
 
 (commandlist_section
   header: _ @function
-  (#match? @function "^\\c\\[\\s*c(ommandlist|ustomshader).+"))
+  (#lua-match? @function "^\\c\\[\\s*c(ommandlist|ustomshader).+"))
 
 ; Keys
 (_
@@ -86,6 +86,14 @@
 
 ; Variables
 (custom_resource
+  [
+    (resource_prefix) @label
+    "\\" @punctuation.delimiter
+    (namespace) @module
+    (section_identifier) @variable
+  ])
+
+(resource_pool
   [
     (resource_prefix) @label
     "\\" @punctuation.delimiter

@@ -102,6 +102,11 @@
   .
   (free_text))
 
+(setting_statement_value
+  (fixed_value) @append_space
+  .
+  (fixed_value))
+
 (binary_expression
   operator: _ @prepend_space @append_space)
 

@@ -92,6 +92,14 @@
     (section_identifier) @variable
   ])
 
+(resource_pool
+  [
+    (resource_prefix) @label
+    "\\" @punctuation.delimiter
+    (namespace) @variant
+    (section_identifier) @variable
+  ])
+
 (preset_section_identifier
   [
     (preset_prefix)? @label
