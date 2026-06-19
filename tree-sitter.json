@@ -12,9 +12,9 @@
         "migoto"
       ],
       "highlights": "queries/helix/highlights.scm",
-      "tags": "queries/helix/tags.scm",
       "injections": "queries/helix/injections.scm",
       "locals": "queries/helix/locals.scm",
+      "tags": "queries/helix/tags.scm",
       "injection-regex": "^migoto$",
       "class-name": "TreeSitterMigoto"
     }
@@ -40,6 +40,7 @@
   "bindings": {
     "c": true,
     "go": true,
+    "java": false,
     "node": true,
     "python": true,
     "rust": true,
