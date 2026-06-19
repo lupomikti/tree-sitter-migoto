@@ -1,6 +1,9 @@
 {
   "$schema": "https://raw.githubusercontent.com/ribru17/ts_query_ls/refs/heads/master/schemas/config.json",
-  "parser_install_directories": ["${HELIX_RUNTIME}/grammars"],
+  "parser_install_directories": [
+    ".",
+    "${HELX_RUNTIME}/grammars"
+  ],
   "parser_aliases": {
     "ecma": "javascript"
   },
