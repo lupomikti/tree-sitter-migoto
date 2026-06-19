@@ -11,25 +11,29 @@
 const PREC = {
   OR: 1, // ||
   AND: 2, // &&
-  COMPARE: 3, // < > <= >=
-  RELATION: 4, // @not-implemented ~ (e.g. `in` or `instanceof` in javascript)
-  EQUALITY: 5, // == === != !==
-  BIT_OR: 6, // @not-implemented |
-  BIT_AND: 7, // @not-implemented &
-  BIT_SHIFT: 8, // @not-implemented >> <<
-  BIT_NOT: 9, // @not-implemented ^
+  BIT_OR: 3, // |
+  BIT_XOR: 4, // ^
+  BIT_AND: 5, // &
+  EQUALITY: 6, // == === != !==
+  COMPARE: 7, // < > <= >=
+  RELATION: 8, // @not-implemented ~ (e.g. `in` or `instanceof` in javascript)
+  BIT_SHIFT: 9, // >> <<
   CONCAT: 10, // @not-implemented ..
   PLUS: 11, // + -
   MULTI: 12, // * / // %
-  UNARY: 13, // ! - +
-  POWER: 14, // **
+  POWER: 13, // **
+  UNARY: 14, // ! + - ~
 }
 
-const custom_section_name = /[^=$,\r\n]+/i
-const custom_resource_section_name = /[^\/&!>|<= $,\r\n]+/i // spaces cannot be allowed in Custom Resource names because then modifiers would get captured too
+const custom_section_name = /[^=$,\[\]\r\n]+/i
+// spaces cannot be allowed in Custom Resource names because then modifiers would get captured too
+const custom_resource_section_name = /[^\/&!>|<= $,\[\]\r\n]+/i
+
 const namespace_regex = /[^\s>\\|\/<?:*="$][^>\\|\/<?:*=$\r\n]+(?:[\\\/][^>\\|\/<?:*=$\r\n]+)*/i
-const path_regex = /(?:(?:(?:[a-z]:|\.[\.]?)[\\\/])?(?:\.\.|[^\s>\\|\/<?:*"$][^>\\|\/<?:*"$\r\n]*)(?:[\\\/](?:\.\.|[^\s>\\|\/<?:*"$][^>\\|\/<?:*"$\r\n]*))+)/i
-const file_regex = /[^\s>\\|\/<?:*"$\r\n][^>\\|\/<?:*"$\r\n]*\.[a-z0-9_\-]*[a-z_\-][a-z0-9_\-]*/i // numbers can be in file extensions only if there is at least one non-number present in it too
+
+const path_regex = /(?:(?:(?:[a-z]:|\.[\.]?)?[\\\/])?(?:\.\.|[^\s>\\|\/<?:*"$][^>\\|\/<?:*"$\r\n]*)(?:[\\\/](?:\.\.|[^\s>\\|\/<?:*"$][^>\\|\/<?:*"$\r\n]*))+)/i
+// numbers can be in file extensions only if there is at least one non-number present in it too
+const file_regex = /[^\s>\\|\/<?:*"$\r\n][^>\\|\/<?:*"$\r\n]*\.[a-z0-9_\-]*[a-z_\-][a-z0-9_\-]*/i
 
 const custom_shader_keys_with_brackets = new RustRegex(`(?xi)(blend_factor\\[[0-3]\\]|(?:blend|alpha|mask)\\[[0-7]\\])`)
 
@@ -62,9 +66,9 @@ const dxgi_types_regex = new RustRegex(`(?xi)(?:DXGI_FORMAT_)?(UNKNOWN|R32G32B32
 
 /**
  * Adapted from tree-sitter-lua, this returns a sequence of rules separated by a given delimiter
- * @param {RuleOrLiteral} rule 
- * @param {string} separator 
- * @param {boolean} trailing_separator 
+ * @param {RuleOrLiteral} rule
+ * @param {string} separator
+ * @param {boolean} trailing_separator
  * @returns {SeqRule}
  */
 const list_seq = (rule, separator, trailing_separator = false) =>
@@ -74,7 +78,7 @@ const list_seq = (rule, separator, trailing_separator = false) =>
 
 /**
  * Adapted from tree-sitter-lua, this function returns the rule for defining a binary expression
- * @param {RuleOrLiteral} rule 
+ * @param {RuleOrLiteral} rule
  * @returns {ChoiceRule}
  */
 const _generate_binary_expr_rule = (rule) => choice(
@@ -90,11 +94,11 @@ const _generate_binary_expr_rule = (rule) => choice(
       ['!=', PREC.EQUALITY],
       ['>=', PREC.COMPARE],
       ['>', PREC.COMPARE],
-      // ['|', PREC.BIT_OR],
-      // ['&', PREC.BIT_AND],
-      // ['>>', PREC.BIT_SHIFT],
-      // ['<<', PREC.BIT_SHIFT],
-      // ['^', PREC.BIT_NOT],
+      ['|', PREC.BIT_OR],
+      ['^', PREC.BIT_XOR],
+      ['&', PREC.BIT_AND],
+      ['>>', PREC.BIT_SHIFT],
+      ['<<', PREC.BIT_SHIFT],
       ['+', PREC.PLUS],
       ['-', PREC.PLUS],
       ['*', PREC.MULTI],
@@ -157,12 +161,13 @@ export default grammar({
     $._commandlist_callable_prefix,
     $._customshader_callable_prefix,
     $._customresource_header_prefix,
+    $._resourcepool_header_prefix,
     $._namespace_resolution_start,
     $._namespace_resolution_content,
     $._namespace_resolution_end,
     $._suffixed_key_header,
     $._suffixed_preset_header,
-    $._suffixed_resource_header,
+    $._suffixed_resource_header, // also used for Pools
     $._suffixed_include_header,
     $._suffixed_commandlist_header,
     $._regex_commandlist_header,
@@ -430,8 +435,20 @@ export default grammar({
     ),
 
     shader_regex_replace_body: $ => repeat1(seq(
-      $._section_header_guard, // searches the same as $._section_header_start, but returns true if it does NOT find a section header
-      alias(repeat1(choice($.regex_replacement, $.regex_replacement_conditional, $.character_escape, $.free_text)), $.regex_replace_line),
+      // searches the same as $._section_header_start
+      // but returns true if it does NOT find a section header
+      $._section_header_guard,
+      alias(
+        repeat1(
+          choice(
+            $.regex_replacement,
+            $.regex_replacement_conditional,
+            $.character_escape,
+            $.free_text
+          )
+        ),
+        $.regex_replace_line
+      ),
       $._newline,
       optional($._section_header_start)
     )),
@@ -504,10 +521,13 @@ export default grammar({
     setting_section_header: $ => seq(
       '[',
       choice(
-        alias(/(Logging|System|Device|Stereo|Rendering|Hunting|Profile|ConvergenceMap|Loader)/i, $.header_identifier),
+        alias(
+          /(Logging|System|Device|Stereo|Rendering|Hunting|Profile|ConvergenceMap|Loader)/i,
+          $.header_identifier
+        ),
         choice(
           seq(
-            alias($._customresource_header_prefix, $.header_prefix),
+            alias(choice($._customresource_header_prefix, $._resourcepool_header_prefix), $.header_prefix),
             alias($._suffixed_resource_header, $.header_identifier)
           ),
           seq(
@@ -535,7 +555,7 @@ export default grammar({
         field('value', $.setting_statement_value),
         $._newline
       ),
-      // the hash key needs to take free_text, which would normally conflict with fixed_text here
+      // the hash key needs to take free_text, which would normally conflict with fixed_value here
       seq(
         field('key', alias(/hash/i, $.setting_statement_key)),
         '=',
@@ -574,6 +594,9 @@ export default grammar({
       )
     ),
 
+    // $._hash_vale and $._frame_analysis_option_list
+    // These exist only to keep the two special cases in line with how $.setting_statement_value is parsed for non-special situations
+    // Basically, I need (setting_statement_value (_)) and not just (setting_statement_value)
     _hash_value: $ => $.free_text,
 
     _frame_analysis_option_list: $ => $.frame_analysis_option_list,
@@ -595,6 +618,7 @@ export default grammar({
     setting_statement_value: $ => choice(
       alias(dxgi_types_regex, $.resource_format),
       alias(resource_type_values, $.resource_type),
+      $.named_variable,
       $.numeric_constant,
       $.boolean_value,
       $.string,
@@ -862,7 +886,7 @@ export default grammar({
       optional($.execution_modifier),
       alias(/dump/i, $.instruction),
       '=',
-      $.dump_instruction_value_list,
+      choice($._resource_operand, $.dump_instruction_value_list),
       $._newline
     ),
 
@@ -987,13 +1011,15 @@ export default grammar({
     _resource_operand: $ => choice(
       $._language_variable,
       $.resource_identifier,
-      $.custom_resource
+      $.custom_resource,
+      $.resource_pool
     ),
 
     _limited_resource_operand: $ => choice(
       $._limited_language_variable,
       $.resource_identifier,
-      $.custom_resource
+      $.custom_resource,
+      $.resource_pool
     ),
 
     fuzzy_match_expression: $ => seq(
@@ -1010,7 +1036,7 @@ export default grammar({
         seq('*', $.match_expression_field),
         seq(
           optional(seq('*', $.integer)),
-          optional(seq('/', $.integer))      
+          optional(seq('/', $.integer))
         )
       ),
     ),
@@ -1032,7 +1058,10 @@ export default grammar({
 
     frame_analysis_option_list: $ => repeat1($.frame_analysis_option),
 
-    dump_instruction_value_list: $ => repeat1(choice($._resource_operand, $.frame_analysis_option)),
+    dump_instruction_value_list: $ => seq(
+      $._resource_operand,
+      repeat1($.frame_analysis_option)
+    ),
 
     _fixed_value_list: $ => seq($.fixed_value, repeat1($.fixed_value)),
 
@@ -1053,7 +1082,7 @@ export default grammar({
 
     static_unary_expression: $ => prec.left(
       PREC.UNARY,
-      seq(choice('-', '+', '!'), field('operand', $.static_operational_expression))
+      seq(choice('-', '+', '!', '~'), field('operand', $.static_operational_expression))
     ),
 
     static_list_expression: $ => list_seq($._static_value, ','),
@@ -1075,9 +1104,13 @@ export default grammar({
     binary_expression: $ => _generate_binary_expr_rule($.operational_expression),
 
     // adapted from tree-sitter-lua
-    unary_expression: $ => prec.left(
+    unary_expression: $ => prec.right(
       PREC.UNARY,
-      seq(field('operator', choice('-', '+', '!')), field('operand', $.operational_expression))
+      choice(
+        seq(field('operator', choice('-', '+', '!')), field('operand', $.operational_expression)),
+        seq(field('operator', '@'), field('operand', $._resource_operand)),
+        seq(field('operator', '#'), field('operand', alias($._resource_pool_base, $.resource_pool))),
+      )
     ),
 
     identifier: $ => choice(
@@ -1116,6 +1149,29 @@ export default grammar({
       )
     ),
 
+    resource_pool: $ => seq(
+      $._resource_pool_base,
+      alias($._index_suffix, $.index_expression)
+    ),
+
+    _resource_pool_base: $ => seq(
+      alias($._resourcepool_header_prefix, $.resource_prefix),
+      seq(
+        optional(seq(
+          alias($._namespace_resolution_start, '\\'),
+          alias($._namespace_resolution_content, $.namespace),
+          alias($._namespace_resolution_end, '\\')
+        )),
+        alias(token.immediate(custom_resource_section_name), $.section_identifier)
+      )
+    ),
+
+    _index_suffix: $ => seq(
+      '[',
+      choice($.numeric_constant, $.named_variable),
+      ']'
+    ),
+
     named_variable: $ => seq(
       '$',
       optional(seq(
@@ -1146,7 +1202,7 @@ export default grammar({
     ),
 
     static_override_parameter: _ => /(sli|hunting|frame_analysis|stereo_(?:active|available))/i,
-    
+
     _callable_section: $ => choice(
       $.callable_commandlist,
       $.callable_customshader
@@ -1211,7 +1267,12 @@ export default grammar({
 
     marking_actions_option: _ => /(clipboard|hlsl|asm|regex|mono_snapshot|stereo_snapshot|snapshot_if_pink)/i,
 
-    _regex_replacement_content: $ => choice($.regex_replacement, $.regex_replacement_conditional, $.character_escape, alias($.free_text_no_colon, $.free_text)),
+    _regex_replacement_content: $ => choice(
+      $.regex_replacement,
+      $.regex_replacement_conditional,
+      $.character_escape,
+      alias($.free_text_no_colon, $.free_text)
+    ),
 
     regex_replacement: $ => choice(
       seq('${', alias(/\w+/i, $.replacement_identifier), '}'), // ${identifier}

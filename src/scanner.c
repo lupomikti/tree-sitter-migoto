@@ -2,7 +2,6 @@
 #include "tree_sitter/alloc.h"
 #include "tree_sitter/array.h"
 
-#include <ctype.h>
 #include <wctype.h>
 #include <string.h>
 
@@ -21,12 +20,13 @@ typedef enum {
     COMMANDLIST_CALLABLE_PREFIX,
     CUSTOMSHADER_CALLABLE_PREFIX,
     CUSTOMRESOURCE_HEADER_PREFIX,
+    RESOURCEPOOL_HEADER_PREFIX,
     NAMESPACE_RESOLUTION_START,
     NAMESPACE_RESOLUTION_CONTENT,
     NAMESPACE_RESOLUTION_END,
     SUFFIXED_KEY_HEADER,
     SUFFIXED_PRESET_HEADER,
-    // Resource[^\]]+
+    // (?:Resource|Pool)[^\]]+
     SUFFIXED_RESOURCE_HEADER,
     // Include[^\]]*
     SUFFIXED_INCLUDE_HEADER,
@@ -50,6 +50,7 @@ const char *SECTION_PREFIX_NAMES[] = {
     "resource",
     "include",
     "preset",
+    "pool",
     "key",
     0
 };
@@ -75,6 +76,7 @@ const char *SECTION_NAMES[] = {
     "profile",
     "convergencemap",
     "resource",
+    "pool",
     "preset",
     "loader",
     0
@@ -139,7 +141,7 @@ void tree_sitter_migoto_external_scanner_deserialize(void *payload, const char *
     memcpy(scanner->word.contents, &buffer[size], word_length);
     scanner->word.size = word_length;
     size += word_length;
-    
+
     assert(size == length);
 }
 
@@ -163,7 +165,8 @@ static inline char *_tolower_str(char *_Str) {
     return _Str;
 }
 
-/// Determines if search_term exactly matches one of the section names in search_arr, using multiple sizes to test multiple options
+/// Determines if search_term exactly matches one of the section names in search_arr,
+/// using multiple sizes to test multiple options
 /// @returns An integer representing the 1-indexed position in the sizes array of a match, and 0 otherwise.
 static inline int is_section_name_l(char *search_term, uint8_t *sizes, const char **search_arr) {
     strlwr(search_term); // mutates search_term
@@ -257,7 +260,7 @@ static inline bool scan_namespace_res_content(TSLexer *lexer) {
         case '\n':
             lexer->result_symbol = NAMESPACE_RESOLUTION_CONTENT;
             consume(lexer);
-            return true;        
+            return true;
         default:
             consume(lexer);
             break;
@@ -281,7 +284,8 @@ static inline bool scan_maybe_section_header(Scanner *scanner, TSLexer *lexer, c
         if (is_prefix_search && (
             valid_symbols[COMMANDLIST_CALLABLE_PREFIX] ||
             valid_symbols[CUSTOMSHADER_CALLABLE_PREFIX] ||
-            valid_symbols[CUSTOMRESOURCE_HEADER_PREFIX]
+            valid_symbols[CUSTOMRESOURCE_HEADER_PREFIX] ||
+            valid_symbols[RESOURCEPOOL_HEADER_PREFIX]
         ))
         {
             skip(lexer);
@@ -311,7 +315,7 @@ static inline bool scan_maybe_section_header(Scanner *scanner, TSLexer *lexer, c
     char *target_term = 0;
 
     // choose the search length or set target term based on first character
-    // s [6,11,14], c [11,12,14,21,28,29], b [18,19], p [6,7], l [6,7], r [8,9]: all have multiple options for header
+    // s [6,11,14], c [11,12,14,21,28,29], p [4,6,7], b [18,19], l [6,7], r [8,9]: all have multiple options for header
 callable:
     switch (towlower(lexer->lookahead)) {
     case 's':
@@ -431,13 +435,35 @@ callable:
         break;
     case 'p':
         if (is_prefix_search) {
-            lexer->result_symbol = PRESET_HEADER_PREFIX;
-            target_term = "preset";
-            search_lengths[0] = 6;
+            // If we see 'p' and it's a prefix search, it could be "Pool" or "Preset"
+            if (valid_symbols[RESOURCEPOOL_HEADER_PREFIX] ||
+                valid_symbols[PRESET_HEADER_PREFIX])
+            {
+                // Perform an extra lookahead
+                array_push(&scanner->word, lexer->lookahead);
+                consume(lexer); // consume the 'p'
+                if (towlower(lexer->lookahead) == 'r') {
+                    lexer->result_symbol = PRESET_HEADER_PREFIX;
+                    target_term = "preset";
+                    search_lengths[0] = 6;
+                }
+                else if (towlower(lexer->lookahead) == 'o') {
+                    lexer->result_symbol = RESOURCEPOOL_HEADER_PREFIX;
+                    target_term = "pool";
+                    search_lengths[0] = 4;
+                }
+                else {
+                    return false;
+                }
+            }
+            else {
+                return false;
+            }
         }
         else {
             search_lengths[0] = 7;
             search_lengths[1] = 6;
+            search_lengths[2] = 4;
         }
         break;
     case 'l':
@@ -516,7 +542,7 @@ callable:
                 search_lengths,
                 is_prefix_search ? SECTION_PREFIX_NAMES : SECTION_NAMES
             );
-        
+
         // if we had the COMMANDLIST_HEADER_PREFIX 'c' situation and the shorter name did not match, but the longer did
         // be sure to include that 1 extra character in the token
         if (match_idx && match_idx == 1 && is_prefix_search) {
@@ -536,7 +562,7 @@ static inline bool scan_section_header_lookahead(Scanner *scanner, TSLexer *lexe
     bool saw_text = false;
     bool is_guard = (valid_symbols[SECTION_HEADER_GUARD] && !valid_symbols[SECTION_HEADER_START]);
     bool both_valid = (valid_symbols[SECTION_HEADER_GUARD] && valid_symbols[SECTION_HEADER_START]);
-    
+
     // if (both_valid) fprintf(stderr, "[Lykare]: both symbols valid...\n");
 
     // fprintf(stderr, "[Lykare]: eating consecutive newlines if present\n");
@@ -564,7 +590,7 @@ static inline bool scan_section_header_lookahead(Scanner *scanner, TSLexer *lexe
                     lexer->result_symbol = SECTION_HEADER_START;
                     return false;
                 }
-                
+
                 // fprintf(stderr, "[Lykare]: was looking for start, break loop\n");
                 break;
             }
@@ -676,7 +702,7 @@ static inline bool scan_line(Scanner *scanner, TSLexer *lexer, const bool *valid
             if (!is_wspace && !saw_text) {
                 saw_text = true;
             }
-            
+
             if (saw_text) {
                 // fprintf(stderr, "[Lykare]: saw text, so consume all chars include non-newline/EOF ws\n");
                 consume(lexer);
@@ -826,7 +852,7 @@ static inline bool scan_for_regex_suffix(Scanner *scanner, TSLexer *lexer, const
                 array_push(&scanner->word, '\0'); // terminate the accumulated word
 
                 strlwr(scanner->word.contents);
-                
+
                 if (!strcmp(scanner->word.contents, "pattern")) {
                     if (lexer->lookahead == '.') {
                         ss = REPSEARCH;
@@ -942,7 +968,7 @@ bool tree_sitter_migoto_external_scanner_scan(void *payload, TSLexer *lexer, con
         valid_symbols[KEY_HEADER_PREFIX] || valid_symbols[PRESET_HEADER_PREFIX] ||
         valid_symbols[INCLUDE_HEADER_PREFIX] || valid_symbols[COMMANDLIST_HEADER_PREFIX] ||
         valid_symbols[COMMANDLIST_CALLABLE_PREFIX] || valid_symbols[CUSTOMSHADER_CALLABLE_PREFIX] ||
-        valid_symbols[CUSTOMRESOURCE_HEADER_PREFIX]
+        valid_symbols[CUSTOMRESOURCE_HEADER_PREFIX] || valid_symbols[RESOURCEPOOL_HEADER_PREFIX]
     );
 
     if (is_prefix_search) {

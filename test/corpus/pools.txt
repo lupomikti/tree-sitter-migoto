@@ -1,0 +1,168 @@
+====
+Resource Pools
+====
+
+[PoolFoo]
+pool_size = 2
+
+[ResourceText]
+type = Buffer
+data = "Text"
+
+[Present]
+PoolFoo[0] = ref ResourceText
+
+local $src = 0
+local $dst = 1
+
+PoolFoo[$dst] = ref PoolFoo[$src]
+
+local $pool_size = #PoolFoo
+
+local $resource_text_id = @ResourceText
+local $pool_resource_0_id = @PoolFoo[0]
+local $pool_resource_1_id = @PoolFoo[1]
+
+local $same_buffer = $resource_text_id == $pool_resource_0_id && $pool_resource_0_id == $pool_resource_1_id
+
+; The more direct way also works:
+local $same_buffer = @ResourceText == @PoolFoo[0] && @PoolFoo[0] == @PoolFoo[1]
+
+---
+
+(document
+  (setting_section
+    (setting_section_header
+      (header_prefix)
+      (header_identifier))
+    (setting_section_body
+      (setting_statement
+        (setting_statement_key)
+        (setting_statement_value
+          (numeric_constant)))))
+  (setting_section
+    (setting_section_header
+      (header_prefix)
+      (header_identifier))
+    (setting_section_body
+      (setting_statement
+        (setting_statement_key)
+        (setting_statement_value
+          (resource_type)))
+      (setting_statement
+        (setting_statement_key)
+        (setting_statement_value
+          (string)))))
+  (commandlist_section
+    (commandlist_section_header
+      (header_identifier))
+    (commandlist_section_body
+      (assignment_statement
+        (resource_pool
+          (resource_prefix)
+          (section_identifier)
+          (index_expression
+            (numeric_constant)))
+        (resource_usage_expression
+          (resource_modifier)
+          (custom_resource
+            (resource_prefix)
+            (section_identifier))))
+      (local_initialisation
+        (named_variable
+          (variable_identifier))
+        (numeric_constant))
+      (local_initialisation
+        (named_variable
+          (variable_identifier))
+        (numeric_constant))
+      (assignment_statement
+        (resource_pool
+          (resource_prefix)
+          (section_identifier)
+          (index_expression
+            (named_variable
+              (variable_identifier))))
+        (resource_usage_expression
+          (resource_modifier)
+          (resource_pool
+            (resource_prefix)
+            (section_identifier)
+            (index_expression
+              (named_variable
+                (variable_identifier))))))
+      (local_initialisation
+        (named_variable
+          (variable_identifier))
+        (unary_expression
+          (resource_pool
+            (resource_prefix)
+            (section_identifier))))
+      (local_initialisation
+        (named_variable
+          (variable_identifier))
+        (unary_expression
+          (custom_resource
+            (resource_prefix)
+            (section_identifier))))
+      (local_initialisation
+        (named_variable
+          (variable_identifier))
+        (unary_expression
+          (resource_pool
+            (resource_prefix)
+            (section_identifier)
+            (index_expression
+              (numeric_constant)))))
+      (local_initialisation
+        (named_variable
+          (variable_identifier))
+        (unary_expression
+          (resource_pool
+            (resource_prefix)
+            (section_identifier)
+            (index_expression
+              (numeric_constant)))))
+      (local_initialisation
+        (named_variable
+          (variable_identifier))
+        (binary_expression
+          (binary_expression
+            (named_variable
+              (variable_identifier))
+            (named_variable
+              (variable_identifier)))
+          (binary_expression
+            (named_variable
+              (variable_identifier))
+            (named_variable
+              (variable_identifier)))))
+      (comment)
+      (local_initialisation
+        (named_variable
+          (variable_identifier))
+        (binary_expression
+          (binary_expression
+            (unary_expression
+              (custom_resource
+                (resource_prefix)
+                (section_identifier)))
+            (unary_expression
+              (resource_pool
+                (resource_prefix)
+                (section_identifier)
+                (index_expression
+                  (numeric_constant)))))
+          (binary_expression
+            (unary_expression
+              (resource_pool
+                (resource_prefix)
+                (section_identifier)
+                (index_expression
+                  (numeric_constant))))
+            (unary_expression
+              (resource_pool
+                (resource_prefix)
+                (section_identifier)
+                (index_expression
+                  (numeric_constant))))))))))
