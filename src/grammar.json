@@ -6003,6 +6003,24 @@
         }
       ]
     },
+    "resource_pool": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "_resource_pool_base"
+        },
+        {
+          "type": "ALIAS",
+          "content": {
+            "type": "SYMBOL",
+            "name": "_index_suffix"
+          },
+          "named": true,
+          "value": "index_expression"
+        }
+      ]
+    },
     "_resource_pool_base": {
       "type": "SEQ",
       "members": [
@@ -6072,24 +6090,6 @@
               "value": "section_identifier"
             }
           ]
-        }
-      ]
-    },
-    "resource_pool": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "SYMBOL",
-          "name": "_resource_pool_base"
-        },
-        {
-          "type": "ALIAS",
-          "content": {
-            "type": "SYMBOL",
-            "name": "_index_suffix"
-          },
-          "named": true,
-          "value": "index_expression"
         }
       ]
     },

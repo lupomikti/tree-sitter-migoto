@@ -1,11 +1,11 @@
 {
   "name": "tree-sitter-migoto",
-  "version": "0.7.2",
+  "version": "0.8.0",
   "description": "DSL for the INI files used by 3Dmigoto",
   "type": "module",
   "repository": "https://github.com/lupomikti/tree-sitter-migoto",
   "license": "MIT",
-  "author": "LupoMikti <lykare@proton.me>",
+  "author": "LupoMikti <lupo@kaltsje.me>",
   "contributors": [
     {
       "name": "AGMG",

@@ -11,22 +11,22 @@
         "3dm",
         "migoto"
       ],
-      "highlights": "queries/helix/highlights.scm",
-      "injections": "queries/helix/injections.scm",
-      "locals": "queries/helix/locals.scm",
-      "tags": "queries/helix/tags.scm",
+      "highlights": "queries/highlights.scm",
+      "injections": "queries/injections.scm",
+      "locals": "queries/locals.scm",
+      "tags": "queries/tags.scm",
       "injection-regex": "^migoto$",
       "class-name": "TreeSitterMigoto"
     }
   ],
   "metadata": {
-    "version": "0.7.2",
+    "version": "0.8.0",
     "license": "MIT",
     "description": "A tree-sitter parser for the DSL of the INI files used by 3Dmigoto",
     "authors": [
       {
         "name": "LupoMikti",
-        "email": "lykare@proton.me"
+        "email": "lupo@kaltsje.me"
       },
       {
         "name": "AGMG",
