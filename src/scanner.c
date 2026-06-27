@@ -38,6 +38,7 @@ typedef enum {
     REGEX_REPLACE_HEADER,
     NEWLINE,
     DOC_COMMENT_CONTENT,
+    CUSTOM_RESOURCE_IDENTIFIER,
     ERROR_SENTINEL,
 } TokenType;
 
@@ -764,6 +765,38 @@ static inline bool scan_suffixed_section_header(TSLexer *lexer, TokenType curren
     }
 }
 
+static inline bool scan_custom_resource_identifier(TSLexer *lexer) {
+    // fprintf(stderr, "[Lykare]: checking for a custom resource or pool identifier\n");
+    lexer->result_symbol = CUSTOM_RESOURCE_IDENTIFIER;
+
+    // fprintf(stderr, "[Lykare]: starting loop iteration\n");
+    while (!is_eof(lexer)) {
+        switch (lexer->lookahead)
+        {
+            case '[':
+            case '\r':
+            case '\n':
+            case '$':
+            case '=':
+                // fprintf(stderr, "[Lykare]: found a terminal, marking end and returning true\n");
+                mark_end(lexer);
+                return true;
+            case '-':
+                // fprintf(stderr, "[Lykare]: found a hyphen, checking ahead for '>'\n");
+                mark_end(lexer);
+                consume(lexer);
+                if (lexer->lookahead == '>') return true;
+                // else fall through and continue consuming
+            default:
+                // fprintf(stderr, "[Lykare]: default case, going to next iter\n");
+                consume(lexer);
+                continue;
+        }
+    }
+
+    return true;
+}
+
 static inline bool scan_for_regex_suffix(Scanner *scanner, TSLexer *lexer, const bool *valid_symbols) {
     SearchState ss = NOTSEARCHING;
     TokenType result;
@@ -905,15 +938,18 @@ static inline bool scan_for_regex_suffix(Scanner *scanner, TSLexer *lexer, const
 
 bool tree_sitter_migoto_external_scanner_scan(void *payload, TSLexer *lexer, const bool *valid_symbols) {
     if (valid_symbols[ERROR_SENTINEL]) {
+        // fprintf(stderr, "[Lykare]: error\n");
         return false;
     }
 
     if (valid_symbols[NEWLINE]) {
+        // fprintf(stderr, "[Lykare]: newline\n");
         return scan_end_of_line(lexer);
     }
 
     // From tree-sitter-zig github PR#10, under MIT license
     if (valid_symbols[DOC_COMMENT_CONTENT]) {
+        // fprintf(stderr, "[Lykare]: doc comment\n");
         lexer->result_symbol = DOC_COMMENT_CONTENT;
         while (true) {
             if (is_eof(lexer)) {
@@ -932,21 +968,35 @@ bool tree_sitter_migoto_external_scanner_scan(void *payload, TSLexer *lexer, con
     }
 
     if (valid_symbols[NAMESPACE_RESOLUTION_START]) {
-        return scan_namespace_res_start_end(lexer, NAMESPACE_RESOLUTION_START);
+        // fprintf(stderr, "[Lykare]: namespace start\n");
+        bool tmp = scan_namespace_res_start_end(lexer, NAMESPACE_RESOLUTION_START);
+        if (!tmp && valid_symbols[CUSTOM_RESOURCE_IDENTIFIER]) {
+            // fprintf(stderr, "[Lykare]: Custom Resource Identifier\n");
+            return scan_custom_resource_identifier(lexer);
+        }
+        return tmp;
     }
 
     if (valid_symbols[NAMESPACE_RESOLUTION_CONTENT]) {
+        // fprintf(stderr, "[Lykare]: namespace content\n");
         return scan_namespace_res_content(lexer);
     }
 
     if (valid_symbols[NAMESPACE_RESOLUTION_END]) {
+        // fprintf(stderr, "[Lykare]: namespace end\n");
         return scan_namespace_res_start_end(lexer, NAMESPACE_RESOLUTION_END);
+    }
+
+    if (valid_symbols[CUSTOM_RESOURCE_IDENTIFIER]) {
+        // fprintf(stderr, "[Lykare]: Custom Resource Identifier\n");
+        return scan_custom_resource_identifier(lexer);
     }
 
     if (valid_symbols[SUFFIXED_KEY_HEADER] || valid_symbols[SUFFIXED_PRESET_HEADER] ||
         valid_symbols[SUFFIXED_RESOURCE_HEADER] || valid_symbols[SUFFIXED_INCLUDE_HEADER] ||
         valid_symbols[SUFFIXED_COMMANDLIST_HEADER])
     {
+        // fprintf(stderr, "[Lykare]: suffixes\n");
         TokenType t = ERROR_SENTINEL;
 
         if (valid_symbols[SUFFIXED_KEY_HEADER])
@@ -972,22 +1022,28 @@ bool tree_sitter_migoto_external_scanner_scan(void *payload, TSLexer *lexer, con
     );
 
     if (is_prefix_search) {
+        // fprintf(stderr, "[Lykare]: Header Prefix Search, not Regex\n");
         return scan_section_header_prefix(scanner, lexer, valid_symbols, is_prefix_search);
     }
 
     if (valid_symbols[REGEX_COMMANDLIST_HEADER] || valid_symbols[REGEX_DECLARATIONS_HEADER] ||
         valid_symbols[REGEX_PATTERN_HEADER] || valid_symbols[REGEX_REPLACE_HEADER])
     {
+        // fprintf(stderr, "[Lykare]: Header Prefix Search, Regex\n");
         return scan_for_regex_suffix(scanner, lexer, valid_symbols);
     }
 
     if (valid_symbols[EXTERNAL_LINE] && !(valid_symbols[SECTION_HEADER_START] || valid_symbols[SECTION_HEADER_GUARD])) {
+        // fprintf(stderr, "[Lykare]: external line, section start, or guard\n");
         return scan_line(scanner, lexer, valid_symbols);
     }
 
     if (valid_symbols[SECTION_HEADER_START] || valid_symbols[SECTION_HEADER_GUARD]) {
+        // fprintf(stderr, "[Lykare]: section start or guard\n");
         return scan_section_header_lookahead(scanner, lexer, valid_symbols);
     }
+
+    // fprintf(stderr, "[Lykare]: how??\n");
 
     return false;
 }

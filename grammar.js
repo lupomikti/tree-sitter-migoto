@@ -23,11 +23,10 @@ const PREC = {
   MULTI: 12, // * / // %
   POWER: 13, // **
   UNARY: 14, // ! + - ~
+  SUFFIX: 15, // -> []
 }
 
 const custom_section_name = /[^=$,\[\]\r\n]+/i
-// spaces cannot be allowed in Custom Resource names because then modifiers would get captured too
-const custom_resource_section_name = /[^\/&!>|<= $,\[\]\r\n]+/i
 
 const namespace_regex = /[^\s>\\|\/<?:*="$][^>\\|\/<?:*=$\r\n]+(?:[\\\/][^>\\|\/<?:*=$\r\n]+)*/i
 
@@ -176,6 +175,7 @@ export default grammar({
     $._regex_replace_header,
     $._newline,
     $.doc_comment_content,
+    $._custom_resource_identifier,
     $.error_sentinel
   ],
 
@@ -190,6 +190,7 @@ export default grammar({
   ],
 
   conflicts: $ => [
+    // could probably be eliminated by making [Hunting] a specially handled section
     [$._frame_analysis_option_list, $.analysis_instruction]
   ],
 
@@ -318,7 +319,7 @@ export default grammar({
     key_condition_statement: $ => seq(
       field('key', alias(/condition/i, $.condition_key)),
       '=',
-      list_seq($.operational_expression, ','),
+      list_seq($._operational_expression, ','),
       $._newline
     ),
 
@@ -381,7 +382,7 @@ export default grammar({
     preset_condition_statement: $ => seq(
       alias(/condition/i, $.condition_key),
       '=',
-      $.operational_expression,
+      $._operational_expression,
       $._newline
     ),
 
@@ -664,7 +665,7 @@ export default grammar({
       alias($._local, 'local'),
       field('variable', $.named_variable),
       '=',
-      field('expression', $.operational_expression),
+      field('expression', $._operational_expression),
       $._newline
     ),
 
@@ -723,7 +724,7 @@ export default grammar({
             $.named_variable
           )),
           "=",
-          field('expression', $.operational_expression),
+          field('expression', $._operational_expression),
           $._newline
         ),
         seq(
@@ -753,7 +754,7 @@ export default grammar({
     if_statement: $ => seq(
       alias($._if, 'if'),
       $._significant_ws,
-      field('condition', $.operational_expression),
+      field('condition', $._operational_expression),
       $._newline,
       field('consequence', alias(optional($._block), $.block))
     ),
@@ -762,7 +763,7 @@ export default grammar({
     elseif_statement: $ => seq(
       choice(alias($._elif, 'elif'), alias($._elseif, 'else if')),
       $._significant_ws,
-      field('condition', $.operational_expression),
+      field('condition', $._operational_expression),
       $._newline,
       field('consequence', alias(optional($._block), $.block))
     ),
@@ -916,7 +917,7 @@ export default grammar({
       '=',
       choice(
         field('fixed_value', alias($.fixed_value, $.draw_instruction_key_value)),
-        list_seq($.operational_expression, ',')
+        list_seq($._operational_expression, ',')
       ),
       $._newline
     ),
@@ -927,7 +928,7 @@ export default grammar({
       '=',
       choice(
         field('fixed_value', alias($.fixed_value, $.draw_instruction_key_value)),
-        list_seq($.operational_expression, ',')
+        list_seq($._operational_expression, ',')
       ),
       $._newline
     ),
@@ -936,7 +937,7 @@ export default grammar({
       optional($.execution_modifier),
       alias(/(?:drawinstanced|dispatch)/i, $.instruction),
       '=',
-      list_seq($.operational_expression, ','),
+      list_seq($._operational_expression, ','),
       $._newline
     ),
 
@@ -1022,6 +1023,12 @@ export default grammar({
       $.resource_pool
     ),
 
+    property_access_expression: $ => prec.left(PREC.SUFFIX, seq(
+      $._limited_resource_operand,
+      field('operator', '->'),
+      alias($.fixed_value, $.attribute)
+    )),
+
     fuzzy_match_expression: $ => seq(
       optional(field('operator', alias(/([><]=?|[!=])/, $.fuzzy_operator))),
       choice(
@@ -1087,6 +1094,16 @@ export default grammar({
 
     static_list_expression: $ => list_seq($._static_value, ','),
 
+    _operational_expression: $ => choice(
+      $.operational_expression,
+      $._special_operational_expresssion,
+    ),
+
+    _special_operational_expresssion: $ => choice(
+      $._limited_resource_operand,
+      $.property_access_expression,
+    ),
+
     operational_expression: $ => choice(
       $._static_value,
       $.identifier,
@@ -1097,17 +1114,17 @@ export default grammar({
 
     parenthesized_expression: $ => seq(
       '(',
-      $.operational_expression,
+      $._operational_expression,
       ')'
     ),
 
-    binary_expression: $ => _generate_binary_expr_rule($.operational_expression),
+    binary_expression: $ => _generate_binary_expr_rule($._operational_expression),
 
     // adapted from tree-sitter-lua
     unary_expression: $ => prec.right(
       PREC.UNARY,
       choice(
-        seq(field('operator', choice('-', '+', '!')), field('operand', $.operational_expression)),
+        seq(field('operator', choice('-', '+', '!', '~')), field('operand', $._operational_expression)),
         seq(field('operator', '@'), field('operand', $._resource_operand)),
         seq(field('operator', '#'), field('operand', alias($._resource_pool_base, $.resource_pool))),
       )
@@ -1116,7 +1133,6 @@ export default grammar({
     identifier: $ => choice(
       $.named_variable,
       $.ini_parameter,
-      $._limited_resource_operand,
       $.shader_identifier,
       $.scissor_rectangle,
       $.override_parameter
@@ -1139,31 +1155,22 @@ export default grammar({
 
     custom_resource: $ => seq(
       alias($._customresource_header_prefix, $.resource_prefix),
-      seq(
-        optional(seq(
-          alias($._namespace_resolution_start, '\\'),
-          alias($._namespace_resolution_content, $.namespace),
-          alias($._namespace_resolution_end, '\\')
-        )),
-        alias(token.immediate(custom_resource_section_name), $.section_identifier)
-      )
+      $._useable_resource_identifier,
     ),
 
-    resource_pool: $ => seq(
+    resource_pool: $ => prec.left(PREC.SUFFIX, seq(
       $._resource_pool_base,
       alias($._index_suffix, $.index_expression)
-    ),
+    )),
 
     _resource_pool_base: $ => seq(
       alias($._resourcepool_header_prefix, $.resource_prefix),
-      seq(
-        optional(seq(
-          alias($._namespace_resolution_start, '\\'),
-          alias($._namespace_resolution_content, $.namespace),
-          alias($._namespace_resolution_end, '\\')
-        )),
-        alias(token.immediate(custom_resource_section_name), $.section_identifier)
-      )
+      $._useable_resource_identifier,
+    ),
+
+    _useable_resource_identifier: $ => seq(
+      optional($._namespace_resolution),
+      alias($._custom_resource_identifier, $.section_identifier)
     ),
 
     _index_suffix: $ => seq(
@@ -1174,11 +1181,7 @@ export default grammar({
 
     named_variable: $ => seq(
       '$',
-      optional(seq(
-        alias($._namespace_resolution_start, '\\'),
-        alias($._namespace_resolution_content, $.namespace),
-        alias($._namespace_resolution_end, '\\')
-      )),
+      optional($._namespace_resolution),
       alias(/[a-z_]\w+|[a-z]/i, $.variable_identifier)
     ),
 
@@ -1224,12 +1227,14 @@ export default grammar({
     ),
 
     _useable_section_identifier: $ => seq(
-      optional(seq(
-        alias($._namespace_resolution_start, '\\'),
-        alias($._namespace_resolution_content, $.namespace),
-        alias($._namespace_resolution_end, '\\')
-      )),
+      optional($._namespace_resolution),
       alias(token.immediate(custom_section_name), $.section_identifier)
+    ),
+
+    _namespace_resolution: $ => seq(
+      alias($._namespace_resolution_start, '\\'),
+      alias($._namespace_resolution_content, $.namespace),
+      alias($._namespace_resolution_end, '\\')
     ),
 
     _static_value: $ => choice(
@@ -1247,6 +1252,7 @@ export default grammar({
 
     string: _ => seq(
       '"',
+      // deno-lint-ignore no-control-regex
       token.immediate(repeat(/[^\x00-\x08\x0a-\x1f\x22\x7f]/)), // exclude: from null to backspace, from \n to unit separator, ", delete
       token.immediate('"')
     ),

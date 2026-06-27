@@ -4,14 +4,6 @@
     "named": true,
     "subtypes": [
       {
-        "type": "buffer_variable",
-        "named": true
-      },
-      {
-        "type": "custom_resource",
-        "named": true
-      },
-      {
         "type": "ini_parameter",
         "named": true
       },
@@ -24,23 +16,11 @@
         "named": true
       },
       {
-        "type": "resource_identifier",
-        "named": true
-      },
-      {
-        "type": "resource_pool",
-        "named": true
-      },
-      {
         "type": "scissor_rectangle",
         "named": true
       },
       {
         "type": "shader_identifier",
-        "named": true
-      },
-      {
-        "type": "shader_variable",
         "named": true
       }
     ]
@@ -305,11 +285,35 @@
         "required": true,
         "types": [
           {
+            "type": "buffer_variable",
+            "named": true
+          },
+          {
+            "type": "custom_resource",
+            "named": true
+          },
+          {
             "type": "operational_expression",
             "named": true
           },
           {
+            "type": "property_access_expression",
+            "named": true
+          },
+          {
+            "type": "resource_identifier",
+            "named": true
+          },
+          {
+            "type": "resource_pool",
+            "named": true
+          },
+          {
             "type": "resource_usage_expression",
+            "named": true
+          },
+          {
+            "type": "shader_variable",
             "named": true
           }
         ]
@@ -369,7 +373,31 @@
         "required": true,
         "types": [
           {
+            "type": "buffer_variable",
+            "named": true
+          },
+          {
+            "type": "custom_resource",
+            "named": true
+          },
+          {
             "type": "operational_expression",
+            "named": true
+          },
+          {
+            "type": "property_access_expression",
+            "named": true
+          },
+          {
+            "type": "resource_identifier",
+            "named": true
+          },
+          {
+            "type": "resource_pool",
+            "named": true
+          },
+          {
+            "type": "shader_variable",
             "named": true
           }
         ]
@@ -473,7 +501,31 @@
         "required": true,
         "types": [
           {
+            "type": "buffer_variable",
+            "named": true
+          },
+          {
+            "type": "custom_resource",
+            "named": true
+          },
+          {
             "type": "operational_expression",
+            "named": true
+          },
+          {
+            "type": "property_access_expression",
+            "named": true
+          },
+          {
+            "type": "resource_identifier",
+            "named": true
+          },
+          {
+            "type": "resource_pool",
+            "named": true
+          },
+          {
+            "type": "shader_variable",
             "named": true
           }
         ]
@@ -998,6 +1050,14 @@
       "required": true,
       "types": [
         {
+          "type": "buffer_variable",
+          "named": true
+        },
+        {
+          "type": "custom_resource",
+          "named": true
+        },
+        {
           "type": "execution_modifier",
           "named": true
         },
@@ -1007,6 +1067,22 @@
         },
         {
           "type": "operational_expression",
+          "named": true
+        },
+        {
+          "type": "property_access_expression",
+          "named": true
+        },
+        {
+          "type": "resource_identifier",
+          "named": true
+        },
+        {
+          "type": "resource_pool",
+          "named": true
+        },
+        {
+          "type": "shader_variable",
           "named": true
         }
       ]
@@ -1051,6 +1127,14 @@
       "required": true,
       "types": [
         {
+          "type": "buffer_variable",
+          "named": true
+        },
+        {
+          "type": "custom_resource",
+          "named": true
+        },
+        {
           "type": "execution_modifier",
           "named": true
         },
@@ -1060,6 +1144,22 @@
         },
         {
           "type": "operational_expression",
+          "named": true
+        },
+        {
+          "type": "property_access_expression",
+          "named": true
+        },
+        {
+          "type": "resource_identifier",
+          "named": true
+        },
+        {
+          "type": "resource_pool",
+          "named": true
+        },
+        {
+          "type": "shader_variable",
           "named": true
         }
       ]
@@ -1097,6 +1197,14 @@
       "required": true,
       "types": [
         {
+          "type": "buffer_variable",
+          "named": true
+        },
+        {
+          "type": "custom_resource",
+          "named": true
+        },
+        {
           "type": "execution_modifier",
           "named": true
         },
@@ -1106,6 +1214,22 @@
         },
         {
           "type": "operational_expression",
+          "named": true
+        },
+        {
+          "type": "property_access_expression",
+          "named": true
+        },
+        {
+          "type": "resource_identifier",
+          "named": true
+        },
+        {
+          "type": "resource_pool",
+          "named": true
+        },
+        {
+          "type": "shader_variable",
           "named": true
         }
       ]
@@ -1222,7 +1346,31 @@
         "required": true,
         "types": [
           {
+            "type": "buffer_variable",
+            "named": true
+          },
+          {
+            "type": "custom_resource",
+            "named": true
+          },
+          {
             "type": "operational_expression",
+            "named": true
+          },
+          {
+            "type": "property_access_expression",
+            "named": true
+          },
+          {
+            "type": "resource_identifier",
+            "named": true
+          },
+          {
+            "type": "resource_pool",
+            "named": true
+          },
+          {
+            "type": "shader_variable",
             "named": true
           }
         ]
@@ -1397,7 +1545,31 @@
         "required": true,
         "types": [
           {
+            "type": "buffer_variable",
+            "named": true
+          },
+          {
+            "type": "custom_resource",
+            "named": true
+          },
+          {
             "type": "operational_expression",
+            "named": true
+          },
+          {
+            "type": "property_access_expression",
+            "named": true
+          },
+          {
+            "type": "resource_identifier",
+            "named": true
+          },
+          {
+            "type": "resource_pool",
+            "named": true
+          },
+          {
+            "type": "shader_variable",
             "named": true
           }
         ]
@@ -1511,7 +1683,31 @@
       "required": true,
       "types": [
         {
+          "type": "buffer_variable",
+          "named": true
+        },
+        {
+          "type": "custom_resource",
+          "named": true
+        },
+        {
           "type": "operational_expression",
+          "named": true
+        },
+        {
+          "type": "property_access_expression",
+          "named": true
+        },
+        {
+          "type": "resource_identifier",
+          "named": true
+        },
+        {
+          "type": "resource_pool",
+          "named": true
+        },
+        {
+          "type": "shader_variable",
           "named": true
         }
       ]
@@ -1725,7 +1921,31 @@
         "required": true,
         "types": [
           {
+            "type": "buffer_variable",
+            "named": true
+          },
+          {
+            "type": "custom_resource",
+            "named": true
+          },
+          {
             "type": "operational_expression",
+            "named": true
+          },
+          {
+            "type": "property_access_expression",
+            "named": true
+          },
+          {
+            "type": "resource_identifier",
+            "named": true
+          },
+          {
+            "type": "resource_pool",
+            "named": true
+          },
+          {
+            "type": "shader_variable",
             "named": true
           }
         ]
@@ -1814,7 +2034,31 @@
       "required": true,
       "types": [
         {
+          "type": "buffer_variable",
+          "named": true
+        },
+        {
+          "type": "custom_resource",
+          "named": true
+        },
+        {
           "type": "operational_expression",
+          "named": true
+        },
+        {
+          "type": "property_access_expression",
+          "named": true
+        },
+        {
+          "type": "resource_identifier",
+          "named": true
+        },
+        {
+          "type": "resource_pool",
+          "named": true
+        },
+        {
+          "type": "shader_variable",
           "named": true
         }
       ]
@@ -1886,11 +2130,35 @@
       "required": true,
       "types": [
         {
+          "type": "buffer_variable",
+          "named": true
+        },
+        {
           "type": "condition_key",
           "named": true
         },
         {
+          "type": "custom_resource",
+          "named": true
+        },
+        {
           "type": "operational_expression",
+          "named": true
+        },
+        {
+          "type": "property_access_expression",
+          "named": true
+        },
+        {
+          "type": "resource_identifier",
+          "named": true
+        },
+        {
+          "type": "resource_pool",
+          "named": true
+        },
+        {
+          "type": "shader_variable",
           "named": true
         }
       ]
@@ -2095,6 +2363,52 @@
           }
         ]
       }
+    }
+  },
+  {
+    "type": "property_access_expression",
+    "named": true,
+    "fields": {
+      "operator": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "->",
+            "named": false
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "attribute",
+          "named": true
+        },
+        {
+          "type": "buffer_variable",
+          "named": true
+        },
+        {
+          "type": "custom_resource",
+          "named": true
+        },
+        {
+          "type": "resource_identifier",
+          "named": true
+        },
+        {
+          "type": "resource_pool",
+          "named": true
+        },
+        {
+          "type": "shader_variable",
+          "named": true
+        }
+      ]
     }
   },
   {
@@ -3122,6 +3436,10 @@
             "named": true
           },
           {
+            "type": "property_access_expression",
+            "named": true
+          },
+          {
             "type": "resource_identifier",
             "named": true
           },
@@ -3161,6 +3479,10 @@
           },
           {
             "type": "@",
+            "named": false
+          },
+          {
+            "type": "~",
             "named": false
           }
         ]
@@ -3237,6 +3559,10 @@
   },
   {
     "type": "-",
+    "named": false
+  },
+  {
+    "type": "->",
     "named": false
   },
   {
@@ -3322,6 +3648,10 @@
   {
     "type": "^",
     "named": false
+  },
+  {
+    "type": "attribute",
+    "named": true
   },
   {
     "type": "blend_factor",
