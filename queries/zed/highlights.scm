@@ -71,6 +71,12 @@
 (_
   header: (_) @label)
 
+(constants_section
+  header: _ @constructor)
+
+(commandlist_section
+  header: _ @type)
+
 (commandlist_section
   header: _ @function
   (#match? @function "(?i)^\\[\\s*c(ommandlist|ustomshader).+"))
@@ -89,7 +95,7 @@
     (resource_prefix) @label
     "\\" @punctuation.delimiter
     (namespace) @variant
-    (section_identifier) @variable
+    (section_identifier) @attribute
   ])
 
 (resource_pool
@@ -97,7 +103,7 @@
     (resource_prefix) @label
     "\\" @punctuation.delimiter
     (namespace) @variant
-    (section_identifier) @variable
+    (section_identifier) @attribute
   ])
 
 (preset_section_identifier
@@ -216,6 +222,8 @@
   ] @operator)
 
 ; Extras
+(attribute) @property
+
 (comment) @comment
 
 (doc_comment) @comment.doc
