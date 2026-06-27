@@ -166,3 +166,104 @@ local $same_buffer = @ResourceText == @PoolFoo[0] && @PoolFoo[0] == @PoolFoo[1]
                 (section_identifier)
                 (index_expression
                   (numeric_constant))))))))))
+
+====
+Variable Value
+====
+
+[Pool_VertexPositions]
+pool_size = $shapekeyed_positions_count
+pool_index_type = fifo
+type = Buffer
+format = R32_FLOAT
+
+---
+
+(document
+  (setting_section
+    (setting_section_header
+      (header_prefix)
+      (header_identifier))
+    (setting_section_body
+      (setting_statement
+        (setting_statement_key)
+        (setting_statement_value
+          (named_variable
+            (variable_identifier))))
+      (setting_statement
+        (setting_statement_key)
+        (setting_statement_value
+          (fixed_setting_key_value)))
+      (setting_statement
+        (setting_statement_key)
+        (setting_statement_value
+          (resource_type)))
+      (setting_statement
+        (setting_statement_key)
+        (setting_statement_value
+          (resource_format))))))
+
+====
+Property Access
+====
+
+[CommandListCopyShapeKeyedPosition]
+$input_position_stride = ResourceInput_ShapeKeyedPositions->SourceStride
+$output_position_stride = ResourceOutput_ShapeKeyedPositions->SourceStride
+$mesh_vertex_offset = 0
+$mesh_vertex_count = ResourceInput_ShapeKeyedPositions->Size / $input_position_stride
+if $mesh_vertex_count > 0
+    run = CustomShaderShapeKeyedPositionCopier
+endif
+
+---
+
+(document
+  (commandlist_section
+    (commandlist_section_header
+      (header_prefix)
+      (header_identifier))
+    (commandlist_section_body
+      (assignment_statement
+        (named_variable
+          (variable_identifier))
+        (property_access_expression
+          (custom_resource
+            (resource_prefix)
+            (section_identifier))
+          (attribute)))
+      (assignment_statement
+        (named_variable
+          (variable_identifier))
+        (property_access_expression
+          (custom_resource
+            (resource_prefix)
+            (section_identifier))
+          (attribute)))
+      (assignment_statement
+        (named_variable
+          (variable_identifier))
+        (numeric_constant))
+      (assignment_statement
+        (named_variable
+          (variable_identifier))
+        (binary_expression
+          (property_access_expression
+            (custom_resource
+              (resource_prefix)
+              (section_identifier))
+            (attribute))
+          (named_variable
+            (variable_identifier))))
+      (conditional_statement
+        (if_statement
+          (binary_expression
+            (named_variable
+              (variable_identifier))
+            (numeric_constant))
+          (block
+            (run_instruction
+              (instruction)
+              (callable_customshader
+                (callable_prefix)
+                (section_identifier)))))))))
