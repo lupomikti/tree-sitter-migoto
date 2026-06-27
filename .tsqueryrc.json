@@ -213,6 +213,20 @@
       "description": "Uses regular expressions to match against the capture's text",
       "any": true
     },
+    "lua-match": {
+      "parameters": [
+        {
+          "type": "capture",
+          "arity": "required"
+        },
+        {
+          "type": "string",
+          "arity": "required"
+        }
+      ],
+      "description": "Uses regular expressions to match against the capture's text",
+      "any": true
+    },
     "is": {
       "parameters": [
         {
