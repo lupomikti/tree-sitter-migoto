@@ -723,6 +723,7 @@ static inline bool scan_line(Scanner *scanner, TSLexer *lexer, const bool *valid
 
 static inline bool scan_suffixed_section_header(TSLexer *lexer, TokenType current_symbol , const bool *valid_symbols) {
     bool saw_text = false, on_ws = true, is_start = true, not_error = (current_symbol != ERROR_SENTINEL);
+
     for (;;) {
         if (lexer->lookahead == ']' || lexer->lookahead == '\r' || lexer->lookahead == '\n' || is_eof(lexer)) {
             if (not_error) lexer->result_symbol = current_symbol;
@@ -769,32 +770,95 @@ static inline bool scan_custom_resource_identifier(TSLexer *lexer) {
     // fprintf(stderr, "[Lykare]: checking for a custom resource or pool identifier\n");
     lexer->result_symbol = CUSTOM_RESOURCE_IDENTIFIER;
 
+    char lookahead;
+    bool saw_text = false, on_ws = true, is_start = true, is_terminal_ahead = false;
+
     // fprintf(stderr, "[Lykare]: starting loop iteration\n");
-    while (!is_eof(lexer)) {
-        switch (lexer->lookahead)
-        {
+    for (;;) {
+        is_terminal_ahead = is_eof(lexer);
+
+        if (!is_terminal_ahead) {
+            lookahead = lexer->lookahead;
+
+            switch (lookahead) {
             case '[':
             case '\r':
             case '\n':
             case '$':
             case '=':
-                // fprintf(stderr, "[Lykare]: found a terminal, marking end and returning true\n");
-                mark_end(lexer);
-                return true;
+            case '+':
+            case '*':
+            case '/':
+            case '&':
+            case '|':
+            case '^':
+                is_terminal_ahead = true;
+                break;
+            case '!':
+                if (!on_ws) mark_end(lexer);
+                consume(lexer); // consume '!'
+                if (lexer->lookahead == '=') {
+                    is_terminal_ahead = true;
+                    break;
+                }
+                else {
+                    continue;
+                }
             case '-':
-                // fprintf(stderr, "[Lykare]: found a hyphen, checking ahead for '>'\n");
-                mark_end(lexer);
-                consume(lexer);
-                if (lexer->lookahead == '>') return true;
-                // else fall through and continue consuming
+                if (!on_ws) mark_end(lexer);
+                consume(lexer); // consume '-'
+                if (lexer->lookahead == '>') {
+                    is_terminal_ahead = true;
+                    break;
+                }
+                else {
+                    continue;
+                }
             default:
-                // fprintf(stderr, "[Lykare]: default case, going to next iter\n");
-                consume(lexer);
-                continue;
+                break;
+            }
+        }
+
+        if (is_terminal_ahead) {
+            // if we see a terminal ahead but have not seen any text yet
+            // this is invalid and should return false
+            if (!saw_text) return false;
+
+            // if we see a terminal ahead, have seen text, and are not currently on whitespace
+            // mark the end of the token at the current position
+            if (!on_ws) mark_end(lexer);
+
+            return true; // return captured text excluding the trailing whitespace
+        }
+        else if (iswspace(lookahead)) {
+            if (is_start) is_start = false;
+            if (!on_ws) {
+                on_ws = true;
+                if (saw_text) {
+                    mark_end(lexer);
+                }
+            }
+            consume(lexer);
+        }
+        else {
+            if (on_ws) {
+                on_ws = false;
+                if (!saw_text) {
+                    saw_text = true;
+                    if (is_start) {
+                        consume(lexer);
+                        is_start = false;
+                        continue;
+                    }
+                    mark_end(lexer); // mark all leading whitespace as part of the token
+                }
+            }
+            consume(lexer);
         }
     }
 
-    return true;
+    // should never get here, but just in case
+    return false;
 }
 
 static inline bool scan_for_regex_suffix(Scanner *scanner, TSLexer *lexer, const bool *valid_symbols) {
