@@ -277,6 +277,25 @@
     }
   },
   {
+    "type": "arguments",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "named_variable",
+          "named": true
+        },
+        {
+          "type": "numeric_constant",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "assignment_statement",
     "named": true,
     "fields": {
@@ -2369,6 +2388,16 @@
     "type": "property_access_expression",
     "named": true,
     "fields": {
+      "arguments": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "arguments",
+            "named": true
+          }
+        ]
+      },
       "operator": {
         "multiple": false,
         "required": true,
@@ -2385,10 +2414,6 @@
       "required": true,
       "types": [
         {
-          "type": "attribute",
-          "named": true
-        },
-        {
           "type": "buffer_variable",
           "named": true
         },
@@ -2402,6 +2427,10 @@
         },
         {
           "type": "resource_pool",
+          "named": true
+        },
+        {
+          "type": "resource_property",
           "named": true
         },
         {
@@ -3650,10 +3679,6 @@
     "named": false
   },
   {
-    "type": "attribute",
-    "named": true
-  },
-  {
     "type": "blend_factor",
     "named": true
   },
@@ -3863,6 +3888,10 @@
   },
   {
     "type": "resource_prefix",
+    "named": true
+  },
+  {
+    "type": "resource_property",
     "named": true
   },
   {
