@@ -132,6 +132,10 @@
   (scissor_rectangle)
 ] @variable.builtin
 
+(property_access_expression
+  (resource_property) @variable.other.member
+  !arguments)
+
 (ini_parameter) @variable.parameter.builtin
 
 (regex_replacement) @variable.parameter
@@ -209,6 +213,10 @@
     (section_identifier) @function.call
   ])
 
+(property_access_expression
+  (resource_property) @function.call
+  arguments: (_))
+
 ; Operators
 "=" @operator
 
@@ -222,8 +230,6 @@
   ] @operator)
 
 ; Extras
-(attribute) @variable.other.member
-
 (comment) @comment.line
 
 (doc_comment) @comment.line.documentation

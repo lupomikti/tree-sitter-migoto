@@ -17,10 +17,10 @@
 (local_initialisation
   "local" @keyword.modifier)
 
-(execution_modifier) @keyword.modifier
+(execution_modifier) @keyword
 
 (resource_usage_expression
-  (resource_modifier) @keyword.modifier)
+  (resource_modifier) @keyword)
 
 [
   "if"
@@ -133,6 +133,10 @@
   (scissor_rectangle)
 ] @variable.builtin
 
+(property_access_expression
+  (resource_property) @property
+  !arguments)
+
 (ini_parameter) @variable.parameter.builtin
 
 (regex_replacement) @variable.parameter
@@ -158,11 +162,11 @@
 (key_setting_statement
   (fixed_key_key_value) @constant)
 
-(key_binding_modifier) @keyword.modifier
+(key_binding_modifier) @keyword
 
 (resource_type) @type.builtin
 
-(resource_format) @variable.member
+(resource_format) @constant
 
 (blend_factor) @keyword
 
@@ -212,6 +216,10 @@
     (section_identifier) @function.call
   ])
 
+(property_access_expression
+  (resource_property) @function.call
+  arguments: (_))
+
 ; Operators
 "=" @operator
 
@@ -225,8 +233,6 @@
   ] @operator)
 
 ; Extras
-(attribute) @variable.member
-
 (comment) @comment
 
 (doc_comment) @comment.documentation
