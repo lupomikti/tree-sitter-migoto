@@ -1,0 +1,94 @@
+use-grammars = { only = [
+  "c",
+  "cmake",
+  "comment",
+  "go",
+  "javascript",
+  "json",
+  "jsonc",
+  "make",
+  "markdown",
+  "python",
+  "regex",
+  "rust",
+  "scheme",
+  "swift",
+  "toml",
+  "tsq",
+  "query", # only here because it won't fetch and build the grammar otherwise
+  "typescript",
+  "zig"
+] }
+
+# feel free to swap out all the deno stuff here for something else
+# I provide these as *my* defaults, with the intention for other to tweak as needed
+[[language]]
+name = "typescript"
+roots = ["deno.json", "deno.jsonc", "package.json"]
+file-types = ["ts", "tsx"]
+formatter = { command = "deno", args = ["fmt", "-", "--ext", "ts"] }
+auto-format = false
+language-servers = ["deno-lsp", "vscode-eslint-language-server"]
+
+[[language]]
+name = "javascript"
+roots = ["deno.json", "deno.jsonc", "package.json"]
+file-types = ["js", "jsx"]
+formatter = { command = "deno", args = ["fmt", "-", "--ext", "js"] }
+auto-format = false
+language-servers = ["deno-lsp", "vscode-eslint-language-server"]
+
+[[language]]
+name = "json"
+formatter = { command = "deno", args = ["fmt", "-", "--ext", "json"] }
+auto-format = true
+
+[[language]]
+name = "jsonc"
+formatter = { command = "deno", args = ["fmt", "-", "--ext", "jsonc"] }
+auto-format = true
+
+[[language]]
+name = "python"
+formatter = { command = "ruff", args = ["format", "--line-length", "88", "-"] }
+auto-format = true
+language-servers = ["ty", "ruff"]
+
+[[language]]
+name = "toml"
+roots = [".tombi.toml", "tombi.toml"]
+auto-format = false
+language-servers = ["tombi"]
+
+[[language]]
+name = "markdown"
+formatter = { command = "rumdl", args = ["check", "--fix", "--stdin"] }
+auto-format = false
+
+[[language]]
+name = "tsq"
+roots = [".tsqueryrc.json"]
+
+[language-server.deno-lsp]
+command = "deno"
+args = ["lsp"]
+config.deno.enable = true
+
+[language-server.ruff]
+command = "ruff"
+args = ["server"]
+
+[language-server.ty]
+command = "ty"
+args = ["server"]
+
+[language-server.ty.config]
+inlayHints.callArgumentNames = false
+experimental.rename = true
+experimental.autoImport = true
+
+[language-server.ts_query_ls]
+command = "ts_query_ls"
+
+[language-server.zls.config]
+inlay_hints_show_parameter_name = false
