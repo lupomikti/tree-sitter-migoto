@@ -231,7 +231,7 @@ endif
           (custom_resource
             (resource_prefix)
             (section_identifier))
-          (attribute)))
+          (resource_property)))
       (assignment_statement
         (named_variable
           (variable_identifier))
@@ -239,7 +239,7 @@ endif
           (custom_resource
             (resource_prefix)
             (section_identifier))
-          (attribute)))
+          (resource_property)))
       (assignment_statement
         (named_variable
           (variable_identifier))
@@ -252,7 +252,7 @@ endif
             (custom_resource
               (resource_prefix)
               (section_identifier))
-            (attribute))
+            (resource_property))
           (named_variable
             (variable_identifier))))
       (conditional_statement
@@ -267,3 +267,67 @@ endif
               (callable_customshader
                 (callable_prefix)
                 (section_identifier)))))))))
+
+====
+Property Access Function Call
+====
+
+[PoolMergedSkeletonsRW]
+pool_index_type = spatial
+pool_size = 4
+pool_spatial_radius = 3
+
+[CommandListTest]
+$spatial_hash = ResourceTemp1->SpatialHash(12, 13, 14, 0.125)
+PoolMergedSkeletonsRW[$spatial_hash] = copy ResourceTemp1
+
+---
+
+(document
+  (setting_section
+    (setting_section_header
+      (header_prefix)
+      (header_identifier))
+    (setting_section_body
+      (setting_statement
+        (setting_statement_key)
+        (setting_statement_value
+          (fixed_setting_key_value)))
+      (setting_statement
+        (setting_statement_key)
+        (setting_statement_value
+          (numeric_constant)))
+      (setting_statement
+        (setting_statement_key)
+        (setting_statement_value
+          (numeric_constant)))))
+  (commandlist_section
+    (commandlist_section_header
+      (header_prefix)
+      (header_identifier))
+    (commandlist_section_body
+      (assignment_statement
+        (named_variable
+          (variable_identifier))
+        (property_access_expression
+          (custom_resource
+            (resource_prefix)
+            (section_identifier))
+          (resource_property)
+          (arguments
+            (numeric_constant)
+            (numeric_constant)
+            (numeric_constant)
+            (numeric_constant))))
+      (assignment_statement
+        (resource_pool
+          (resource_prefix)
+          (section_identifier)
+          (index_expression
+            (named_variable
+              (variable_identifier))))
+        (resource_usage_expression
+          (resource_modifier)
+          (custom_resource
+            (resource_prefix)
+            (section_identifier)))))))
