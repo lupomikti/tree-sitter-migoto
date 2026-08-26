@@ -1130,7 +1130,7 @@ export default grammar({
       choice(
         seq(field('operator', choice('-', '+', '!', '~')), field('operand', $._operational_expression)),
         seq(field('operator', '@'), field('operand', $._resource_operand)),
-        seq(field('operator', '#'), field('operand', alias($._resource_pool_base, $.resource_pool))),
+        seq(field('operator', '#'), field('operand', choice($.resource_pool, alias($._resource_pool_base, $.resource_pool)))),
       ),
     ),
 

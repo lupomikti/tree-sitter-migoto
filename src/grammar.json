@@ -5969,13 +5969,22 @@
                 "type": "FIELD",
                 "name": "operand",
                 "content": {
-                  "type": "ALIAS",
-                  "content": {
-                    "type": "SYMBOL",
-                    "name": "_resource_pool_base"
-                  },
-                  "named": true,
-                  "value": "resource_pool"
+                  "type": "CHOICE",
+                  "members": [
+                    {
+                      "type": "SYMBOL",
+                      "name": "resource_pool"
+                    },
+                    {
+                      "type": "ALIAS",
+                      "content": {
+                        "type": "SYMBOL",
+                        "name": "_resource_pool_base"
+                      },
+                      "named": true,
+                      "value": "resource_pool"
+                    }
+                  ]
                 }
               }
             ]
