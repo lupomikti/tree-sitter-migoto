@@ -26,19 +26,19 @@
     "binding.gyp",
     "prebuilds/**",
     "bindings/node/*",
-    "queries/*",
+    "queries/**",
     "src/**",
     "*.wasm"
   ],
   "dependencies": {
-    "node-addon-api": "^8.9.0",
+    "node-addon-api": "^8.9.2",
     "node-gyp-build": "^4.8.4"
   },
   "devDependencies": {
-    "eslint": "^9.17.0",
+    "eslint": "^9.39.5",
     "eslint-config-treesitter": "^1.0.2",
     "prebuildify": "^6.0.1",
-    "tree-sitter-cli": "^0.26.9"
+    "tree-sitter-cli": "^0.26.13"
   },
   "peerDependencies": {
     "tree-sitter": "^0.21.1"
