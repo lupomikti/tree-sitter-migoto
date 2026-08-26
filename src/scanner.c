@@ -771,93 +771,68 @@ static inline bool scan_custom_resource_identifier(TSLexer *lexer) {
     lexer->result_symbol = CUSTOM_RESOURCE_IDENTIFIER;
 
     char lookahead;
-    bool saw_text = false, on_ws = true, is_start = true, is_terminal_ahead = false;
+    bool is_start = true, is_terminal_ahead = false;
 
     // fprintf(stderr, "[Lykare]: starting loop iteration\n");
-    for (;;) {
-        is_terminal_ahead = is_eof(lexer);
-
-        if (!is_terminal_ahead) {
-            lookahead = lexer->lookahead;
-
-            switch (lookahead) {
-            case '[':
-            case '\r':
-            case '\n':
-            case '$':
-            case '=':
-            case '+':
-            case '*':
-            case '/':
-            case '&':
-            case '|':
-            case '^':
-                is_terminal_ahead = true;
-                break;
-            case '!':
-                if (!on_ws) mark_end(lexer);
-                consume(lexer); // consume '!'
-                if (lexer->lookahead == '=') {
-                    is_terminal_ahead = true;
-                    break;
-                }
-                else {
-                    continue;
-                }
-            case '-':
-                if (!on_ws) mark_end(lexer);
-                consume(lexer); // consume '-'
-                if (lexer->lookahead == '>') {
-                    is_terminal_ahead = true;
-                    break;
-                }
-                else {
-                    continue;
-                }
-            default:
-                break;
-            }
-        }
+    while (!is_terminal_ahead) {
+        lookahead = lexer->lookahead;
+        is_terminal_ahead = is_eof(lexer) || iswspace(lookahead);
 
         if (is_terminal_ahead) {
-            // if we see a terminal ahead but have not seen any text yet
-            // this is invalid and should return false
-            if (!saw_text) return false;
-
-            // if we see a terminal ahead, have seen text, and are not currently on whitespace
-            // mark the end of the token at the current position
-            if (!on_ws) mark_end(lexer);
-
-            return true; // return captured text excluding the trailing whitespace
+            break;
         }
-        else if (iswspace(lookahead)) {
-            if (is_start) is_start = false;
-            if (!on_ws) {
-                on_ws = true;
-                if (saw_text) {
-                    mark_end(lexer);
-                }
-            }
-            consume(lexer);
+
+        if (is_start) {
+            is_start = false;
         }
-        else {
-            if (on_ws) {
-                on_ws = false;
-                if (!saw_text) {
-                    saw_text = true;
-                    if (is_start) {
-                        consume(lexer);
-                        is_start = false;
-                        continue;
-                    }
-                    mark_end(lexer); // mark all leading whitespace as part of the token
-                }
+
+        // The following intentionally deviates from 3dm allowances
+        // by disallowing some characters in a resource name which 3dm allows
+        // 3dm may use whitespace for disambiguation, but I don't agree with
+        // mixing whitespace significance in some places but not in others
+        switch (lookahead) {
+        case '[':
+        case '$':
+        case '=':
+        case '+':
+        case '*':
+        case '/':
+        case '&':
+        case '|':
+        case '^':
+        case '(':
+        case ')':
+            is_terminal_ahead = true;
+            break;
+        case '!':
+            consume(lexer); // consume '!'
+            if (lexer->lookahead == '=') {
+                is_terminal_ahead = true;
+                break;
             }
+            else {
+                continue;
+            }
+        case '-':
+            consume(lexer); // consume '-'
+            if (lexer->lookahead == '>') {
+                is_terminal_ahead = true;
+                break;
+            }
+            else {
+                continue;
+            }
+        default:
             consume(lexer);
+            break;
         }
     }
 
-    // should never get here, but just in case
+    if (!is_start) {
+        mark_end(lexer);
+        return true;
+    }
+
     return false;
 }
 
