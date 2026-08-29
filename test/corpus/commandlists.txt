@@ -94,38 +94,38 @@ endif
       (conditional_statement
         (if_statement
           (binary_expression
-            (override_parameter)
+            (runtime_parameter)
             (numeric_constant))
           (block
             (assignment_statement
               (ini_parameter)
-              (override_parameter))
+              (runtime_parameter))
             (assignment_statement
               (ini_parameter)
-              (override_parameter))))
+              (runtime_parameter))))
         (comment)
         (elseif_statement
           (binary_expression
-            (override_parameter)
+            (runtime_parameter)
             (numeric_constant))
           (block
             (assignment_statement
               (ini_parameter)
-              (override_parameter))
+              (runtime_parameter))
             (assignment_statement
               (ini_parameter)
-              (override_parameter))))
+              (runtime_parameter))))
         (elseif_statement
           (binary_expression
-            (override_parameter)
+            (runtime_parameter)
             (numeric_constant))
           (block
             (assignment_statement
               (ini_parameter)
-              (override_parameter))
+              (runtime_parameter))
             (assignment_statement
               (ini_parameter)
-              (override_parameter))))
+              (runtime_parameter))))
         (else_statement
           (block
             (assignment_statement

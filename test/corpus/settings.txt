@@ -817,3 +817,72 @@ analyse_options = mono
         (setting_statement_value
           (frame_analysis_option_list
             (frame_analysis_option)))))))
+
+====
+Variable Value
+====
+
+[Pool_VertexPositions]
+pool_size = $shapekeyed_positions_count
+pool_index_type = fifo
+type = Buffer
+format = R32_FLOAT
+
+---
+
+(document
+  (setting_section
+    (setting_section_header
+      (header_prefix)
+      (header_identifier))
+    (setting_section_body
+      (setting_statement
+        (setting_statement_key)
+        (setting_statement_value
+          (named_variable
+            (variable_identifier))))
+      (setting_statement
+        (setting_statement_key)
+        (setting_statement_value
+          (fixed_setting_key_value)))
+      (setting_statement
+        (setting_statement_key)
+        (setting_statement_value
+          (resource_type)))
+      (setting_statement
+        (setting_statement_key)
+        (setting_statement_value
+          (resource_format))))))
+
+====
+Static Expression of Key
+====
+
+[Pool_ShapeKeys_LastSetValues]
+pool_size = $shapekeyed_components_count * $shapekeyed_comp_max_batches * $\MI\cfg_sk_batch_size
+pool_index_type = fifo
+
+----
+
+(document
+  (setting_section
+    (setting_section_header
+      (header_prefix)
+      (header_identifier))
+    (setting_section_body
+      (setting_statement
+        (setting_statement_key)
+        (setting_statement_value
+          (static_binary_expression
+            (static_binary_expression
+              (named_variable
+                (variable_identifier))
+              (named_variable
+                (variable_identifier)))
+            (named_variable
+              (namespace)
+              (variable_identifier)))))
+      (setting_statement
+        (setting_statement_key)
+        (setting_statement_value
+          (fixed_setting_key_value))))))

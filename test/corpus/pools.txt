@@ -168,107 +168,6 @@ local $same_buffer = @ResourceText == @PoolFoo[0] && @PoolFoo[0] == @PoolFoo[1]
                   (numeric_constant))))))))))
 
 ====
-Variable Value
-====
-
-[Pool_VertexPositions]
-pool_size = $shapekeyed_positions_count
-pool_index_type = fifo
-type = Buffer
-format = R32_FLOAT
-
----
-
-(document
-  (setting_section
-    (setting_section_header
-      (header_prefix)
-      (header_identifier))
-    (setting_section_body
-      (setting_statement
-        (setting_statement_key)
-        (setting_statement_value
-          (named_variable
-            (variable_identifier))))
-      (setting_statement
-        (setting_statement_key)
-        (setting_statement_value
-          (fixed_setting_key_value)))
-      (setting_statement
-        (setting_statement_key)
-        (setting_statement_value
-          (resource_type)))
-      (setting_statement
-        (setting_statement_key)
-        (setting_statement_value
-          (resource_format))))))
-
-====
-Property Access
-====
-
-[CommandListCopyShapeKeyedPosition]
-$input_position_stride = ResourceInput_ShapeKeyedPositions->SourceStride
-$output_position_stride = ResourceOutput_ShapeKeyedPositions->SourceStride
-$mesh_vertex_offset = 0
-$mesh_vertex_count = ResourceInput_ShapeKeyedPositions->Size / $input_position_stride
-if $mesh_vertex_count > 0
-    run = CustomShaderShapeKeyedPositionCopier
-endif
-
----
-
-(document
-  (commandlist_section
-    (commandlist_section_header
-      (header_prefix)
-      (header_identifier))
-    (commandlist_section_body
-      (assignment_statement
-        (named_variable
-          (variable_identifier))
-        (property_access_expression
-          (custom_resource
-            (resource_prefix)
-            (section_identifier))
-          (resource_property)))
-      (assignment_statement
-        (named_variable
-          (variable_identifier))
-        (property_access_expression
-          (custom_resource
-            (resource_prefix)
-            (section_identifier))
-          (resource_property)))
-      (assignment_statement
-        (named_variable
-          (variable_identifier))
-        (numeric_constant))
-      (assignment_statement
-        (named_variable
-          (variable_identifier))
-        (binary_expression
-          (property_access_expression
-            (custom_resource
-              (resource_prefix)
-              (section_identifier))
-            (resource_property))
-          (named_variable
-            (variable_identifier))))
-      (conditional_statement
-        (if_statement
-          (binary_expression
-            (named_variable
-              (variable_identifier))
-            (numeric_constant))
-          (block
-            (run_instruction
-              (instruction)
-              (callable_customshader
-                (callable_prefix)
-                (section_identifier)))))))))
-
-====
 Property Access Function Call
 ====
 
@@ -280,6 +179,7 @@ pool_spatial_radius = 3
 [CommandListTest]
 $spatial_hash = ResourceTemp1->SpatialHash(12, 13, 14, 0.125)
 PoolMergedSkeletonsRW[$spatial_hash] = copy ResourceTemp1
+$unnecessary = PoolMergedSkeletonsRW[$spatial_hash]->SpatialHash(12,13,14,0.125)
 
 ---
 
@@ -330,4 +230,130 @@ PoolMergedSkeletonsRW[$spatial_hash] = copy ResourceTemp1
           (resource_modifier)
           (custom_resource
             (resource_prefix)
-            (section_identifier)))))))
+            (section_identifier))))
+      (assignment_statement
+        (named_variable
+          (variable_identifier))
+        (property_access_expression
+          (resource_pool
+            (resource_prefix)
+            (section_identifier)
+            (index_expression
+              (named_variable
+                (variable_identifier))))
+          (resource_property)
+          (arguments
+            (numeric_constant)
+            (numeric_constant)
+            (numeric_constant)
+            (numeric_constant)))))))
+
+====
+Pooled Variable Usage
+====
+
+[CommandListSetShapeKey]
+; Check the last set value for this $component_id and $shapekey_id...
+local $value_uid = $component_id * $shapekeyed_comp_max_batches * $\MI\cfg_sk_batch_size + $shapekey_id
+if $shapekey_value != $Pool_ShapeKeys_LastSetValues[$value_uid]
+    ; ... and submit new value to GPU only if it is different.
+    ; Calling `ShapeKeySetter` just writes new value to buffer, geometry update is deferred.
+    $Pool_ShapeKeys_LastSetValues[$value_uid] = $shapekey_value
+    $\MI\shapekey_id = $shapekey_id
+    $\MI\shapekey_value = $shapekey_value
+    Resource\MI\Output_ShapeKeyValues = ref Pool_ShapeKeyValuesRW[$component_id]
+    run = CustomShader\MI\ShapeKeySetter
+    ; Signal `CommandList_ShapeKeys_Apply` geometry updater that new value was submitted in this frame.
+    $Pool_ShapeKeys_Component_UpdateID[$component_id] = FRAME_NUMBER
+endif
+
+----
+
+(document
+  (commandlist_section
+    (commandlist_section_header
+      (header_prefix)
+      (header_identifier))
+    (comment)
+    (commandlist_section_body
+      (local_initialisation
+        (named_variable
+          (variable_identifier))
+        (binary_expression
+          (binary_expression
+            (binary_expression
+              (named_variable
+                (variable_identifier))
+              (named_variable
+                (variable_identifier)))
+            (named_variable
+              (namespace)
+              (variable_identifier)))
+          (named_variable
+            (variable_identifier))))
+      (conditional_statement
+        (if_statement
+          (binary_expression
+            (named_variable
+              (variable_identifier))
+            (pooled_variable
+              (resource_pool
+                (resource_prefix)
+                (section_identifier)
+                (index_expression
+                  (named_variable
+                    (variable_identifier))))))
+          (comment)
+          (comment)
+          (block
+            (assignment_statement
+              (pooled_variable
+                (resource_pool
+                  (resource_prefix)
+                  (section_identifier)
+                  (index_expression
+                    (named_variable
+                      (variable_identifier)))))
+              (named_variable
+                (variable_identifier)))
+            (assignment_statement
+              (named_variable
+                (namespace)
+                (variable_identifier))
+              (named_variable
+                (variable_identifier)))
+            (assignment_statement
+              (named_variable
+                (namespace)
+                (variable_identifier))
+              (named_variable
+                (variable_identifier)))
+            (assignment_statement
+              (custom_resource
+                (resource_prefix)
+                (namespace)
+                (section_identifier))
+              (resource_usage_expression
+                (resource_modifier)
+                (resource_pool
+                  (resource_prefix)
+                  (section_identifier)
+                  (index_expression
+                    (named_variable
+                      (variable_identifier))))))
+            (run_instruction
+              (instruction)
+              (callable_customshader
+                (callable_prefix)
+                (namespace)
+                (section_identifier)))
+            (comment)
+            (assignment_statement
+              (pooled_variable
+                (resource_pool
+                  (resource_prefix)
+                  (section_identifier)
+                  (index_expression
+                    (named_variable
+                      (variable_identifier)))))
+              (runtime_parameter))))))))
