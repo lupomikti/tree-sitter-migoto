@@ -161,7 +161,7 @@
 
 ; extras
 [
-  (override_parameter)
+  (runtime_parameter)
   (resource_format)
 ] @upper_case
 
