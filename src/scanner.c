@@ -848,7 +848,7 @@ static inline bool scan_custom_resource_identifier(TSLexer *lexer) {
     lexer->result_symbol = CUSTOM_RESOURCE_IDENTIFIER;
 
     char lookahead;
-    bool is_start = true, is_terminal_ahead = false;
+    bool is_start = true, is_terminal_ahead = false, is_special_terminal = false;
 
     // fprintf(stderr, "[Lykare]: starting loop iteration\n");
     while (!is_terminal_ahead) {
@@ -882,18 +882,22 @@ static inline bool scan_custom_resource_identifier(TSLexer *lexer) {
             is_terminal_ahead = true;
             break;
         case '!':
+            mark_end(lexer);
             consume(lexer); // consume '!'
             if (lexer->lookahead == '=') {
                 is_terminal_ahead = true;
+                is_special_terminal = true;
                 break;
             }
             else {
                 continue;
             }
         case '-':
+            mark_end(lexer);
             consume(lexer); // consume '-'
             if (lexer->lookahead == '>') {
                 is_terminal_ahead = true;
+                is_special_terminal = true;
                 break;
             }
             else {
@@ -906,7 +910,7 @@ static inline bool scan_custom_resource_identifier(TSLexer *lexer) {
     }
 
     if (!is_start) {
-        mark_end(lexer);
+        if (!is_special_terminal) mark_end(lexer);
         return true;
     }
 
