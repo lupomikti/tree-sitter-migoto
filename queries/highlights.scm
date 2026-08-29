@@ -3,12 +3,14 @@
   [
     "global"
     "persist"
+    "locked"
   ] @keyword.storage.type)
 
 (global_initialisation
   [
     "global"
     "persist"
+    "locked"
   ] @keyword.storage.type)
 
 (local_declaration
@@ -18,6 +20,8 @@
   "local" @keyword.storage.type)
 
 (execution_modifier) @keyword.control
+
+(proxy_modifier) @keyword.control
 
 (resource_usage_expression
   (resource_modifier) @keyword.control)
@@ -121,6 +125,9 @@
     (variable_identifier) @variable
   ])
 
+(pooled_variable
+  "$" @operator)
+
 (named_variable
   "\\" @punctuation.delimiter)
 
@@ -166,6 +173,8 @@
 
 (resource_format) @type.enum.variant
 
+(shader_semantic) @type.enum.variant
+
 (blend_factor) @keyword
 
 [
@@ -188,7 +197,7 @@
 
 (language_constant) @constant.builtin
 
-(override_parameter) @constant.builtin
+(runtime_parameter) @constant.builtin
 
 (integer) @constant.numeric.integer
 
@@ -196,6 +205,9 @@
 
 ; Functions
 (instruction) @function.macro ; just for fun
+
+(builtin_function
+  (function_name) @function.builtin)
 
 (callable_commandlist
   [
@@ -214,7 +226,7 @@
   ])
 
 (property_access_expression
-  (resource_property) @function.call
+  (resource_property) @function.method.call
   arguments: (_))
 
 ; Operators

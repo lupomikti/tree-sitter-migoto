@@ -4,15 +4,15 @@
 
 (setting_section
   header: (setting_section_header) @name
-  (#match? @name "(?i)^\\[\\s*resource.+")) @definition.class
+  (#match? @name "(?i)^\\[\\s*(?:resource|pool).+")) @definition.class
 
 (commandlist_section
   header: (commandlist_section_header) @name
-  (#not-match? @name "(?i)^\\[\\s*(commandlist|customshader).+")) @definition.section
+  (#not-match? @name "(?i)^\\[\\s*(?:commandlist|customshader).+")) @definition.section
 
 (commandlist_section
   header: (commandlist_section_header) @name
-  (#match? @name "(?i)^\\[\\s*(commandlist|customshader).+")) @definition.function
+  (#match? @name "(?i)^\\[\\s*(?:commandlist|customshader).+")) @definition.function
 
 [
   (constants_section)
@@ -29,3 +29,5 @@
 (callable_customshader) @reference.call
 
 (custom_resource) @reference.class
+
+(resource_pool) @reference.class

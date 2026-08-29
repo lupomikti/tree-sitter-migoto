@@ -3,12 +3,14 @@
   [
     "global"
     "persist"
+    "locked"
   ] @keyword.modifier)
 
 (global_initialisation
   [
     "global"
     "persist"
+    "locked"
   ] @keyword.modifier)
 
 (local_declaration
@@ -18,6 +20,8 @@
   "local" @keyword.modifier)
 
 (execution_modifier) @keyword
+
+(proxy_modifier) @keyword
 
 (resource_usage_expression
   (resource_modifier) @keyword)
@@ -122,6 +126,9 @@
     (variable_identifier) @variable
   ])
 
+(pooled_variable
+  "$" @operator)
+
 (named_variable
   "\\" @punctuation.delimiter)
 
@@ -168,6 +175,8 @@
 
 (resource_format) @constant
 
+(shader_semantic) @constant
+
 (blend_factor) @keyword
 
 ; same note here about enum highlights
@@ -191,7 +200,7 @@
 
 (language_constant) @constant.builtin
 
-(override_parameter) @constant.builtin
+(runtime_parameter) @constant.builtin
 
 (integer) @number
 
@@ -199,6 +208,9 @@
 
 ; Functions
 (instruction) @function.macro ; just for fun
+
+(builtin_function
+  (function_name) @function.builtin)
 
 (callable_commandlist
   [
@@ -217,7 +229,7 @@
   ])
 
 (property_access_expression
-  (resource_property) @function.call
+  (resource_property) @function.method.call
   arguments: (_))
 
 ; Operators

@@ -12,6 +12,8 @@ typedef enum {
     EXTERNAL_LINE,
     SECTION_HEADER_START,
     SECTION_HEADER_GUARD,
+    POOLED_VARIABLE_START,
+    POOLED_VARIABLE_GUARD,
     KEY_HEADER_PREFIX,
     REGEX_HEADER_PREFIX,
     PRESET_HEADER_PREFIX,
@@ -37,6 +39,7 @@ typedef enum {
     REGEX_PATTERN_HEADER,
     REGEX_REPLACE_HEADER,
     NEWLINE,
+    ANTIWHITESPACE,
     DOC_COMMENT_CONTENT,
     CUSTOM_RESOURCE_IDENTIFIER,
     ERROR_SENTINEL,
@@ -225,8 +228,16 @@ static inline bool scan_namespace_res_start_end(TSLexer *lexer, unsigned positio
     }
 
     consume(lexer);
+
+    bool res = true;
+
+    // bake antiwhitespace detection into the rule for the end of namespace resolution
+    if (position == NAMESPACE_RESOLUTION_END) {
+        res = !iswspace(lexer->lookahead);
+    }
+
     lexer->result_symbol = position;
-    return true;
+    return res;
 }
 
 static inline bool scan_namespace_res_content(TSLexer *lexer) {
@@ -654,6 +665,72 @@ static inline bool scan_section_header_lookahead(Scanner *scanner, TSLexer *lexe
     }
 }
 
+static inline bool scan_not_pooled_variable_lookahead(Scanner *scanner, TSLexer *lexer) {
+    // fprintf(stderr, "[Lykare]: lookahead for 'pool' after a '$'\n");
+
+    char *target_term = "pool";
+    char lookahead = lexer->lookahead;
+    bool res = true;
+
+    lexer->result_symbol = POOLED_VARIABLE_GUARD;
+    mark_end(lexer);
+
+    do {
+        array_push(&scanner->word, lookahead);
+        consume(lexer);
+        
+        lookahead = lexer->lookahead;
+    } while (scanner->word.size < 4);
+
+    array_push(&scanner->word, '\0'); // NUL term char array before comparison
+
+    if (!strcmp(strlwr(scanner->word.contents), target_term)) {
+        // fprintf(stderr, "[Lykare]: first 4 chars matched 'pool', checking for index expression\n");
+
+        bool tmp = false;
+        
+        for (;;) {
+            if (lookahead == '[') {
+                res = false;
+                break;
+            }
+
+            if (iswspace(lookahead) || is_eof(lexer)) {
+                break;    
+            }
+
+            switch (lookahead) {
+            case '$':
+            case '=':
+            case '+':
+            case '*':
+            case '/':
+            case '&':
+            case '|':
+            case '^':
+            case '(':
+            case ')':
+            case '-':
+            case '!':
+                tmp = true;
+                break;
+            default:
+                break;
+            }
+
+            if (tmp) {
+                break;
+            }
+
+            consume(lexer);
+            lookahead = lexer->lookahead;
+        }
+    }
+
+    reset(scanner);
+    return res;
+}
+
 static inline bool scan_line(Scanner *scanner, TSLexer *lexer, const bool *valid_symbols) {
     // fprintf(stderr, "[Lykare]: lookahead for external line\n");
     bool saw_text = false;
@@ -1053,6 +1130,25 @@ bool tree_sitter_migoto_external_scanner_scan(void *payload, TSLexer *lexer, con
     }
 
     Scanner *scanner = (Scanner*) payload;
+
+    if (valid_symbols[POOLED_VARIABLE_GUARD]) {
+        // fprintf(stderr, "[Lykare]: guard to look for start of pooled var\n");
+
+        // Did we see 'pool' as the next 4 chars?
+        bool tmp = !scan_not_pooled_variable_lookahead(scanner, lexer);
+
+        if (tmp && valid_symbols[POOLED_VARIABLE_START]) {
+            lexer->result_symbol = POOLED_VARIABLE_START;
+            return true;
+        }
+        else if (tmp && !valid_symbols[POOLED_VARIABLE_START]) {
+            return false;
+        }
+        else {
+            return true;
+        }
+    }
+
     bool is_prefix_search = (
         valid_symbols[KEY_HEADER_PREFIX] || valid_symbols[PRESET_HEADER_PREFIX] ||
         valid_symbols[INCLUDE_HEADER_PREFIX] || valid_symbols[COMMANDLIST_HEADER_PREFIX] ||
@@ -1080,6 +1176,12 @@ bool tree_sitter_migoto_external_scanner_scan(void *payload, TSLexer *lexer, con
     if (valid_symbols[SECTION_HEADER_START] || valid_symbols[SECTION_HEADER_GUARD]) {
         // fprintf(stderr, "[Lykare]: section start or guard\n");
         return scan_section_header_lookahead(scanner, lexer, valid_symbols);
+    }
+
+    if (valid_symbols[ANTIWHITESPACE]) {
+        // fprintf(stderr, "[Lykare]: antiwhitespace\n");
+        lexer->result_symbol = ANTIWHITESPACE;
+        return !iswspace(lexer->lookahead);
     }
 
     // fprintf(stderr, "[Lykare]: how??\n");

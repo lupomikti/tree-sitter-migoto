@@ -3,12 +3,14 @@
   [
     "global"
     "persist"
+    "locked"
   ] @keyword)
 
 (global_initialisation
   [
     "global"
     "persist"
+    "locked"
   ] @keyword)
 
 (local_declaration
@@ -18,6 +20,8 @@
   "local" @keyword)
 
 (execution_modifier) @keyword
+
+(proxy_modifier) @keyword
 
 (resource_usage_expression
   (resource_modifier) @keyword)
@@ -121,6 +125,9 @@
     (variable_identifier) @variable
   ])
 
+(pooled_variable
+  "$" @operator)
+
 (named_variable
   "\\" @punctuation.delimiter)
 
@@ -166,6 +173,8 @@
 
 (resource_format) @enum
 
+(shader_semantic) @enum
+
 (blend_factor) @keyword
 
 [
@@ -188,7 +197,7 @@
 
 (language_constant) @constant.builtin
 
-(override_parameter) @constant.builtin
+(runtime_parameter) @constant.builtin
 
 (integer) @number
 
@@ -196,6 +205,9 @@
 
 ; Functions
 (instruction) @preproc
+
+(builtin_function
+  (function_name) @function)
 
 (callable_commandlist
   [

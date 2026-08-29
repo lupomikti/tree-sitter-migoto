@@ -12,7 +12,11 @@
         "named": true
       },
       {
-        "type": "override_parameter",
+        "type": "pooled_variable",
+        "named": true
+      },
+      {
+        "type": "runtime_parameter",
         "named": true
       },
       {
@@ -130,6 +134,10 @@
         "named": true
       },
       {
+        "type": "builtin_function",
+        "named": true
+      },
+      {
         "type": "identifier",
         "named": true
       },
@@ -142,11 +150,11 @@
         "named": true
       },
       {
-        "type": "override_parameter",
+        "type": "parenthesized_expression",
         "named": true
       },
       {
-        "type": "parenthesized_expression",
+        "type": "runtime_parameter",
         "named": true
       },
       {
@@ -232,11 +240,15 @@
         "named": true
       },
       {
+        "type": "named_variable",
+        "named": true
+      },
+      {
         "type": "numeric_constant",
         "named": true
       },
       {
-        "type": "override_parameter",
+        "type": "runtime_parameter",
         "named": true
       },
       {
@@ -282,7 +294,7 @@
     "fields": {},
     "children": {
       "multiple": true,
-      "required": false,
+      "required": true,
       "types": [
         {
           "type": "named_variable",
@@ -290,6 +302,14 @@
         },
         {
           "type": "numeric_constant",
+          "named": true
+        },
+        {
+          "type": "pooled_variable",
+          "named": true
+        },
+        {
+          "type": "shader_semantic",
           "named": true
         }
       ]
@@ -299,9 +319,19 @@
     "type": "assignment_statement",
     "named": true,
     "fields": {
+      "arguments": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "arguments",
+            "named": true
+          }
+        ]
+      },
       "expression": {
         "multiple": false,
-        "required": true,
+        "required": false,
         "types": [
           {
             "type": "buffer_variable",
@@ -339,10 +369,14 @@
       },
       "name": {
         "multiple": false,
-        "required": true,
+        "required": false,
         "types": [
           {
             "type": "buffer_variable",
+            "named": true
+          },
+          {
+            "type": "callable_commandlist",
             "named": true
           },
           {
@@ -358,6 +392,10 @@
             "named": true
           },
           {
+            "type": "pooled_variable",
+            "named": true
+          },
+          {
             "type": "resource_identifier",
             "named": true
           },
@@ -370,14 +408,80 @@
             "named": true
           }
         ]
+      },
+      "operator": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "->",
+            "named": false
+          }
+        ]
+      },
+      "source": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "callable_commandlist",
+            "named": true
+          },
+          {
+            "type": "null",
+            "named": true
+          },
+          {
+            "type": "proxy_modifier",
+            "named": true
+          }
+        ]
+      },
+      "value": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "integer",
+            "named": true
+          },
+          {
+            "type": "resource_format",
+            "named": true
+          }
+        ]
       }
     },
     "children": {
-      "multiple": false,
+      "multiple": true,
       "required": false,
       "types": [
         {
+          "type": "buffer_variable",
+          "named": true
+        },
+        {
+          "type": "custom_resource",
+          "named": true
+        },
+        {
           "type": "execution_modifier",
+          "named": true
+        },
+        {
+          "type": "resource_identifier",
+          "named": true
+        },
+        {
+          "type": "resource_pool",
+          "named": true
+        },
+        {
+          "type": "resource_property",
+          "named": true
+        },
+        {
+          "type": "shader_variable",
           "named": true
         }
       ]
@@ -597,6 +701,32 @@
     }
   },
   {
+    "type": "builtin_function",
+    "named": true,
+    "fields": {
+      "arguments": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "arguments",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "function_name",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "callable_commandlist",
     "named": true,
     "fields": {},
@@ -729,11 +859,11 @@
           "named": true
         },
         {
-          "type": "numeric_constant",
+          "type": "named_variable",
           "named": true
         },
         {
-          "type": "override_parameter",
+          "type": "numeric_constant",
           "named": true
         },
         {
@@ -742,6 +872,10 @@
         },
         {
           "type": "resource_pool",
+          "named": true
+        },
+        {
+          "type": "runtime_parameter",
           "named": true
         },
         {
@@ -1500,15 +1634,7 @@
         "required": true,
         "types": [
           {
-            "type": "language_constant",
-            "named": true
-          },
-          {
-            "type": "numeric_constant",
-            "named": true
-          },
-          {
-            "type": "override_parameter",
+            "type": "static_operational_expression",
             "named": true
           }
         ]
@@ -1611,7 +1737,7 @@
     "fields": {},
     "children": {
       "multiple": false,
-      "required": true,
+      "required": false,
       "types": [
         {
           "type": "named_variable",
@@ -1619,6 +1745,14 @@
         },
         {
           "type": "numeric_constant",
+          "named": true
+        },
+        {
+          "type": "pooled_variable",
+          "named": true
+        },
+        {
+          "type": "runtime_parameter",
           "named": true
         }
       ]
@@ -1851,11 +1985,15 @@
           "named": true
         },
         {
+          "type": "named_variable",
+          "named": true
+        },
+        {
           "type": "numeric_constant",
           "named": true
         },
         {
-          "type": "override_parameter",
+          "type": "runtime_parameter",
           "named": true
         }
       ]
@@ -2084,6 +2222,21 @@
     }
   },
   {
+    "type": "pooled_variable",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": false,
+      "required": true,
+      "types": [
+        {
+          "type": "resource_pool",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "preamble",
     "named": true,
     "fields": {},
@@ -2115,11 +2268,15 @@
             "named": true
           },
           {
+            "type": "named_variable",
+            "named": true
+          },
+          {
             "type": "numeric_constant",
             "named": true
           },
           {
-            "type": "override_parameter",
+            "type": "runtime_parameter",
             "named": true
           }
         ]
@@ -2348,11 +2505,15 @@
           "named": true
         },
         {
+          "type": "named_variable",
+          "named": true
+        },
+        {
           "type": "numeric_constant",
           "named": true
         },
         {
-          "type": "override_parameter",
+          "type": "runtime_parameter",
           "named": true
         }
       ]
@@ -2431,6 +2592,10 @@
         },
         {
           "type": "resource_property",
+          "named": true
+        },
+        {
+          "type": "shader_identifier",
           "named": true
         },
         {
@@ -2864,15 +3029,7 @@
           "named": true
         },
         {
-          "type": "named_variable",
-          "named": true
-        },
-        {
           "type": "null",
-          "named": true
-        },
-        {
-          "type": "numeric_constant",
           "named": true
         },
         {
@@ -2885,6 +3042,10 @@
         },
         {
           "type": "resource_type",
+          "named": true
+        },
+        {
+          "type": "static_operational_expression",
           "named": true
         },
         {
@@ -3174,6 +3335,11 @@
     }
   },
   {
+    "type": "shader_semantic",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "special_instruction",
     "named": true,
     "fields": {
@@ -3336,11 +3502,15 @@
           "named": true
         },
         {
+          "type": "named_variable",
+          "named": true
+        },
+        {
           "type": "numeric_constant",
           "named": true
         },
         {
-          "type": "override_parameter",
+          "type": "runtime_parameter",
           "named": true
         }
       ]
@@ -3398,11 +3568,15 @@
           "named": true
         },
         {
+          "type": "named_variable",
+          "named": true
+        },
+        {
           "type": "numeric_constant",
           "named": true
         },
         {
-          "type": "override_parameter",
+          "type": "runtime_parameter",
           "named": true
         }
       ]
@@ -3417,6 +3591,14 @@
       "required": true,
       "types": [
         {
+          "type": "buffer_variable",
+          "named": true
+        },
+        {
+          "type": "custom_resource",
+          "named": true
+        },
+        {
           "type": "execution_modifier",
           "named": true
         },
@@ -3425,15 +3607,31 @@
           "named": true
         },
         {
-          "type": "integer",
-          "named": true
-        },
-        {
           "type": "named_variable",
           "named": true
         },
         {
-          "type": "resource_usage_expression",
+          "type": "operational_expression",
+          "named": true
+        },
+        {
+          "type": "pooled_variable",
+          "named": true
+        },
+        {
+          "type": "property_access_expression",
+          "named": true
+        },
+        {
+          "type": "resource_identifier",
+          "named": true
+        },
+        {
+          "type": "resource_pool",
+          "named": true
+        },
+        {
+          "type": "shader_variable",
           "named": true
         }
       ]
@@ -3775,6 +3973,10 @@
     "named": true
   },
   {
+    "type": "function_name",
+    "named": true
+  },
+  {
     "type": "fuzzy_operator",
     "named": true
   },
@@ -3827,6 +4029,10 @@
     "named": false
   },
   {
+    "type": "locked",
+    "named": false
+  },
+  {
     "type": "marking_actions_option",
     "named": true
   },
@@ -3840,10 +4046,6 @@
   },
   {
     "type": "null",
-    "named": true
-  },
-  {
-    "type": "override_parameter",
     "named": true
   },
   {
@@ -3868,6 +4070,10 @@
   },
   {
     "type": "preset_section_key",
+    "named": true
+  },
+  {
+    "type": "proxy_modifier",
     "named": true
   },
   {
@@ -3896,6 +4102,10 @@
   },
   {
     "type": "resource_type",
+    "named": true
+  },
+  {
+    "type": "runtime_parameter",
     "named": true
   },
   {

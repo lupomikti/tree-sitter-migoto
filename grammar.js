@@ -34,14 +34,14 @@ const path_regex = /(?:(?:(?:[a-z]:|\.[\.]?)?[\\\/])?(?:\.\.|[^\s>\\|\/<?:*"$][^
 // numbers can be in file extensions only if there is at least one non-number present in it too
 const file_regex = /[^\s>\\|\/<?:*"$\r\n][^>\\|\/<?:*"$\r\n]*\.[a-z0-9_\-]*[a-z_\-][a-z0-9_\-]*/i;
 
-const custom_shader_keys_with_brackets = new RustRegex(`(?xi)(blend_factor\\[[0-3]\\]|(?:blend|alpha|mask)\\[[0-7]\\])`);
+const custom_shader_keys_with_brackets = new RustRegex(`(?xi)(?:blend_factor\\[[0-3]\\]|(?:blend|alpha|mask)\\[[0-7]\\])`);
 
-const setting_section_directory_value_keys = new RustRegex(`(?xi)(
+const setting_section_directory_value_keys = new RustRegex(`(?xi)(?:
   (?:override|cache|storage)_directory|include(?:_recursive)? |
   exclude_recursive
 )`);
 
-const setting_section_key_binding_keys = new RustRegex(`(?xi)(
+const setting_section_key_binding_keys = new RustRegex(`(?xi)(?:
   (?:done_|toggle_)hunting | next_marking_mode | mark_snapshot |
   (?:previous|next|mark)_(?:pixel|vertex|compute|geometry|domain|hull)shader |
   (?:previous|next|mark)_(?:index|vertex)buffer | (?:previous|next)_(?:index|vertex)buffer_slot |
@@ -51,11 +51,11 @@ const setting_section_key_binding_keys = new RustRegex(`(?xi)(
   analyse_frame | toggle_full_screen | force_full_screen_on_key
 )`);
 
-const resource_type_values = new RustRegex(`(?xi)(
+const resource_type_values = new RustRegex(`(?xi)(?:
   (?:RW)?(?:Append|Consume)?StructuredBuffer|(?:RW)?(?:ByteAddress)?Buffer|(?:RW)?Texture[123]D|TextureCube
 )`);
 
-const dxgi_types_regex = new RustRegex(`(?xi)(?:DXGI_FORMAT_)?(
+const dxgi_types_regex = new RustRegex(`(?xi)(?:DXGI_FORMAT_)?(?:
   UNKNOWN|R32G32B32A32_TYPELESS|R32G32B32A32_FLOAT|R32G32B32A32_UINT|R32G32B32A32_SINT|R32G32B32_TYPELESS|R32G32B32_FLOAT|R32G32B32_UINT|R32G32B32_SINT|
   R16G16B16A16_TYPELESS|R16G16B16A16_FLOAT|R16G16B16A16_UNORM|R16G16B16A16_UINT|R16G16B16A16_SNORM|R16G16B16A16_SINT|
   R32G32_TYPELESS|R32G32_FLOAT|R32G32_UINT|R32G32_SINT|R32G8X24_TYPELESS|D32_FLOAT_S8X24_UINT|R32_FLOAT_X8X24_TYPELESS|X32_TYPELESS_G8X24_UINT|
@@ -67,6 +67,18 @@ const dxgi_types_regex = new RustRegex(`(?xi)(?:DXGI_FORMAT_)?(
   BC4_TYPELESS|BC4_UNORM|BC4_SNORM|BC5_TYPELESS|BC5_UNORM|BC5_SNORM|B5G6R5_UNORM|B5G5R5A1_UNORM|B8G8R8A8_UNORM|B8G8R8X8_UNORM|R10G10B10_XR_BIAS_A2_UNORM|
   B8G8R8A8_TYPELESS|B8G8R8A8_UNORM_SRGB|B8G8R8X8_TYPELESS|B8G8R8X8_UNORM_SRGB|BC6H_TYPELESS|BC6H_UF16|BC6H_SF16|BC7_TYPELESS|BC7_UNORM|BC7_UNORM_SRGB|
   AYUV|Y410|Y416|NV12|P010|P016|420_OPAQUE|YUY2|Y210|Y216|NV11|AI44|IA44|P8|A8P8|B4G4R4A4_UNORM
+)`);
+
+const hlsl_semantic_regex_d3d9up = new RustRegex(`(?xi)(?:
+  (BINORMAL|BLENDINDICES|BLENDWEIGHT|COLOR|NORMAL|POSITION|TANGENT|TEXCOORD|TESSFACTOR|DEPTH)\\d+|
+  POSITIONT|FOG|PSIZE\\d*|VFACE|VPOS
+)`);
+
+const hlsl_semantic_regex_d3d10up = new RustRegex(`(?xi)(?:
+  SV_(?:ClipDistance|CullDistance|Target)\d+|
+  SV_(?:(?:Inner)?Coverage|Depth(?:(?:Less|Greater)Equal)?|DispatchThreadID|DomainLocation|GroupID|GroupIndex|
+  GroupThreadID|GSInstanceID|(?:Inside)?TessFactor|InstanceID|IsFrontFace|OutputControlPointID|Position|PrimitiveID|
+  RenderTargetArrayIndex|SampleIndex|StencilRef|VertexID|ViewportArrayIndex|ShadingRate)
 )`);
 
 /**
@@ -160,6 +172,8 @@ export default grammar({
     $._external_line,
     $._section_header_start,
     $._section_header_guard,
+    $._pooled_variable_start,
+    $._pooled_variable_guard,
     $._key_header_prefix,
     $._regex_header_prefix,
     $._preset_header_prefix,
@@ -182,6 +196,7 @@ export default grammar({
     $._regex_pattern_header,
     $._regex_replace_header,
     $._newline,
+    $._antiwhitespace,
     $.doc_comment_content,
     $._custom_resource_identifier,
     $.error_sentinel,
@@ -611,11 +626,10 @@ export default grammar({
     setting_statement_value: $ => choice(
       alias(dxgi_types_regex, $.resource_format),
       alias(resource_type_values, $.resource_type),
-      $.named_variable,
-      $.numeric_constant,
       $.boolean_value,
       $.string,
       $._path_value,
+      $.static_operational_expression,
       $.fuzzy_match_expression,
       $._list_expression,
       field('fixed_value', alias($.fixed_value, $.fixed_setting_key_value)),
@@ -664,11 +678,13 @@ export default grammar({
     global_declaration: $ => choice(
       $._global_transient_declaration,
       $._global_persist_declaration,
+      $._global_locked_declaration,
     ),
 
     global_initialisation: $ => choice(
       $._global_transient_initialisation,
       $._global_persist_initialisation,
+      $._global_locked_initialisation,
     ),
 
     _global_transient_declaration: $ => seq(
@@ -681,6 +697,15 @@ export default grammar({
       choice(
         seq(alias($._global, 'global'), alias($._persist, 'persist')),
         seq(alias($._persist, 'persist'), alias($._global, 'global')),
+      ),
+      field('variable', $.named_variable),
+      $._newline,
+    ),
+
+    _global_locked_declaration: $ => seq(
+      choice(
+        seq(alias($._global, 'global'), alias($._locked, 'locked')),
+        seq(alias($._locked, 'locked'), alias($._global, 'global')),
       ),
       field('variable', $.named_variable),
       $._newline,
@@ -701,10 +726,19 @@ export default grammar({
       $._newline,
     ),
 
+    _global_locked_initialisation: $ => seq(
+      choice(
+        seq(alias($._global, 'global'), alias($._locked, 'locked')),
+        seq(alias($._locked, 'locked'), alias($._global, 'global')),
+      ),
+      $._static_initialisation,
+      $._newline,
+    ),
+
     _static_initialisation: $ => seq(
       field('variable', $.named_variable),
       '=',
-      field('value', $._static_value),
+      field('value', $.static_operational_expression),
     ),
 
     assignment_statement: $ => seq(
@@ -713,7 +747,7 @@ export default grammar({
         seq(
           field('name', choice(
             $.ini_parameter,
-            $.named_variable,
+            $._scalar_variable,
           )),
           '=',
           field('expression', $._operational_expression),
@@ -724,6 +758,25 @@ export default grammar({
           '=',
           field('expression', $.resource_usage_expression),
           $._newline,
+        ),
+        seq(
+          prec.left(PREC.SUFFIX, seq(
+            $._limited_resource_operand,
+            field('operator', '->'),
+            alias($.fixed_value, $.resource_property),
+            field('arguments', $.arguments),
+          )),
+          '=',
+          field('value', choice(alias(dxgi_types_regex, $.resource_format), $.integer)),
+          $._newline,
+        ),
+        seq(
+          field('name', $.callable_commandlist),
+          '=',
+          field('source', choice(
+            $.null,
+            seq(optional(alias(/ref(?:erence)?/i, $.proxy_modifier)), $.callable_commandlist),
+          )),
         ),
       ),
     ),
@@ -895,11 +948,11 @@ export default grammar({
       optional($.execution_modifier),
       alias(/store/i, $.instruction),
       '=',
-      $.named_variable,
+      $._scalar_variable,
       ',',
-      $.resource_usage_expression,
+      $._limited_resource_operand,
       ',',
-      $.integer,
+      $._operational_expression,
       $._newline,
     ),
 
@@ -1016,8 +1069,13 @@ export default grammar({
       $.resource_pool,
     ),
 
+    builtin_function: $ => prec.left(PREC.SUFFIX, seq(
+      alias($.fixed_value, $.function_name),
+      field('arguments', $.arguments),
+    )),
+
     property_access_expression: $ => prec.left(PREC.SUFFIX, seq(
-      $._limited_resource_operand,
+      $._resource_operand,
       field('operator', '->'),
       alias($.fixed_value, $.resource_property),
       optional(field('arguments', $.arguments)),
@@ -1025,11 +1083,11 @@ export default grammar({
 
     arguments: $ => seq(
       '(',
-      optional(list_seq(
-        choice($.numeric_constant, $.named_variable),
+      list_seq(
+        choice($.numeric_constant, $._scalar_variable, $.shader_semantic),
         ',',
         false,
-      )),
+      ),
       ')',
     ),
 
@@ -1109,8 +1167,9 @@ export default grammar({
     ),
 
     operational_expression: $ => choice(
-      $._static_value,
+      $._limited_static_value,
       $.identifier,
+      $.builtin_function,
       $.parenthesized_expression,
       $.binary_expression,
       $.unary_expression,
@@ -1129,17 +1188,22 @@ export default grammar({
       PREC.UNARY,
       choice(
         seq(field('operator', choice('-', '+', '!', '~')), field('operand', $._operational_expression)),
-        seq(field('operator', '@'), field('operand', $._resource_operand)),
+        seq(field('operator', '@'), field('operand', choice($._resource_operand, alias($._resource_pool_base, $.resource_pool)))),
         seq(field('operator', '#'), field('operand', choice($.resource_pool, alias($._resource_pool_base, $.resource_pool)))),
       ),
     ),
 
     identifier: $ => choice(
-      $.named_variable,
+      $._scalar_variable,
       $.ini_parameter,
       $.shader_identifier,
       $.scissor_rectangle,
-      $.override_parameter,
+      $.runtime_parameter,
+    ),
+
+    _scalar_variable: $ => choice(
+      $.named_variable,
+      $.pooled_variable,
     ),
 
     _language_variable: $ => choice(
@@ -1179,14 +1243,23 @@ export default grammar({
 
     _index_suffix: $ => seq(
       '[',
-      choice($.numeric_constant, $.named_variable),
+      choice($.numeric_constant, $._scalar_variable, $.runtime_parameter, '*'),
       ']',
     ),
 
     named_variable: $ => seq(
       '$',
+      $._antiwhitespace, // XXX: Consider getting rid of this and folding functionality into following external rule
+      $._pooled_variable_guard,
       optional($._namespace_resolution),
       alias(/[a-z_]\w+|[a-z]/i, $.variable_identifier),
+    ),
+
+    pooled_variable: $ => seq(
+      '$',
+      $._antiwhitespace, // XXX: Consider getting rid of this and folding functionality into following external rule
+      $._pooled_variable_start,
+      $.resource_pool,
     ),
 
     // Oh the BS I have to do to deal with tree-sitter's regex restrictions
@@ -1201,14 +1274,15 @@ export default grammar({
 
     scissor_rectangle: _ => /(scissor\d+_(?:left|top|right|bottom))/i,
 
-    override_parameter: _ => new RustRegex(`(?xi)(
+    runtime_parameter: _ => new RustRegex(`(?xi)(
       (?:rt|res|window)_(?:width|height) | (?:vertex|index|instance)_count | first_(?:vertex|index|instance) |
       thread_group_count_[xyz] | indirect_offset | draw_type | cursor_(?: showing | (?:screen_|window_|hotspot_)?[xy] ) |
       time | hunting | sli | frame_analysis | effective_dpi | (?:raw_|eye_)?separation | convergence |
+      frame_time | frame_number | fps | draw_number | dispatch_number |
       stereo_(?:active|available) | scissor_(?:left|top|right|bottom)
     )`),
 
-    static_override_parameter: _ => /(sli|hunting|frame_analysis|stereo_(?:active|available))/i,
+    static_runtime_parameter: _ => /(sli|time|frame_time|frame_number|hunting|frame_analysis|stereo_(?:active|available))/i,
 
     _callable_section: $ => choice(
       $.callable_commandlist,
@@ -1242,7 +1316,14 @@ export default grammar({
     ),
 
     _static_value: $ => choice(
-      alias($.static_override_parameter, $.override_parameter),
+      alias($.static_runtime_parameter, $.runtime_parameter),
+      alias(/[+-]?(inf|NaN)/i, $.language_constant),
+      $.numeric_constant,
+      $.named_variable,
+    ),
+
+    _limited_static_value: $ => choice(
+      alias($.static_runtime_parameter, $.runtime_parameter),
       alias(/[+-]?(inf|NaN)/i, $.language_constant),
       $.numeric_constant,
     ),
@@ -1305,6 +1386,11 @@ export default grammar({
       ),
     )),
 
+    shader_semantic: _ => choice(
+      hlsl_semantic_regex_d3d9up,
+      hlsl_semantic_regex_d3d10up,
+    ),
+
     character_escape: _ => /\\[a-z\(\)\[\]${}:]/i,
 
     free_text: _ => /[^\\\/;="${}\s]+/i,
@@ -1331,6 +1417,8 @@ export default grammar({
     _global: _ => /global/i,
 
     _persist: _ => /persist/i,
+
+    _locked: _ => /locked/i,
 
     _local: _ => /local/i,
 
