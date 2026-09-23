@@ -4,6 +4,10 @@
     "named": true,
     "subtypes": [
       {
+        "type": "bind_flag",
+        "named": true
+      },
+      {
         "type": "ini_parameter",
         "named": true
       },
@@ -3875,6 +3879,10 @@
   {
     "type": "^",
     "named": false
+  },
+  {
+    "type": "bind_flag",
+    "named": true
   },
   {
     "type": "blend_factor",

@@ -83,6 +83,8 @@ const char *SECTION_NAMES[] = {
     "pool",
     "preset",
     "loader",
+    "input",
+    "include",
     0
 };
 
@@ -241,21 +243,39 @@ static inline bool scan_namespace_res_start_end(TSLexer *lexer, unsigned positio
 }
 
 static inline bool scan_namespace_res_content(TSLexer *lexer) {
+    bool index_flag = false;
+
     for (;;) {
         if (is_eof(lexer)) {
             return false;
         }
 
         switch (lexer->lookahead) {
+        case ']':
+            if (index_flag) {
+                index_flag = false;
+            }
+            consume(lexer);
+            break;
+        case '[':
+            if (!index_flag) {
+                index_flag = true;
+            }
+            consume(lexer);
+            break;
         case '$':
             consume(lexer);
-            if (lexer->lookahead != '\\')
+            if (lexer->lookahead != '\\' || index_flag) {
                 continue;
-            else
+            }
+            else {
                 return false;
+            }
             break;
         case '\\':
-            mark_end(lexer);
+            if (!index_flag) {
+                mark_end(lexer);
+            }
             consume(lexer);
             break;
         case '=':
@@ -281,6 +301,8 @@ static inline bool scan_namespace_res_content(TSLexer *lexer) {
 }
 
 static inline bool scan_maybe_section_header(Scanner *scanner, TSLexer *lexer, const bool *valid_symbols, bool is_prefix_search) {
+    // Prefix Search indicates that we are looking to return a specific token for the prefix
+    // instead of returning a generic "this is a valid header name" for a single token
     if (!is_prefix_search) {
         consume(lexer); // consume the '[' that starts
     }
@@ -323,11 +345,12 @@ static inline bool scan_maybe_section_header(Scanner *scanner, TSLexer *lexer, c
         return false;
     }
 
+    // must be sorted in descending order
     uint8_t search_lengths[7] = {0, 0, 0, 0, 0, 0, 0};
     char *target_term = 0;
 
     // choose the search length or set target term based on first character
-    // s [6,11,14], c [11,12,14,21,28,29], p [4,6,7], b [18,19], l [6,7], r [8,9]: all have multiple options for header
+    // s [6,11,14], c [11,12,14,21,28,29], p [4,6,7], b [18,19], l [6,7], r [8,9], i [7,5]: all have multiple options for header
 callable:
     switch (towlower(lexer->lookahead)) {
     case 's':
@@ -473,16 +496,16 @@ callable:
             }
         }
         else {
-            search_lengths[0] = 7;
-            search_lengths[1] = 6;
-            search_lengths[2] = 4;
+            search_lengths[0] = 7; // Present, Profile
+            search_lengths[1] = 6; // Preset
+            search_lengths[2] = 4; // Pool
         }
         break;
     case 'l':
         // There are no prefixes that start with 'l'
         if (is_prefix_search) return false;
-        search_lengths[0] = 7;
-        search_lengths[1] = 6;
+        search_lengths[0] = 7; // Logging
+        search_lengths[1] = 6; // Loader
         break;
     case 'd':
         // There are no prefixes that start with 'd'
@@ -497,8 +520,8 @@ callable:
             search_lengths[0] = 8;
         }
         else {
-            search_lengths[0] = 9;
-            search_lengths[1] = 8;
+            search_lengths[0] = 9; // Rendering
+            search_lengths[1] = 8; // Resource
         }
         break;
     case 'h':
@@ -513,9 +536,15 @@ callable:
         search_lengths[0] = 3;
         break;
     case 'i':
-        if (is_prefix_search) lexer->result_symbol = INCLUDE_HEADER_PREFIX;
-        target_term = "include";
-        search_lengths[0] = 7;
+        if (is_prefix_search) {
+            lexer->result_symbol = INCLUDE_HEADER_PREFIX;
+            target_term = "include";
+            search_lengths[0] = 7;
+        }
+        else {
+            search_lengths[0] = 7; // Include
+            search_lengths[1] = 5; // Input
+        }
         break;
     default:
         return false;
@@ -675,10 +704,15 @@ static inline bool scan_not_pooled_variable_lookahead(Scanner *scanner, TSLexer 
     lexer->result_symbol = POOLED_VARIABLE_GUARD;
     mark_end(lexer);
 
+
+    if (lookahead != 'p' && lookahead != 'P') {
+        return res;
+    }
+
     do {
         array_push(&scanner->word, lookahead);
         consume(lexer);
-        
+
         lookahead = lexer->lookahead;
     } while (scanner->word.size < 4);
 
@@ -688,7 +722,7 @@ static inline bool scan_not_pooled_variable_lookahead(Scanner *scanner, TSLexer 
         // fprintf(stderr, "[Lykare]: first 4 chars matched 'pool', checking for index expression\n");
 
         bool tmp = false;
-        
+
         for (;;) {
             if (lookahead == '[') {
                 res = false;
@@ -696,7 +730,7 @@ static inline bool scan_not_pooled_variable_lookahead(Scanner *scanner, TSLexer 
             }
 
             if (iswspace(lookahead) || is_eof(lexer)) {
-                break;    
+                break;
             }
 
             switch (lookahead) {

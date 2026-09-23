@@ -48,7 +48,7 @@ const setting_section_key_binding_keys = new RustRegex(`(?xi)(?:
   (?:previous|next|mark)_rendertarget |
   take_screenshot | reload_fixes | (?:reload|wipe_user)_config | show_original |
   monitor_performance | freeze_performance_monitor | tune[123]_(?:up|down) |
-  analyse_frame | toggle_full_screen | force_full_screen_on_key
+  analyse_frame | toggle_full_screen | force_full_screen_on_key | toggle_input
 )`);
 
 const resource_type_values = new RustRegex(`(?xi)(?:
@@ -530,7 +530,7 @@ export default grammar({
       '[',
       choice(
         alias(
-          /(Logging|System|Device|Stereo|Rendering|Hunting|Profile|ConvergenceMap|Loader)/i,
+          /(Logging|System|Device|Stereo|Rendering|Hunting|Profile|ConvergenceMap|Loader|Input)/i,
           $.header_identifier,
         ),
         choice(
@@ -624,7 +624,7 @@ export default grammar({
     _setting_statement_key: $ => alias($.fixed_value, $.setting_statement_key),
 
     setting_statement_value: $ => choice(
-      alias(dxgi_types_regex, $.resource_format),
+      $.resource_format,
       alias(resource_type_values, $.resource_type),
       $.boolean_value,
       $.string,
@@ -767,7 +767,7 @@ export default grammar({
             field('arguments', $.arguments),
           )),
           '=',
-          field('value', choice(alias(dxgi_types_regex, $.resource_format), $.integer)),
+          field('value', choice($.resource_format, $.integer)),
           $._newline,
         ),
         seq(
@@ -1036,12 +1036,12 @@ export default grammar({
 
     resource_data_array_expression: $ => choice(
       seq(
-        optional(alias(dxgi_types_regex, $.resource_format)),
+        optional($.resource_format),
         $.numeric_constant,
         repeat1($.numeric_constant),
       ),
       seq(
-        alias(dxgi_types_regex, $.resource_format),
+        $.resource_format,
         $.numeric_constant,
       ),
     ),
@@ -1196,6 +1196,8 @@ export default grammar({
     identifier: $ => choice(
       $._scalar_variable,
       $.ini_parameter,
+      $._resource_format,
+      $.bind_flag,
       $.shader_identifier,
       $.scissor_rectangle,
       $.runtime_parameter,
@@ -1278,11 +1280,11 @@ export default grammar({
       (?:rt|res|window)_(?:width|height) | (?:vertex|index|instance)_count | first_(?:vertex|index|instance) |
       thread_group_count_[xyz] | indirect_offset | draw_type | cursor_(?: showing | (?:screen_|window_|hotspot_)?[xy] ) |
       time | hunting | sli | frame_analysis | effective_dpi | (?:raw_|eye_)?separation | convergence |
-      frame_time | frame_number | fps | draw_number | dispatch_number |
+      frame_time | fps | (?:frame|dispatch|draw)_number |
       stereo_(?:active|available) | scissor_(?:left|top|right|bottom)
     )`),
 
-    static_runtime_parameter: _ => /(sli|time|frame_time|frame_number|hunting|frame_analysis|stereo_(?:active|available))/i,
+    static_runtime_parameter: _ => /(sli|time|frame_(?:time|number|analysis)|hunting|stereo_(?:active|available))/i,
 
     _callable_section: $ => choice(
       $.callable_commandlist,
@@ -1385,6 +1387,13 @@ export default grammar({
         '}',
       ),
     )),
+
+    resource_format: _ => dxgi_types_regex,
+
+    // Exists to enforce required prefix when used as an operand
+    _resource_format: _ => /DXGI_FORMAT_.+/i,
+
+    bind_flag: _ => /D3D11_BIND_.+/i,
 
     shader_semantic: _ => choice(
       hlsl_semantic_regex_d3d9up,
