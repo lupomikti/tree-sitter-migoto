@@ -13,7 +13,7 @@ jobs:
   npm:
     uses: tree-sitter/workflows/.github/workflows/package-npm.yml@main
     with:
-      environment-name: Deployments
+      environment-name: npm
       package-name: "tree-sitter-migoto"
     secrets:
       NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
@@ -26,6 +26,6 @@ jobs:
   pypi:
     uses: tree-sitter/workflows/.github/workflows/package-pypi.yml@main
     with:
-      environment-name: Deployments
+      environment-name: pypi
     secrets:
       PYPI_API_TOKEN: ${{secrets.PYPI_TOKEN}}
