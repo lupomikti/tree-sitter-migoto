@@ -4262,11 +4262,7 @@
               "members": [
                 {
                   "type": "SYMBOL",
-                  "name": "numeric_constant"
-                },
-                {
-                  "type": "SYMBOL",
-                  "name": "_scalar_variable"
+                  "name": "_operational_expression"
                 },
                 {
                   "type": "SYMBOL",
@@ -4288,11 +4284,7 @@
                     "members": [
                       {
                         "type": "SYMBOL",
-                        "name": "numeric_constant"
-                      },
-                      {
-                        "type": "SYMBOL",
-                        "name": "_scalar_variable"
+                        "name": "_operational_expression"
                       },
                       {
                         "type": "SYMBOL",

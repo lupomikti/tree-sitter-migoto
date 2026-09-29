@@ -301,19 +301,35 @@
       "required": true,
       "types": [
         {
-          "type": "named_variable",
+          "type": "buffer_variable",
           "named": true
         },
         {
-          "type": "numeric_constant",
+          "type": "custom_resource",
           "named": true
         },
         {
-          "type": "pooled_variable",
+          "type": "operational_expression",
+          "named": true
+        },
+        {
+          "type": "property_access_expression",
+          "named": true
+        },
+        {
+          "type": "resource_identifier",
+          "named": true
+        },
+        {
+          "type": "resource_pool",
           "named": true
         },
         {
           "type": "shader_semantic",
+          "named": true
+        },
+        {
+          "type": "shader_variable",
           "named": true
         }
       ]

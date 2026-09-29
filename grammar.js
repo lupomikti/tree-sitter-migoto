@@ -1071,6 +1071,8 @@ export default grammar({
 
     builtin_function: $ => prec.left(PREC.SUFFIX, seq(
       alias($.fixed_value, $.function_name),
+      // technically the builtin functions can only take one argument
+      // but we ignore that here for simplicity
       field('arguments', $.arguments),
     )),
 
@@ -1078,13 +1080,15 @@ export default grammar({
       $._resource_operand,
       field('operator', '->'),
       alias($.fixed_value, $.resource_property),
+      // technically xxmi only allows a subset of operands as arguments
+      // but we ignore that here for simplicity
       optional(field('arguments', $.arguments)),
     )),
 
     arguments: $ => seq(
       '(',
       list_seq(
-        choice($.numeric_constant, $._scalar_variable, $.shader_semantic),
+        choice($._operational_expression, $.shader_semantic),
         ',',
         false,
       ),
