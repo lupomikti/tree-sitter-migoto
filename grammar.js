@@ -1409,9 +1409,9 @@ export default grammar({
     resource_format: _ => dxgi_types_regex,
 
     // Exists to enforce required prefix when used as an operand
-    _resource_format: _ => /DXGI_FORMAT_.+/i,
+    _resource_format: _ => /DXGI_FORMAT_\w+/i,
 
-    bind_flag: _ => /D3D11_BIND_.+/i,
+    bind_flag: _ => /D3D11_BIND_\w+/i,
 
     shader_semantic: _ => choice(
       hlsl_semantic_regex_d3d9up,
