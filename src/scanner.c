@@ -913,6 +913,7 @@ static inline bool scan_custom_resource_identifier(TSLexer *lexer) {
         case '^':
         case '(':
         case ')':
+        case ',':
             is_terminal_ahead = true;
             break;
         case '!':
