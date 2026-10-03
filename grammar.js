@@ -754,7 +754,7 @@ export default grammar({
           $._newline,
         ),
         seq(
-          field('name', $._limited_resource_operand),
+          field('name', choice($._limited_resource_operand, $._resource_pool_base)),
           '=',
           field('expression', $.resource_usage_expression),
           $._newline,
@@ -1048,7 +1048,11 @@ export default grammar({
 
     resource_usage_expression: $ => seq(
       repeat($.resource_modifier),
-      $._resource_operand,
+      choice(
+        $._resource_operand,
+        $._resource_pool_base,
+        alias($._resource_property_method_call, $.property_access_expression),
+      ),
       repeat($.resource_modifier),
     ),
 
@@ -1077,12 +1081,22 @@ export default grammar({
     )),
 
     property_access_expression: $ => prec.left(PREC.SUFFIX, seq(
-      $._resource_operand,
+      choice($._resource_operand, $._resource_pool_base),
       field('operator', '->'),
       alias($.fixed_value, $.resource_property),
       // technically xxmi only allows a subset of operands as arguments
       // but we ignore that here for simplicity
       optional(field('arguments', $.arguments)),
+    )),
+
+    // differs from the above in that that arguments are required
+    _resource_property_method_call: $ => prec.left(PREC.SUFFIX, seq(
+      choice($._resource_operand, $._resource_pool_base),
+      field('operator', '->'),
+      alias($.fixed_value, $.resource_property),
+      // technically xxmi only allows a subset of operands as arguments
+      // but we ignore that here for simplicity
+      field('arguments', $.arguments),
     )),
 
     arguments: $ => seq(
