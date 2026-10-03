@@ -388,9 +388,13 @@
         ]
       },
       "name": {
-        "multiple": false,
+        "multiple": true,
         "required": false,
         "types": [
+          {
+            "type": "\\",
+            "named": false
+          },
           {
             "type": "buffer_variable",
             "named": true
@@ -412,6 +416,10 @@
             "named": true
           },
           {
+            "type": "namespace",
+            "named": true
+          },
+          {
             "type": "pooled_variable",
             "named": true
           },
@@ -421,6 +429,14 @@
           },
           {
             "type": "resource_pool",
+            "named": true
+          },
+          {
+            "type": "resource_prefix",
+            "named": true
+          },
+          {
+            "type": "section_identifier",
             "named": true
           },
           {
@@ -2603,6 +2619,10 @@
           "named": true
         },
         {
+          "type": "namespace",
+          "named": true
+        },
+        {
           "type": "resource_identifier",
           "named": true
         },
@@ -2611,7 +2631,15 @@
           "named": true
         },
         {
+          "type": "resource_prefix",
+          "named": true
+        },
+        {
           "type": "resource_property",
+          "named": true
+        },
+        {
+          "type": "section_identifier",
           "named": true
         },
         {
@@ -2858,6 +2886,14 @@
           "named": true
         },
         {
+          "type": "namespace",
+          "named": true
+        },
+        {
+          "type": "property_access_expression",
+          "named": true
+        },
+        {
           "type": "resource_identifier",
           "named": true
         },
@@ -2867,6 +2903,14 @@
         },
         {
           "type": "resource_pool",
+          "named": true
+        },
+        {
+          "type": "resource_prefix",
+          "named": true
+        },
+        {
+          "type": "section_identifier",
           "named": true
         },
         {

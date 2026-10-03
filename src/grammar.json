@@ -2602,8 +2602,17 @@
                   "type": "FIELD",
                   "name": "name",
                   "content": {
-                    "type": "SYMBOL",
-                    "name": "_limited_resource_operand"
+                    "type": "CHOICE",
+                    "members": [
+                      {
+                        "type": "SYMBOL",
+                        "name": "_limited_resource_operand"
+                      },
+                      {
+                        "type": "SYMBOL",
+                        "name": "_resource_pool_base"
+                      }
+                    ]
                   }
                 },
                 {
@@ -4116,8 +4125,26 @@
           }
         },
         {
-          "type": "SYMBOL",
-          "name": "_resource_operand"
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "_resource_operand"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "_resource_pool_base"
+            },
+            {
+              "type": "ALIAS",
+              "content": {
+                "type": "SYMBOL",
+                "name": "_resource_property_method_call"
+              },
+              "named": true,
+              "value": "property_access_expression"
+            }
+          ]
         },
         {
           "type": "REPEAT",
@@ -4208,8 +4235,17 @@
         "type": "SEQ",
         "members": [
           {
-            "type": "SYMBOL",
-            "name": "_resource_operand"
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "_resource_operand"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "_resource_pool_base"
+              }
+            ]
           },
           {
             "type": "FIELD",
@@ -4243,6 +4279,53 @@
                 "type": "BLANK"
               }
             ]
+          }
+        ]
+      }
+    },
+    "_resource_property_method_call": {
+      "type": "PREC_LEFT",
+      "value": 15,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "_resource_operand"
+              },
+              {
+                "type": "SYMBOL",
+                "name": "_resource_pool_base"
+              }
+            ]
+          },
+          {
+            "type": "FIELD",
+            "name": "operator",
+            "content": {
+              "type": "STRING",
+              "value": "->"
+            }
+          },
+          {
+            "type": "ALIAS",
+            "content": {
+              "type": "SYMBOL",
+              "name": "fixed_value"
+            },
+            "named": true,
+            "value": "resource_property"
+          },
+          {
+            "type": "FIELD",
+            "name": "arguments",
+            "content": {
+              "type": "SYMBOL",
+              "name": "arguments"
+            }
           }
         ]
       }
@@ -7091,12 +7174,12 @@
     },
     "_resource_format": {
       "type": "PATTERN",
-      "value": "DXGI_FORMAT_.+",
+      "value": "DXGI_FORMAT_\\w+",
       "flags": "i"
     },
     "bind_flag": {
       "type": "PATTERN",
-      "value": "D3D11_BIND_.+",
+      "value": "D3D11_BIND_\\w+",
       "flags": "i"
     },
     "shader_semantic": {
